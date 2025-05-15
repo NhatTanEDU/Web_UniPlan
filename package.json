@@ -1,0 +1,11 @@
+{
+    "name": "my_uniplan",
+    "private": true,
+    "version": "0.1.0",
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    },
+    "scripts": {
+        "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\""
+    }
+}
