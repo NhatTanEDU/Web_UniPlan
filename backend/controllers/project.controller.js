@@ -1,5 +1,6 @@
 const Project = require("../models/project.model.js");
 const ProjectType = require('../models/projectType.model.js');
+const axios = require('axios');
 
 // Tạo dự án mới
 exports.createProject = async (req, res) => {
@@ -68,6 +69,22 @@ exports.getMyProjects = async (req, res) => {
   } catch (error) {
     console.error('Lỗi lấy danh sách dự án:', error);
     res.status(500).json({ message: "Lỗi khi lấy danh sách dự án", error: error.message });
+  }
+};
+
+// Lấy thông tin chi tiết 1 dự án
+exports.getProjectById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+    const project = await Project.findOne({ _id: id, created_by: userId, is_deleted: false });
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+    res.status(200).json(project);
+  } catch (error) {
+    console.error('Lỗi lấy chi tiết dự án:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy chi tiết dự án', error: error.message });
   }
 };
 
@@ -171,5 +188,17 @@ exports.updateProject = async (req, res) => {
       return res.status(400).json({ message: 'ID dự án không hợp lệ' });
     }
     res.status(500).json({ message: 'Lỗi khi cập nhật dự án', error: error.message });
+  }
+};
+
+// Lấy thông tin chi tiết 1 dự án từ API
+exports.getProjectDetailsFromAPI = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const response = await axios.get(`/projects/${projectId}`);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Lỗi lấy chi tiết dự án từ API:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy chi tiết dự án từ API', error: error.message });
   }
 };

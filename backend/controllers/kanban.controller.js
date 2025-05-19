@@ -92,6 +92,13 @@ exports.getKanban = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy bảng Kanban' });
     }
 
+    // Lấy tên dự án từ project_id
+    const project = await Project.findById(kanban.project_id);
+    let project_name = '';
+    if (project) {
+      project_name = project.project_name;
+    }
+
     // Lấy tất cả tasks của bảng này
     const tasks = await KanbanTask.find({ kanban_id: id })
       .populate('created_by', 'name email')
@@ -101,7 +108,7 @@ exports.getKanban = async (req, res) => {
 
     console.log('Found tasks:', tasks);
 
-    res.json({ kanban, tasks });
+    res.json({ kanban, tasks, project_name });
   } catch (error) {
     console.error('Error getting kanban:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });
@@ -241,4 +248,4 @@ exports.deleteKanban = async (req, res) => {
     console.error('Error deleting kanban:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
-}; 
+};

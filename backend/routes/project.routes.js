@@ -18,4 +18,7 @@ router.delete('/projects/:id', auth, projectController.softDeleteProject);
 // Khôi phục dự án
 router.put('/projects/:id/restore', auth, projectController.restoreProject);
 
+// API: Lấy chi tiết dự án
+router.get('/projects/:id', auth, projectController.getProjectById);
+
 module.exports = router;
