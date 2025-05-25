@@ -19,7 +19,11 @@ exports.registerUser = async(req, res) => {
         // Lưu người dùng vào database
         await user.save();
 
-        res.status(201).json({ message: "User registered successfully" }); // 201 Created
+        // Trả về thông tin user vừa tạo
+        res.status(201).json({ 
+            message: "User registered successfully", 
+            user: { id: user._id, name: user.name, email: user.email }
+        }); // 201 Created
     } catch (err) {
         console.error("Error during registration:", err);
         if (err.name === 'ValidationError') {
