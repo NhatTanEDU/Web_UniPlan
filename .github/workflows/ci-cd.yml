@@ -2,9 +2,9 @@ name: UniPlan CI/CD Pipeline
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ master, develop, frontend, backend ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, frontend, backend ]
 
 jobs:
   frontend-test:
@@ -56,12 +56,13 @@ jobs:
       run: |
         cd backend
         npm ci
-        
+  
     - name: Run backend tests
       run: |
         cd backend
         npm test
-          code-quality:
+
+  code-quality:
     runs-on: ubuntu-latest
     name: Code Quality Check
     
@@ -88,7 +89,7 @@ jobs:
       run: |
         echo "Checking syntax errors in demo files..."
         node -c Document/error-demo.js || echo "❌ Syntax errors found in error-demo.js"
-        
+
   error-demo-test:
     runs-on: ubuntu-latest
     name: Demo Error Testing
@@ -111,7 +112,7 @@ jobs:
         cd Document
         node -c error-demo.js && echo "✅ Syntax check passed" || echo "❌ Syntax errors detected!"
         echo "This demonstrates CI/CD catching errors before deployment"
-        
+
   deploy:
     needs: [frontend-test, backend-test, code-quality]
     runs-on: ubuntu-latest
@@ -127,3 +128,25 @@ jobs:
         echo "Deploying UniPlan to production..."
         echo "Frontend and Backend tests passed!"
         echo "Code quality checks completed!"
+
+  notify:
+    needs: [frontend-test, backend-test, code-quality]
+    runs-on: ubuntu-latest
+    name: Send Notification via Outlook
+
+    steps:
+    - name: Send email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: 'smtp.office365.com'
+        server_port: 587
+        username: ${{ secrets.OUTLOOK_USER }}
+        password: ${{ secrets.OUTLOOK_PASSWORD }}
+        subject: 'CI/CD Workflow Completed'
+        body: |
+          The CI/CD workflow for UniPlan has completed successfully.
+          - Frontend Tests: Passed
+          - Backend Tests: Passed
+          - Code Quality Checks: Passed
+        to: 'recipient@example.com'
+        from: ${{ secrets.OUTLOOK_USER }}

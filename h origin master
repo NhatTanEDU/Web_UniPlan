@@ -1,0 +1,15 @@
+* [33md4df79d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/personal-member-list[m[33m, [m[1;31morigin/feature/personal-member-list[m[33m, [m[1;31morigin/feature/github-tools-demo[m[33m, [m[1;32mfeature/github-tools-demo[m[33m)[m chore: cập nhật trạng thái submodule frontend sau khi đã push các thay đổi mới
+* [33m22ba97b[m 26/05 thêm tính năng dsnv và các test API
+* [33m177fafb[m feat: Thêm/tối ưu tính năng kiểm tra danh sách nhân viên cá nhân (personal members)
+* [33m4956881[m chả có gì
+* [33me732a8c[m Update CI/CD workflow to demonstrate error handling
+* [33m2d368f5[m Add demo files with intentional errors to test CI/CD failure
+* [33mb4b8f5f[m Add comprehensive demo summary - Complete overview of MCP and GitHub Tools integration
+* [33mffce0ee[m Update testing results and mark GitHub tools demo as complete
+* [33md35680c[m Add CI/CD pipeline and testing infrastructure
+* [33m46c56de[m Add github-tools-test.md for MCP and GitHub tools demonstration
+* [33mba025a6[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m Add test-mcp.md for MCP and tools testing
+* [33ma90fae3[m 23/05/2025
+* [33mea1efc6[m update subproject reference to latest commit
+* [33m8952db6[m giao dien Kanban
+* [33m39174d7[m 16/05/2025
