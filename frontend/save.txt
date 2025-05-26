@@ -1,0 +1,49 @@
+src/
+├── components/
+│   ├── After/
+│   │   ├── Sidebar.tsx        # Đã cập nhật để lấy dự án từ API
+│   │   ├── Header.tsx         # Đã có
+│   │   ├── Breadcrumb.tsx     # Đã có
+│   │   └── tab/
+│   │       ├── project.tsx    # Đã cập nhật với logic quản lý dự án
+│   │       ├── documents.tsx  # Giả định
+│   │       ├── teams.tsx      # Giả định
+│   ├── auth/
+│   │   ├── LoginForm.tsx      # Đã có
+│   │   ├── LoginSideInfo.tsx  # Giả định
+│   │   └── AuthError.tsx      # Giả định
+│   ├── widget/
+│   │   ├── introduce.tsx      # Đã có
+│   │   ├── schedule.tsx       # Đã có
+│   │   └── customize.tsx      # Đã có
+│   ├── Footer.tsx             # Giả định, không chỉnh sửa
+│   ├── TopButton.tsx          # Giả định, không chỉnh sửa
+│   └── context/
+│       ├── AuthContext.tsx    # Đã cập nhật với userId từ localStorage
+│       └── NetworkContext.tsx # Đã có
+├── pages/
+│   ├── DashboardAfter.tsx     # Đã có
+│   ├── NotFound.tsx           # Đã có
+│   ├── Admin/
+│   │   ├── UserManagement.tsx # Đã có
+│   │   ├── DashboardAdmin.tsx # Đã có
+│   ├── auth/
+│   │   ├── Login.tsx          # Đã có
+│   │   ├── Register.tsx       # Đã có
+│   │   ├── ResetPassword.tsx  # Đã có
+│   │   └── ForgotPassword.tsx # Đã có
+│   ├── Dashboard_before.tsx   # Đã có
+│   ├── PricingPage.tsx        # Đã có
+│   └── Support.tsx            # Đã có
+├── services/
+│   └── api.ts                 # Đã thêm, xử lý API
+├── types/
+│   └── project.ts             # Đã thêm, định nghĩa kiểu Project
+├── router/
+│   ├── AdminRoutes.tsx        # Đã có
+│   ├── DashboardRoutes.tsx    # Đã có (giữ nguyên ProjectPage)
+│   ├── NotFoundRoutes.tsx     # Đã có (đã hợp nhất)
+│   ├── PublicRoutes.tsx       # Đã có
+│   └── index.tsx              # Đã có
+└── App.tsx                    # Đã có
+https://color.adobe.com/create/color-wheel
