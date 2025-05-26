@@ -1,4 +1,5 @@
 const axios = require('axios');
+const readline = require('readline');
 
 const BASE_URL = 'http://localhost:5000/api';
 let authToken = '';
@@ -338,6 +339,26 @@ function displaySummaryReport() {
     } else {
         console.log('   ❌ Không thể lấy danh sách cuối cùng');
     }
+
+    // Báo cáo cập nhật vai trò
+    if (testResults.updateRole) {
+        console.log('\n6️⃣ SỬA VAI TRÒ THÀNH VIÊN:');
+        const r = testResults.updateRole;
+        const status = r.success ? '✅' : '❌';
+        console.log(`   ${status} MemberId: ${r.memberId} | Old: ${r.oldRole} -> New: ${r.newRole} | ${r.message}`);
+    }
+    // Báo cáo xóa thành viên
+    if (testResults.deleteMember) {
+        console.log('\n7️⃣ XÓA THÀNH VIÊN:');
+        const r = testResults.deleteMember;
+        const status = r.success ? '✅' : '❌';
+        console.log(`   ${status} MemberId: ${r.memberId} | ${r.name} | ${r.message}`);
+    }
+    // Báo cáo danh sách sau khi xóa
+    if (testResults.finalListAfterDelete) {
+        const total = testResults.finalListAfterDelete.total || 0;
+        console.log(`\n8️⃣ DANH SÁCH SAU KHI XÓA: Còn lại ${total} thành viên.`);
+    }
     
     // Tổng kết chung
     console.log('\n🏆 TỔNG KẾT CHUNG:');
@@ -375,6 +396,15 @@ async function runFullScenario() {
         // Bước 4: Kiểm tra kết quả cuối cùng
         await checkFinalList();
 
+        // Bước 6: Sửa vai trò thành viên random
+        await updateRandomMemberRole();
+
+        // Bước 7: Xóa random thành viên
+        await deleteRandomMember();
+
+        // Bước 8: Kiểm tra lại danh sách sau khi xóa
+        await checkListAfterDelete();
+
         // Bước 5: Báo cáo tổng kết
         displaySummaryReport();
 
@@ -387,14 +417,229 @@ async function runFullScenario() {
     }
 }
 
-// Chạy kịch bản
-if (require.main === module) {
-    runFullScenario().catch(console.error);
+// Menu CLI cho phép chọn từng tính năng
+async function menu() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    function ask(question) {
+        return new Promise(resolve => rl.question(question, resolve));
+    }
+    let running = true;
+    let registrationOK = false;
+    let loginOK = false;
+    while (running) {
+        console.log('\n================ MENU ================');
+        console.log('1. Đăng ký & Đăng nhập');
+        console.log('2. Sửa vai trò thành viên');
+        console.log('3. Xóa thành viên');
+        console.log('4. Xuất báo cáo tổng kết');
+        console.log('5. Thoát');
+        console.log('6. Xóa toàn bộ thành viên (nguy hiểm, cần xác nhận)');
+        const choice = await ask('Chọn chức năng (1-6): ');
+        switch (choice.trim()) {
+            case '1':
+                // Đăng ký & Đăng nhập & Thêm users
+                registrationOK = await registerAllAccounts();
+                if (!registrationOK) {
+                    console.log('❌ Không đủ tài khoản để tiếp tục test');
+                    break;
+                }
+                loginOK = await loginAdmin();
+                if (!loginOK) {
+                    console.log('❌ Không thể login Admin1, dừng test');
+                    break;
+                }
+                await searchAndAddUsers();
+                await checkFinalList();
+                console.log('✅ Đã hoàn thành Đăng ký, Đăng nhập, Thêm users và kiểm tra danh sách!');
+                break;
+            case '2':
+                await updateRandomMemberRole();
+                await checkFinalList();
+                console.log('✅ Đã sửa vai trò thành viên và kiểm tra lại danh sách!');
+                break;
+            case '3':
+                await deleteRandomMember();
+                await checkListAfterDelete();
+                console.log('✅ Đã xóa thành viên và kiểm tra lại danh sách!');
+                break;
+            case '4':
+                displaySummaryReport();
+                break;
+            case '5':
+                running = false;
+                break;
+            case '6':
+                await deleteAllMembersWithConfirm(rl);
+                break;
+            default:
+                console.log('Vui lòng chọn số từ 1 đến 6!');
+        }
+    }
+    rl.close();
 }
 
+// Chạy kịch bản
+if (require.main === module) {
+    menu().catch(console.error);
+}
+
+// Đảm bảo export các hàm mới nếu cần dùng bên ngoài
 module.exports = {
     runFullScenario,
     ADMIN_ACCOUNT,
     generateRandomUser,
-    testResults
+    testResults,
+    updateRandomMemberRole,
+    deleteRandomMember,
+    checkListAfterDelete
 };
+
+// Bước 6: Sửa vai trò thành viên random
+async function updateRandomMemberRole() {
+    console.log('\n✏️ BƯỚC 6: SỬA VAI TRÒ THÀNH VIÊN RANDOM');
+    console.log('========================================');
+    if (!testResults.finalList || !Array.isArray(testResults.finalList.data) || testResults.finalList.data.length === 0) {
+        console.log('❌ Không có thành viên nào để sửa vai trò!');
+        testResults.updateRole = { success: false, message: 'Không có thành viên để sửa' };
+        return false;
+    }
+    const members = testResults.finalList.data;
+    const randomIndex = Math.floor(Math.random() * members.length);
+    const member = members[randomIndex];
+    const newRole = `Updated Role ${Math.floor(Math.random() * 1000)}`;
+    try {
+        const response = await axios.request(
+            createConfig('put', `${BASE_URL}/personal-members/${member._id}`,
+                { custom_role: newRole })
+        );
+        testResults.updateRole = {
+            success: true,
+            memberId: member._id,
+            oldRole: member.custom_role,
+            newRole,
+            message: 'Cập nhật vai trò thành công'
+        };
+        console.log(`✅ Đã cập nhật vai trò thành viên: ${member.member_user_id.name} -> ${newRole}`);
+        return true;
+    } catch (error) {
+        const message = error.response?.data?.message || error.message;
+        testResults.updateRole = {
+            success: false,
+            memberId: member._id,
+            oldRole: member.custom_role,
+            newRole,
+            message: `Lỗi cập nhật vai trò: ${message}`
+        };
+        console.log('❌ Lỗi cập nhật vai trò:', message);
+        return false;
+    }
+}
+
+// Bước 7: Xóa random thành viên (hard delete, luôn làm mới danh sách trước khi xóa)
+async function deleteRandomMember() {
+    console.log('\n🗑️ BƯỚC 7: XÓA RANDOM THÀNH VIÊN (HARD DELETE)');
+    console.log('=================================');
+    // Làm mới danh sách trước khi xóa
+    const refreshed = await checkFinalList();
+    if (!refreshed || !testResults.finalList || !Array.isArray(testResults.finalList.data) || testResults.finalList.data.length === 0) {
+        if (!authToken) {
+            console.log('❌ Không có token truy cập. Vui lòng đăng nhập lại (chọn menu 1)!');
+        } else {
+            console.log('❌ Không có thành viên nào để xóa!');
+        }
+        testResults.deleteMember = { success: false, message: 'Không có thành viên để xóa hoặc chưa đăng nhập' };
+        return false;
+    }
+    const members = testResults.finalList.data;
+    const randomIndex = Math.floor(Math.random() * members.length);
+    const member = members[randomIndex];
+    try {
+        await axios.request(
+            createConfig('delete', `${BASE_URL}/personal-members/${member._id}/permanent`)
+        );
+        testResults.deleteMember = {
+            success: true,
+            memberId: member._id,
+            name: member.member_user_id.name,
+            message: 'Xóa thành viên (hard delete) thành công'
+        };
+        console.log(`✅ Đã xóa thành viên (hard delete): ${member.member_user_id.name}`);
+        return true;
+    } catch (error) {
+        const message = error.response?.data?.message || error.message;
+        testResults.deleteMember = {
+            success: false,
+            memberId: member._id,
+            name: member.member_user_id.name,
+            message: `Lỗi xóa thành viên: ${message}`
+        };
+        if (message.toLowerCase().includes('token')) {
+            console.log('❌ Lỗi xóa thành viên: Không có token truy cập. Vui lòng đăng nhập lại (chọn menu 1)!');
+        } else {
+            console.log('❌ Lỗi xóa thành viên:', message);
+        }
+        return false;
+    }
+}
+
+// Bước 8: Kiểm tra lại danh sách sau khi xóa
+async function checkListAfterDelete() {
+    console.log('\n🔄 BƯỚC 8: KIỂM TRA LẠI DANH SÁCH SAU KHI XÓA');
+    console.log('==============================================');
+    try {
+        const response = await axios.request(
+            createConfig('get', `${BASE_URL}/personal-members`)
+        );
+        testResults.finalListAfterDelete = response.data;
+        const members = response.data.data || [];
+        console.log(`✅ Danh sách sau khi xóa còn ${members.length} thành viên:`);
+        members.forEach((member, index) => {
+            console.log(`${index + 1}. ${member.member_user_id.name} (${member.member_user_id.email})`);
+        });
+        return true;
+    } catch (error) {
+        console.log('❌ Lỗi kiểm tra lại danh sách:', error.response?.data?.message || error.message);
+        return false;
+    }
+}
+
+// Xóa toàn bộ thành viên (hard delete, có xác nhận, dùng rl từ menu)
+async function deleteAllMembersWithConfirm(rl) {
+    function ask(question) {
+        return new Promise(resolve => rl.question(question, resolve));
+    }
+    await checkFinalList();
+    if (!testResults.finalList || !Array.isArray(testResults.finalList.data) || testResults.finalList.data.length === 0) {
+        console.log('❌ Không có thành viên nào để xóa!');
+        return;
+    }
+    console.log(`\n⚠️  Bạn sắp xóa toàn bộ ${testResults.finalList.data.length} thành viên khỏi danh sách!`);
+    console.log('Nhấn 1 để xác nhận xóa toàn bộ, nhấn 0 để hủy và quay lại menu.');
+    const confirm = await ask('Lựa chọn của bạn (1: Xóa hết, 0: Thoát): ');
+    if (confirm.trim() !== '1') {
+        console.log('⏪ Đã hủy thao tác xóa toàn bộ. Quay lại menu chính.');
+        return;
+    }
+    let errorCount = 0;
+    for (const member of testResults.finalList.data) {
+        try {
+            await axios.request(
+                createConfig('delete', `${BASE_URL}/personal-members/${member._id}/permanent`)
+            );
+            console.log(`✅ Đã xóa: ${member.member_user_id.name} (${member.member_user_id.email})`);
+        } catch (error) {
+            errorCount++;
+            const message = error.response?.data?.message || error.message;
+            console.log(`❌ Lỗi xóa ${member.member_user_id.name}: ${message}`);
+        }
+    }
+    await checkFinalList();
+    if (errorCount === 0) {
+        console.log('🎉 Đã xóa toàn bộ thành viên thành công!');
+    } else {
+        console.log(`⚠️  Có ${errorCount} lỗi khi xóa thành viên.`);
+    }
+}
