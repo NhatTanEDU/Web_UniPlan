@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const PersonalMemberList = require('./models/personalMemberList.model');
-const User = require('./models/user.model');
+const PersonalMemberList = require('../models/personalMemberList.model');
+const User = require('../models/user.model');
 
 async function testMongoDB() {
     try {        // Connect to MongoDB

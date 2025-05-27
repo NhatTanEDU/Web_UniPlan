@@ -4,7 +4,8 @@ const User = require('../models/user.model');
 const mongoose = require('mongoose');
 
 // Lấy danh sách thành viên cá nhân của user hiện tại
-exports.getPersonalMembers = async (req, res) => {    try {
+exports.getPersonalMembers = async (req, res) => {
+    try {
         const ownerId = req.user.id; // Từ middleware auth
         console.log('🔍 DEBUG getPersonalMembers - ownerId:', ownerId);
         

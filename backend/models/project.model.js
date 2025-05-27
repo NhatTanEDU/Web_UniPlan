@@ -45,6 +45,11 @@ const projectSchema = new mongoose.Schema({
     deleted_at: {
         type: Date,
         default: null
+    },
+    team_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team',
+        default: null // Dự án có thể không thuộc nhóm nào
     }
 }, {
     timestamps: true
@@ -52,4 +57,12 @@ const projectSchema = new mongoose.Schema({
 
 const Project = mongoose.model('Project', projectSchema);
 
-module.exports = Project; 
+// Virtual để populate team info
+projectSchema.virtual('team', {
+    ref: 'Team',
+    localField: 'team_id',
+    foreignField: '_id',
+    justOne: true
+});
+
+module.exports = Project;

@@ -12,6 +12,7 @@ const projectTypeRoutes = require('./routes/projectType.routes');
 const kanbanRoutes = require('./routes/kanban.routes');
 const kanbanTaskRoutes = require('./routes/kanbanTask.routes');
 const personalMemberListRoutes = require('./routes/personalMemberList.routes');
+const teamRoutes = require('./routes/team.routes');
 
 // Load biến môi trường từ .env
 dotenv.config();
@@ -50,5 +51,6 @@ app.use('/api', projectTypeRoutes);
 app.use('/api/kanban', kanbanRoutes);
 app.use('/api/kanban-tasks', kanbanTaskRoutes);
 app.use('/api/personal-members', personalMemberListRoutes);
-
+app.use('/api/teams', teamRoutes);
+app.use('/api/users', require('./routes/user.routes')); // Route cho users
 module.exports = app;

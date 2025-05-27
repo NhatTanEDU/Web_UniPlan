@@ -20,9 +20,9 @@ const verifyToken = (req, res, next) => {
     }
 
     req.user = {
-      id: decoded.id, // Sử dụng id thay vì userId
-      userId: decoded.id, // Giữ lại userId để backward compatibility
-      email: decoded.email || null, // Thêm email vào req.user
+      id: decoded.id, // Đảm bảo có trường 'id'
+      userId: decoded.id, // Một số controller dùng 'userId'
+      email: decoded.email || null,
     };
     next();
   } catch (err) {

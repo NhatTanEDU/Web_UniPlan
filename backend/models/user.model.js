@@ -3,30 +3,28 @@ const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-    name: { 
+    full_name: { 
         type: String, 
-        required: true, 
+        required: [true, 'Tên đầy đủ là bắt buộc'], 
         trim: true 
     },
     email: {
         type: String,
-        required: true,
+        required: [true, 'Email là bắt buộc'],
         unique: true,
         trim: true,
         lowercase: true,
-        match: /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/ // Basic email validation
+        match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Email không hợp lệ']
     },
     password: { 
         type: String, 
-        required: true, 
-        minlength: 6 
+        required: [true, 'Mật khẩu là bắt buộc'], 
+        minlength: [6, 'Mật khẩu phải có ít nhất 6 ký tự'] 
     },
-    
-    // === CÁC TRƯỜNG MỚI THÊM VÀO ===
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ['User', 'Admin'],
+        default: 'User'
     },
     current_plan_type: {
         type: String,
@@ -40,16 +38,17 @@ const userSchema = new mongoose.Schema({
     },
     avatar_url: {
         type: String,
-        default: null // hoặc có thể bỏ "default" nếu không muốn giá trị mặc định
+        default: null
     },
     isActive: {
         type: Boolean,
         default: true
     }
-    
-}, { timestamps: true }); // timestamps tự động tạo created_at và updated_at
+}, { 
+    timestamps: true 
+});
 
-// Hash the password before saving
+// Hash password trước khi lưu
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
     try {
@@ -61,7 +60,7 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-// Method kiểm tra password
+// Method để so sánh password
 userSchema.methods.comparePassword = async function(password) {
     return bcrypt.compare(password, this.password);
 };
