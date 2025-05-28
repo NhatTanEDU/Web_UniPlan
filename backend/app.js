@@ -13,6 +13,8 @@ const kanbanRoutes = require('./routes/kanban.routes');
 const kanbanTaskRoutes = require('./routes/kanbanTask.routes');
 const personalMemberListRoutes = require('./routes/personalMemberList.routes');
 const teamRoutes = require('./routes/team.routes');
+const teamEnhancedRoutes = require('./routes/teamEnhanced.routes');
+const { generalRateLimit } = require('./middleware/rateLimiting');
 
 // Load biến môi trường từ .env
 dotenv.config();
@@ -31,6 +33,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan("dev"));
+
+// Apply general rate limiting to all requests
+app.use(generalRateLimit);
 
 // Middleware để truyền server (io) vào request (được set từ server.js)
 // Đặt trước các route để tất cả route đều truy cập được req.server
@@ -52,5 +57,7 @@ app.use('/api/kanban', kanbanRoutes);
 app.use('/api/kanban-tasks', kanbanTaskRoutes);
 app.use('/api/personal-members', personalMemberListRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/teams-enhanced', teamEnhancedRoutes); // Enhanced team functionality
 app.use('/api/users', require('./routes/user.routes')); // Route cho users
+
 module.exports = app;

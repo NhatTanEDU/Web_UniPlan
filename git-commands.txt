@@ -1,0 +1,52 @@
+# Git Commands Cheat Sheet
+
+## 1. Đẩy thay đổi lên remote (push completed work)
+# Thêm tất cả thay đổi, commit và push lên branch hiện tại
+```
+# Thêm file mới hoặc đã sửa
+git add .
+
+# Commit với thông điệp mô tả ngắn gọn
+git commit -m "Mô tả công việc đã hoàn thành"
+
+# Đẩy lên remote (origin) và branch hiện tại
+git push origin $(git rev-parse --abbrev-ref HEAD)
+```
+
+## 2. Rollback file khi có lỗi
+# Khôi phục file về trạng thái commit gần nhất
+```
+# Với Git >= 2.23
+git restore <file-path>
+
+# Hoặc với các phiên bản cũ
+git checkout HEAD -- <file-path>
+```
+
+## 3. Quản lý nhánh (branch)
+# Tạo và chuyển sang branch mới
+```
+git checkout -b <new-branch>
+```
+
+# Chuyển sang branch đã có
+```
+git checkout <branch-name>
+```
+
+# Gộp branch vào nhánh hiện tại (ví dụ master)
+```
+git checkout master
+git pull origin master   # đồng bộ master
+
+git merge <branch-name>
+```
+
+# Đẩy branch lên remote hoặc gộp thẳng vào master trên remote
+```
+# Đẩy branch lên origin
+git push origin <branch-name>
+
+# Push và update master từ branch local
+git push origin <branch-name>:master
+```

@@ -1,0 +1,66 @@
+# Danh sách API đã sử dụng trong module Teams (UniPlan)
+
+## 1. Đăng nhập/Đăng ký
+- POST /api/auth/login
+- POST /api/auth/register
+
+## 2. User
+- GET /api/users
+- GET /api/users/:id
+- GET /api/users?page=1&limit=50
+
+## 3. Personal Members
+- GET /api/personal-members
+- GET /api/personal-members/search
+- POST /api/personal-members
+- PUT /api/personal-members/:id
+- DELETE /api/personal-members/:id
+
+## 4. Teams
+- GET /api/teams
+- GET /api/teams/:id
+- POST /api/teams
+- PUT /api/teams/:id
+- DELETE /api/teams/:id
+- POST /api/teams/bulk (nếu có)
+
+## 5. Team Members
+- GET /api/teams/:id/members
+- POST /api/teams/:id/members
+- DELETE /api/teams/:id/members/:memberId
+
+## 6. Team Stats
+- GET /api/teams/:id/stats
+
+## 7. Recommendations & Feedback
+- GET /api/teams-enhanced/recommendations
+- POST /api/teams-enhanced/recommendations/:id/feedback
+
+## 8. Notifications
+- GET /api/notifications
+
+## 9. Projects
+- GET /api/projects
+- GET /api/projects/:id
+- POST /api/projects
+- PUT /api/projects/:id
+- DELETE /api/projects/:id
+- POST /api/projects/assign (gán project cho team)
+
+## 10. Admin
+- GET /api/admin
+
+---
+
+# Lưu ý & Hướng phát triển tương lai
+
+- **Phân quyền nâng cao:** Nên bổ sung API phân quyền chi tiết cho từng vai trò (leader, admin, member, guest, v.v.).
+- **Duyệt thành viên:** Nếu muốn có quy trình duyệt/phê duyệt thành viên join team (pending/invite/approve/reject), cần bổ sung API tương ứng.
+- **Real-time notification:** Nếu muốn thông báo real-time, cần bổ sung WebSocket hoặc push notification.
+- **Upload file/avatar:** Nếu muốn upload ảnh đại diện team, cần bổ sung API upload file/avatar.
+- **Import/Export:** Nếu muốn import/export dữ liệu team/member/project, cần bổ sung API tương ứng.
+- **Tích hợp bên thứ 3:** Nếu muốn tích hợp với hệ thống ngoài (chat, lịch, email...), cần bổ sung API tích hợp.
+
+---
+
+**File này giúp bạn kiểm soát các API đã dùng và định hướng phát triển mở rộng trong tương lai.**

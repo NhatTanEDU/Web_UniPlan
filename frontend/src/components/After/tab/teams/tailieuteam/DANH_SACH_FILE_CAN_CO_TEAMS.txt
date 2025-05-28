@@ -1,0 +1,34 @@
+================================================================================
+                DANH SÁCH FILE CẦN CÓ TRONG THƯ MỤC TEAMS (FRONTEND)
+================================================================================
+
+| STT | Tên file/component                | Đã có file? | Đã có giao diện? | Đã có API? | Đường dẫn API (gợi ý)                                  | Method      | Ghi chú thêm                                  |
+|-----|-----------------------------------|:-----------:|:---------------:|:----------:|--------------------------------------------------------|-------------|-----------------------------------------------|
+| 1   | teams.tsx                         | ✅           | ✅               | -          | -                                                      | -           | Trang chính, đã có                            |
+| 2   | TeamsManagement.tsx               | ✅           | ✅               | -          | -                                                      | -           | Component quản lý chính                        |
+| 3   | TeamCard.tsx                      | ✅           | ✅               | ✅         | /api/teams, /api/teams/:id                             | GET         | Hiển thị thông tin nhóm                        |
+| 4   | TeamStats.tsx                     | ✅           | ✅               | ✅         | /api/teams/statistics, /api/teams/:id/statistics       | GET         | Thống kê tổng quan nhóm                        |
+| 5   | CreateTeamModal.tsx               | ✅           | ✅               | ✅         | /api/teams                                             | POST        | Tạo nhóm mới                                   |
+| 6   | TeamDetailsModal.tsx              | ✅           | ✅               | ✅         | /api/teams/:id, /api/teams/:id/members                 | GET, PUT    | Xem/sửa thông tin nhóm, thành viên             |
+| 7   | BulkOperationsModal.tsx           | ✅           | ⬜               | ✅         | /api/teams/bulk, /api/teams/:teamId/members/bulk       | POST, DELETE| Thao tác hàng loạt (xóa, thêm thành viên, ...) |
+| 8   | TeamSearchFilters.tsx             | ✅           | ✅               | ✅         | /api/teams/search                                      | GET         | Bộ lọc tìm kiếm nâng cao                       |
+| 9   | TeamActivityLog.tsx               | ⬜           | ⬜               | ⬜         | /api/teams/:id/activity                                | GET         | Nhật ký hoạt động nhóm (nếu tách riêng)        |
+| 10  | TeamHealthCheck.tsx              | ⬜           | ⬜               | ⬜         | /api/teams/:id/healthcheck                            | GET         | Kiểm tra sức khỏe nhóm (nếu có)                |
+| 11  | TeamRecommendations.tsx          | ⬜           | ⬜               | ⬜         | /api/teams/:id/recommendations                        | GET         | Gợi ý nhóm (nếu có)                            |
+| 12  | TeamSettings.tsx                 | ⬜           | ⬜               | ⬜         | /api/teams/:id/settings                               | GET, PUT    | Cài đặt nhóm (nếu có)                          |
+| 13  | NotificationCenter.tsx           | ⬜           | ⬜               | ⬜         | /api/notifications                                     | GET         | Trung tâm thông báo (nếu có)                  |
+| 14  | TeamsManagementEnhanced.tsx      | ⬜           | ⬜               | ⬜         | -                                                      | -           | Bản mở rộng quản lý nhóm (nếu có)              |
+| 15  | TeamActivityFeed.tsx             | ⬜           | ⬜               | ⬜         | -                                                      | -           | Feed hoạt động nhóm (nếu tách riêng)          |
+| 16  | tailieuteam/                     | -           | -                 | -          | -                                                      | -           | Thư mục tài liệu, sơ đồ, hướng dẫn...        |
+
+// Thư mục types (nên đặt trong teams hoặc src/types nếu muốn tách biệt type)
+17. types/
+    ├── team.types.ts           // Định nghĩa kiểu dữ liệu Team
+    └── api.types.ts            // Định nghĩa kiểu dữ liệu API
+
+================================================================================
+Ghi chú:
+- Nếu đã có NotificationCenter.tsx, TeamsManagementEnhanced.tsx, TeamActivityFeed.tsx thì không cần tạo lại TeamActivityLog.tsx (chỉ khác tên).
+- Nên tạo thư mục types để quản lý type riêng biệt, giúp code dễ bảo trì.
+- Nếu phát triển thêm chức năng mới, hãy bổ sung file/component tương ứng vào danh sách này.
+================================================================================
