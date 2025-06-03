@@ -31,6 +31,11 @@
   "scripts": {
     "migrate": "node migrations/migrateUsers.js",
     "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:safe": "node safe-start.js",
+    "start:production": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:safe": "node test-safe-mode.js",
+    "test:simple": "node test_simple_search.js",
+    "test:teams": "node test/test_teams.js"
   }
 }

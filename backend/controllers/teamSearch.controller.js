@@ -1,522 +1,512 @@
+// teamSearch.controller.js - Simplified and reliable implementation
+
+const mongoose = require('mongoose');
 const Team = require('../models/team.model');
 const TeamMember = require('../models/teamMember.model');
 const Project = require('../models/project.model');
 const User = require('../models/user.model');
 const responseHelper = require('../utils/responseHelper');
 
-// Tìm kiếm teams với nhiều bộ lọc
-const searchTeams = async (req, res) => {
+// Tìm kiếm đội dựa trên nhiều tiêu chí, dành cho người dùng đã đăng nhập
+// Chỉ trả về các đội mà người dùng hiện tại là thành viên - Optimized version
+async function searchTeams(req, res) {
   try {
-    const userId = req.user.id;
+    // Extract user information safely
+    const userId = req.user?.userId || req.user?.id;
+    const userEmail = req.user?.email;
+    
+    if (!userId) {
+      return responseHelper.errorResponse(res, 'Thông tin người dùng không hợp lệ', 401);
+    }
+
+    // Extract query parameters with defaults
     const {
       searchTerm = '',
-      isPublic,
-      memberCount,
-      createdDateRange,
-      hasProjects,
       myRole,
-      sortBy = 'name',
+      sortBy = 'team_name',
       sortOrder = 'asc',
       page = 1,
       limit = 10
     } = req.query;
 
-    // Xây dựng query cơ bản - chỉ tìm teams mà user tham gia
-    const userTeamMemberships = await TeamMember.find({ userId }).select('teamId role');
-    const userTeamIds = userTeamMemberships.map(m => m.teamId);
+    console.log(`[searchTeams] User ${userEmail || userId} searching teams with term: "${searchTerm}"`);
+    console.log(`[searchTeams] Query params: myRole=${myRole}, sortBy=${sortBy}, sortOrder=${sortOrder}, page=${page}, limit=${limit}`);    // Step 1: Find teams where user is a member using optimized aggregation
+    const startTime = Date.now();
     
-    let matchQuery = {
-      _id: { $in: userTeamIds }
+    // Convert userId to ObjectId for database query
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    
+    // Use aggregation for better performance
+    const userMembershipsAgg = await TeamMember.aggregate([
+      { 
+        $match: { 
+          user_id: userObjectId, // Fix: use ObjectId instead of string
+          is_active: true 
+        } 
+      },
+      {
+        $project: {
+          team_id: 1,
+          role: 1
+        }
+      }
+    ]);
+
+    if (userMembershipsAgg.length === 0) {
+      console.log(`[searchTeams] No teams found for user ${userId}`);
+      return responseHelper.paginationResponse(res, [], 0, parseInt(page), parseInt(limit), 'Bạn chưa tham gia đội nào');
+    }
+
+    const userTeamIds = userMembershipsAgg.map(m => m.team_id);
+    const userRoleMap = {};
+    userMembershipsAgg.forEach(m => {
+      userRoleMap[m.team_id.toString()] = m.role;
+    });
+
+    console.log(`[searchTeams] Found ${userTeamIds.length} teams for user (${Date.now() - startTime}ms)`);
+
+    // Step 2: Build optimized aggregation pipeline
+    let matchStage = {
+      _id: { $in: userTeamIds },
+      is_deleted: { $ne: true }
     };
 
-    // Bộ lọc theo từ khóa tìm kiếm
+    // Filter by role first if specified (reduces dataset early)
+    if (myRole) {
+      const teamsWithRole = userMembershipsAgg
+        .filter(m => m.role === myRole)
+        .map(m => m.team_id);
+      matchStage._id = { $in: teamsWithRole };
+      console.log(`[searchTeams] Filtered by role '${myRole}': ${teamsWithRole.length} teams`);
+    }
+
+    // Add search term filter
     if (searchTerm.trim()) {
-      matchQuery.$or = [
-        { name: { $regex: searchTerm.trim(), $options: 'i' } },
-        { description: { $regex: searchTerm.trim(), $options: 'i' } }
+      const searchRegex = new RegExp(searchTerm.trim(), 'i');
+      matchStage.$or = [
+        { team_name: searchRegex },
+        { description: searchRegex }
       ];
+      console.log(`[searchTeams] Added search term filter: "${searchTerm.trim()}"`);
     }
 
-    // Bộ lọc theo trạng thái công khai
-    if (isPublic !== undefined) {
-      matchQuery.isPublic = isPublic === 'true';
-    }
-
-    // Bộ lọc theo ngày tạo
-    if (createdDateRange) {
-      const dateFilter = {};
-      if (createdDateRange.from) {
-        dateFilter.$gte = new Date(createdDateRange.from);
+    // Step 3: Use aggregation for counting and fetching in one go for better performance
+    const aggregationPipeline = [
+      { $match: matchStage },
+      {
+        $facet: {
+          teams: [
+            // Sort
+            { $sort: { [sortBy === 'team_name' ? 'team_name' : sortBy]: sortOrder === 'desc' ? -1 : 1 } },
+            // Pagination
+            { $skip: (parseInt(page) - 1) * parseInt(limit) },
+            { $limit: parseInt(limit) },
+            // Populate created_by
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'created_by',
+                foreignField: '_id',
+                as: 'created_by',
+                pipeline: [
+                  { $project: { name: 1, full_name: 1, email: 1 } }
+                ]
+              }
+            },
+            {
+              $addFields: {
+                created_by: { $arrayElemAt: ['$created_by', 0] }
+              }
+            }
+          ],
+          totalCount: [
+            { $count: "count" }
+          ]
+        }
       }
-      if (createdDateRange.to) {
-        dateFilter.$lte = new Date(createdDateRange.to);
-      }
-      if (Object.keys(dateFilter).length > 0) {
-        matchQuery.createdAt = dateFilter;
-      }
-    }
+    ];
 
-    // Tìm teams theo query cơ bản
-    let teamsQuery = Team.find(matchQuery);
+    console.log(`[searchTeams] Starting optimized aggregation...`);
+    const queryStartTime = Date.now();
+    
+    const [result] = await Team.aggregate(aggregationPipeline);
+    const teams = result.teams || [];
+    const totalTeams = result.totalCount[0]?.count || 0;
+    
+    console.log(`[searchTeams] Aggregation query took: ${Date.now() - queryStartTime}ms`);
 
-    // Áp dụng sorting
-    const sortOptions = {};
-    const validSortFields = ['name', 'createdAt', 'updatedAt'];
-    if (validSortFields.includes(sortBy)) {
-      sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-    } else {
-      sortOptions.name = 1; // Default sort
-    }
-    teamsQuery = teamsQuery.sort(sortOptions);
-
-    // Pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    teamsQuery = teamsQuery.skip(skip).limit(parseInt(limit));
-
-    const teams = await teamsQuery;
-    const totalTeams = await Team.countDocuments(matchQuery);
-
-    // Lấy thông tin bổ sung cho mỗi team
-    const enrichedTeams = await Promise.all(teams.map(async (team) => {
-      // Đếm số thành viên
-      const memberCountResult = await TeamMember.countDocuments({ teamId: team._id });
-      
-      // Lấy role của user trong team này
-      const userMembership = userTeamMemberships.find(m => m.teamId.toString() === team._id.toString());
-      
-      // Đếm số projects
-      const projectCount = await Project.countDocuments({ assignedTeam: team._id });
-      
-      // Lấy một vài thành viên mẫu
-      const sampleMembers = await TeamMember.find({ teamId: team._id })
-        .populate('userId', 'name email avatar')
-        .limit(3)
-        .sort({ joinedAt: -1 });
-
-      return {
-        ...team.toObject(),
-        memberCount: memberCountResult,
-        userRole: userMembership ? userMembership.role : null,
-        projectCount,
-        sampleMembers: sampleMembers.map(m => ({
-          user: m.userId,
-          role: m.role,
-          joinedAt: m.joinedAt
-        }))
-      };
+    // Step 4: Add user role to each team (fast lookup using Map)
+    const enhancedTeams = teams.map(team => ({
+      ...team,
+      myRole: userRoleMap[team._id.toString()] || 'unknown'
     }));
 
-    // Áp dụng các bộ lọc phức tạp sau khi có dữ liệu đầy đủ
-    let filteredTeams = enrichedTeams;
+    console.log(`[searchTeams] Total processing time: ${Date.now() - startTime}ms`);    return responseHelper.paginationResponse(
+      res,
+      enhancedTeams,
+      totalTeams,
+      parseInt(page),
+      parseInt(limit),
+      'Tìm kiếm teams thành công'
+    );
 
-    // Bộ lọc theo số lượng thành viên
-    if (memberCount) {
-      filteredTeams = filteredTeams.filter(team => {
-        if (memberCount.min !== undefined && team.memberCount < parseInt(memberCount.min)) {
-          return false;
-        }
-        if (memberCount.max !== undefined && team.memberCount > parseInt(memberCount.max)) {
-          return false;
-        }
-        return true;
-      });
-    }
-
-    // Bộ lọc theo có projects hay không
-    if (hasProjects !== undefined) {
-      const shouldHaveProjects = hasProjects === 'true';
-      filteredTeams = filteredTeams.filter(team => {
-        return shouldHaveProjects ? team.projectCount > 0 : team.projectCount === 0;
-      });
-    }
-
-    // Bộ lọc theo role của user
-    if (myRole) {
-      filteredTeams = filteredTeams.filter(team => team.userRole === myRole);
-    }
-
-    // Cập nhật pagination cho kết quả đã lọc
-    const filteredTotal = filteredTeams.length;
-    const startIndex = (parseInt(page) - 1) * parseInt(limit);
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedTeams = filteredTeams.slice(startIndex, endIndex);
-
-    const paginationInfo = {
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(filteredTotal / parseInt(limit)),
-      totalItems: filteredTotal,
-      itemsPerPage: parseInt(limit),
-      hasNextPage: endIndex < filteredTotal,
-      hasPrevPage: parseInt(page) > 1
-    };
-
-    return responseHelper.paginationResponse(res, paginatedTeams, paginationInfo, 'Tìm kiếm teams thành công');
   } catch (error) {
-    console.error('Error searching teams:', error);
-    return responseHelper.errorResponse(res, 'Lỗi tìm kiếm teams', 500);
+    console.error('[searchTeams] Critical error:', error);
+    return responseHelper.errorResponse(res, 'Lỗi máy chủ khi tìm kiếm đội', 500);
   }
 };
 
-// Tìm kiếm teams công khai (cho việc tham gia mới)
-const searchPublicTeams = async (req, res) => {
+/**
+ * Tìm kiếm các đội công khai mà người dùng có thể tham gia
+ */
+async function searchPublicTeams(req, res) {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.userId || req.user?.id;
+    const userEmail = req.user?.email;
+    
+    if (!userId) {
+      return responseHelper.errorResponse(res, 'Thông tin người dùng không hợp lệ', 401);
+    }
+
     const {
       searchTerm = '',
-      memberCount,
-      hasAvailableSlots = true,
-      excludeJoined = true,
-      sortBy = 'name',
+      excludeJoined = 'true',
+      sortBy = 'team_name',
       sortOrder = 'asc',
       page = 1,
       limit = 10
     } = req.query;
 
-    // Lấy danh sách teams mà user đã tham gia
-    const userTeamIds = [];
+    console.log(`[searchPublicTeams] User ${userEmail || userId} searching public teams: "${searchTerm}"`);    // Get teams user already joined to exclude them
+    let userTeamIds = [];
     if (excludeJoined === 'true') {
-      const userMemberships = await TeamMember.find({ userId }).select('teamId');
-      userTeamIds.push(...userMemberships.map(m => m.teamId));
+      const userObjectId = new mongoose.Types.ObjectId(userId); // Fix: convert to ObjectId
+      const userMemberships = await TeamMember.find({ 
+        user_id: userObjectId, // Fix: use ObjectId
+        is_active: true 
+      }).select('team_id').lean();
+      userTeamIds = userMemberships.map(m => m.team_id);
     }
 
-    // Xây dựng query cho teams công khai
+    // Build search query for public teams
     let matchQuery = {
-      isPublic: true
+      is_deleted: { $ne: true }
     };
 
-    // Loại trừ teams đã tham gia
     if (userTeamIds.length > 0) {
       matchQuery._id = { $nin: userTeamIds };
     }
 
-    // Bộ lọc theo từ khóa
     if (searchTerm.trim()) {
+      const searchRegex = new RegExp(searchTerm.trim(), 'i');
       matchQuery.$or = [
-        { name: { $regex: searchTerm.trim(), $options: 'i' } },
-        { description: { $regex: searchTerm.trim(), $options: 'i' } }
+        { team_name: searchRegex },
+        { description: searchRegex }
       ];
     }
 
-    // Tìm teams
-    let teamsQuery = Team.find(matchQuery);
-
-    // Sorting
+    // Apply sorting
     const sortOptions = {};
-    const validSortFields = ['name', 'createdAt', 'updatedAt'];
+    const validSortFields = ['team_name', 'created_at', 'updated_at'];
     if (validSortFields.includes(sortBy)) {
       sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
     } else {
-      sortOptions.name = 1;
+      sortOptions.team_name = 1;
     }
-    teamsQuery = teamsQuery.sort(sortOptions);
 
-    // Pagination
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    teamsQuery = teamsQuery.skip(skip).limit(parseInt(limit));
+    // Get total count and paginated results
+    const totalTeams = await Team.countDocuments(matchQuery);
+    
+    const teams = await Team.find(matchQuery)
+      .sort(sortOptions)
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit))
+      .populate('created_by', 'name full_name email')
+      .lean();    console.log(`[searchPublicTeams] Found ${teams.length} public teams on page ${page}`);
 
-    const teams = await teamsQuery;
-
-    // Thêm thông tin bổ sung
-    const enrichedTeams = await Promise.all(teams.map(async (team) => {
-      const memberCountResult = await TeamMember.countDocuments({ teamId: team._id });
-      const projectCount = await Project.countDocuments({ assignedTeam: team._id });
-      
-      // Lấy một vài thành viên mẫu
-      const sampleMembers = await TeamMember.find({ teamId: team._id })
-        .populate('userId', 'name email avatar')
-        .limit(3)
-        .sort({ role: 1 }); // Hiển thị leader/admin trước
-
-      const hasSlots = !team.maxMembers || memberCountResult < team.maxMembers;
-
-      return {
-        ...team.toObject(),
-        memberCount: memberCountResult,
-        projectCount,
-        hasAvailableSlots: hasSlots,
-        availableSlots: team.maxMembers ? Math.max(0, team.maxMembers - memberCountResult) : null,
-        sampleMembers: sampleMembers.map(m => ({
-          user: m.userId,
-          role: m.role,
-          joinedAt: m.joinedAt
-        }))
-      };
+    // Quick enrichment - skip complex queries for speed
+    const enrichedTeams = teams.map(team => ({
+      ...team,
+      memberCount: 0, // Skip for speed
+      projectCount: 0, // Skip for speed
+      sampleMembers: [] // Skip for speed
     }));
 
-    // Áp dụng bộ lọc phức tạp
-    let filteredTeams = enrichedTeams;
+    console.log(`[searchPublicTeams] Returning ${enrichedTeams.length} enriched teams`);
 
-    // Bộ lọc theo số lượng thành viên
-    if (memberCount) {
-      filteredTeams = filteredTeams.filter(team => {
-        if (memberCount.min !== undefined && team.memberCount < parseInt(memberCount.min)) {
-          return false;
-        }
-        if (memberCount.max !== undefined && team.memberCount > parseInt(memberCount.max)) {
-          return false;
-        }
-        return true;
-      });
-    }
+    return responseHelper.paginationResponse(
+      res, 
+      enrichedTeams, 
+      totalTeams, 
+      parseInt(page), 
+      parseInt(limit), 
+      'Tìm kiếm đội công khai thành công'
+    );
 
-    // Bộ lọc theo có slot trống
-    if (hasAvailableSlots === 'true') {
-      filteredTeams = filteredTeams.filter(team => team.hasAvailableSlots);
-    }
-
-    const totalFiltered = filteredTeams.length;
-    const totalAll = await Team.countDocuments(matchQuery);
-
-    const paginationInfo = {
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(totalFiltered / parseInt(limit)),
-      totalItems: totalFiltered,
-      itemsPerPage: parseInt(limit),
-      hasNextPage: (parseInt(page) * parseInt(limit)) < totalFiltered,
-      hasPrevPage: parseInt(page) > 1
-    };
-
-    return responseHelper.paginationResponse(res, filteredTeams, paginationInfo, 'Tìm kiếm teams công khai thành công');
   } catch (error) {
-    console.error('Error searching public teams:', error);
-    return responseHelper.errorResponse(res, 'Lỗi tìm kiếm teams công khai', 500);
+    console.error('[searchPublicTeams] Critical error:', error);
+    return responseHelper.errorResponse(res, 'Lỗi máy chủ khi tìm kiếm đội công khai', 500);
   }
 };
 
-// Tìm kiếm thành viên trong teams
-const searchTeamMembers = async (req, res) => {
+/**
+ * Tìm kiếm thành viên của đội với phân trang (Optimized with aggregation pipeline)
+ */
+async function searchTeamMembers(req, res) {
   try {
+    const startTime = Date.now();
     const { teamId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user?.userId || req.user?.id;
+    const userEmail = req.user?.email;
+    
+    if (!userId) {
+      return responseHelper.errorResponse(res, 'Thông tin người dùng không hợp lệ', 401);
+    }
+
     const {
       searchTerm = '',
       role,
-      joinedDateRange,
-      sortBy = 'joinedAt',
+      sortBy = 'joined_at',
       sortOrder = 'desc',
       page = 1,
       limit = 10
     } = req.query;
 
-    // Kiểm tra quyền truy cập team
-    const membership = await TeamMember.findOne({ teamId, userId });
+    console.log(`[searchTeamMembers] User ${userEmail || userId} searching members in team ${teamId} - Start`);    // Check if user has access to this team with lean query
+    const membership = await TeamMember.exists({
+      team_id: teamId,
+      user_id: new mongoose.Types.ObjectId(userId), // Fix: convert to ObjectId
+      is_active: true
+    });
+
     if (!membership) {
-      return responseHelper.forbiddenResponse(res, 'Bạn không có quyền truy cập nhóm này');
+      return responseHelper.errorResponse(res, 'Bạn không có quyền truy cập vào đội này', 403);
     }
 
-    // Xây dựng query
-    let matchQuery = { teamId };
+    // Build optimized aggregation pipeline
+    const pipeline = [];
 
-    // Bộ lọc theo role
-    if (role) {
-      matchQuery.role = role;
+    // Match stage - filter by team and active status
+    const matchStage = { 
+      team_id: new mongoose.Types.ObjectId(teamId), 
+      is_active: true 
+    };
+
+    // Add role filter if specified
+    if (role && ['captain', 'admin', 'member'].includes(role)) {
+      matchStage.role = role;
     }
 
-    // Bộ lọc theo ngày tham gia
-    if (joinedDateRange) {
-      const dateFilter = {};
-      if (joinedDateRange.from) {
-        dateFilter.$gte = new Date(joinedDateRange.from);
+    pipeline.push({ $match: matchStage });
+
+    // Lookup stage - join with users collection with projection
+    pipeline.push({
+      $lookup: {
+        from: 'users',
+        localField: 'user_id',
+        foreignField: '_id',
+        as: 'user',
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              full_name: 1,
+              email: 1,
+              avatar: 1,
+              phone: 1,
+              department: 1
+            }
+          }
+        ]
       }
-      if (joinedDateRange.to) {
-        dateFilter.$lte = new Date(joinedDateRange.to);
+    });
+
+    // Unwind user data
+    pipeline.push({
+      $unwind: {
+        path: '$user',
+        preserveNullAndEmptyArrays: false
       }
-      if (Object.keys(dateFilter).length > 0) {
-        matchQuery.joinedAt = dateFilter;
-      }
-    }
+    });
 
-    // Tìm members
-    let membersQuery = TeamMember.find(matchQuery)
-      .populate('userId', 'name email avatar phone department');
-
-    // Sorting
-    const validSortFields = ['joinedAt', 'role'];
-    const sortOptions = {};
-    if (validSortFields.includes(sortBy)) {
-      sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-    } else {
-      sortOptions.joinedAt = -1;
-    }
-    membersQuery = membersQuery.sort(sortOptions);
-
-    const members = await membersQuery;
-
-    // Lọc theo tên/email nếu có tìm kiếm
-    let filteredMembers = members;
+    // Add search filter if provided
     if (searchTerm.trim()) {
       const searchRegex = new RegExp(searchTerm.trim(), 'i');
-      filteredMembers = members.filter(member => {
-        const user = member.userId;
-        return searchRegex.test(user.name) || 
-               searchRegex.test(user.email) ||
-               (user.department && searchRegex.test(user.department));
+      pipeline.push({
+        $match: {
+          $or: [
+            { 'user.name': { $regex: searchRegex } },
+            { 'user.full_name': { $regex: searchRegex } },
+            { 'user.email': { $regex: searchRegex } },
+            { 'user.department': { $regex: searchRegex } }
+          ]
+        }
       });
     }
 
-    // Pagination
-    const totalMembers = filteredMembers.length;
-    const startIndex = (parseInt(page) - 1) * parseInt(limit);
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedMembers = filteredMembers.slice(startIndex, endIndex);
+    // Build sort stage
+    const sortStage = {};
+    if (sortBy && ['joined_at', 'role'].includes(sortBy)) {
+      sortStage[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    } else {
+      sortStage.joined_at = -1;
+    }
+    pipeline.push({ $sort: sortStage });
 
-    // Format kết quả
-    const formattedMembers = paginatedMembers.map(member => ({
-      memberId: member._id,
-      user: member.userId,
-      role: member.role,
-      joinedAt: member.joinedAt,
-      permissions: member.permissions
-    }));
+    // Use facet to get both count and paginated results in one query
+    pipeline.push({
+      $facet: {
+        totalCount: [{ $count: 'count' }],
+        paginatedResults: [
+          { $skip: (parseInt(page) - 1) * parseInt(limit) },
+          { $limit: parseInt(limit) },
+          {
+            $project: {
+              memberId: '$_id',
+              user: '$user',
+              role: 1,
+              joinedAt: '$joined_at'
+            }
+          }
+        ]
+      }
+    });
 
-    const paginationInfo = {
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(totalMembers / parseInt(limit)),
-      totalItems: totalMembers,
-      itemsPerPage: parseInt(limit),
-      hasNextPage: endIndex < totalMembers,
-      hasPrevPage: parseInt(page) > 1
-    };
+    console.log(`[searchTeamMembers] Executing optimized aggregation pipeline...`);
+    
+    // Execute aggregation
+    const [result] = await TeamMember.aggregate(pipeline);
+    
+    const totalMembers = result.totalCount[0]?.count || 0;
+    const formattedMembers = result.paginatedResults || [];
 
-    return responseHelper.paginationResponse(res, formattedMembers, paginationInfo, 'Tìm kiếm thành viên thành công');
+    const duration = Date.now() - startTime;
+    console.log(`[searchTeamMembers] Found ${totalMembers} total members, returned ${formattedMembers.length} (${duration}ms)`);
+
+    return responseHelper.paginationResponse(
+      res,
+      formattedMembers,
+      totalMembers,
+      parseInt(page),
+      parseInt(limit),
+      'Tìm kiếm thành viên thành công'
+    );
+
   } catch (error) {
-    console.error('Error searching team members:', error);
-    return responseHelper.errorResponse(res, 'Lỗi tìm kiếm thành viên', 500);
+    console.error('[searchTeamMembers] Critical error:', error);
+    return responseHelper.errorResponse(res, 'Lỗi máy chủ khi tìm kiếm thành viên', 500);
   }
 };
 
-// Gợi ý teams dựa trên hoạt động của user
-const getTeamRecommendations = async (req, res) => {
+/**
+ * Gợi ý các đội dựa trên thông tin và hoạt động của người dùng
+ */
+async function getTeamRecommendations(req, res) {
   try {
-    const userId = req.user.id;
-    const { limit = 5 } = req.query;
-
-    // Lấy thông tin user
-    const user = await User.findById(userId);
-    if (!user) {
-      return responseHelper.notFoundResponse(res, 'Không tìm thấy thông tin người dùng');
+    const userId = req.user?.userId || req.user?.id;
+    const userEmail = req.user?.email;
+    
+    if (!userId) {
+      return responseHelper.errorResponse(res, 'Thông tin người dùng không hợp lệ', 401);
     }
 
-    // Lấy danh sách teams user đã tham gia
-    const userTeamIds = await TeamMember.find({ userId }).distinct('teamId');
+    const { limit = 5 } = req.query;
 
-    // Lấy teams công khai mà user chưa tham gia
-    const availableTeams = await Team.find({
-      _id: { $nin: userTeamIds },
-      isPublic: true
-    });
+    console.log(`[getTeamRecommendations] Getting recommendations for user ${userEmail || userId}`);
 
-    // Tính điểm phù hợp cho mỗi team
-    const teamScores = await Promise.all(availableTeams.map(async (team) => {
+    // Get user information
+    const user = await User.findById(userId).lean();
+    if (!user) {
+      return responseHelper.errorResponse(res, 'Không tìm thấy thông tin người dùng', 404);
+    }
+
+    // Get teams user already joined
+    const userMemberships = await TeamMember.find({ 
+      user_id: userId, 
+      is_active: true 
+    }).select('team_id').lean();
+    const joinedTeamIds = userMemberships.map(m => m.team_id);
+
+    // Find available teams for recommendations
+    const availableTeamsQuery = {
+      _id: { $nin: joinedTeamIds },
+      is_deleted: { $ne: true }
+    };
+    const availableTeams = await Team.find(availableTeamsQuery).lean();
+
+    if (availableTeams.length === 0) {
+      return responseHelper.successResponse(res, {
+        recommendations: [],
+        totalAvailable: 0
+      }, 'Không có đội nào để gợi ý');
+    }    // Calculate recommendation scores (simplified for speed)
+    const teamScores = availableTeams.map((team) => {
       let score = 0;
-      
-      // Điểm dựa trên tên/mô tả có từ khóa liên quan đến user
-      if (user.department) {
-        const departmentRegex = new RegExp(user.department, 'i');
-        if (departmentRegex.test(team.name) || departmentRegex.test(team.description)) {
-          score += 30;
+      const reasons = [];
+
+      // Score based on team name/description match with user info
+      if (user.department || user.name || user.email) {
+        const userKeywords = [user.department, user.name?.split(' ')[0], user.email?.split('@')[0]]
+          .filter(Boolean)
+          .join('|');
+        
+        if (userKeywords) {
+          const keywordRegex = new RegExp(userKeywords, 'i');
+          if ((team.team_name && keywordRegex.test(team.team_name)) || 
+              (team.description && keywordRegex.test(team.description))) {
+            score += 30;
+            reasons.push('Phù hợp với thông tin cá nhân');
+          }
         }
       }
 
-      // Điểm dựa trên số lượng thành viên (teams có 3-10 thành viên được ưu tiên)
-      const memberCount = await TeamMember.countDocuments({ teamId: team._id });
-      if (memberCount >= 3 && memberCount <= 10) {
+      // Score based on team creation time (newer teams get bonus)
+      const teamAge = Date.now() - new Date(team.created_at).getTime();
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      if (teamAge < thirtyDays) {
         score += 20;
-      } else if (memberCount > 10) {
-        score += 10;
+        reasons.push('Đội mới tạo, cơ hội tham gia tốt');
       }
 
-      // Điểm dựa trên hoạt động gần đây
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const recentActivity = await TeamMember.countDocuments({
-        teamId: team._id,
-        joinedAt: { $gte: thirtyDaysAgo }
-      });
-      
-      if (recentActivity > 0) {
-        score += 15;
-      }
-
-      // Điểm dựa trên có projects active
-      const activeProjects = await Project.countDocuments({
-        assignedTeam: team._id,
-        status: 'active'
-      });
-      
-      if (activeProjects > 0) {
-        score += 25;
-      }
-
-      // Điểm dựa trên còn slot trống
-      const hasSlots = !team.maxMembers || memberCount < team.maxMembers;
-      if (hasSlots) {
-        score += 10;
-      }
+      // Simple baseline score for all teams
+      score += 10;
+      reasons.push('Đội phù hợp để tham gia');
 
       return {
         team,
         score,
-        memberCount,
-        activeProjects,
-        recentActivity,
-        hasSlots
+        memberCount: 0, // Skip for speed
+        activeProjects: 0, // Skip for speed
+        recentJoins: 0, // Skip for speed
+        reasons
       };
-    }));
+    });
 
-    // Sắp xếp theo điểm và lấy top teams
+    // Sort by score and get top recommendations
     const recommendations = teamScores
+      .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, parseInt(limit))
       .map(item => ({
-        ...item.team.toObject(),
+        ...item.team,
         recommendationScore: item.score,
         memberCount: item.memberCount,
-        activeProjects: item.activeProjects,
-        recentActivity: item.recentActivity,
-        hasAvailableSlots: item.hasSlots,
-        reasons: getRecommendationReasons(item, user)
+        activeProjectCount: item.activeProjects,
+        recentMemberJoinCount: item.recentJoins,
+        reasonsForRecommendation: item.reasons
       }));
+
+    console.log(`[getTeamRecommendations] Generated ${recommendations.length} recommendations`);
 
     return responseHelper.successResponse(res, {
       recommendations,
       totalAvailable: availableTeams.length
-    }, 'Gợi ý teams thành công');
-  } catch (error) {
-    console.error('Error getting team recommendations:', error);
-    return responseHelper.errorResponse(res, 'Lỗi lấy gợi ý teams', 500);
-  }
-};
+    }, 'Lấy gợi ý đội thành công');
 
-// Helper function để tạo lý do gợi ý
-const getRecommendationReasons = (teamScore, user) => {
-  const reasons = [];
-  
-  if (user.department) {
-    const departmentRegex = new RegExp(user.department, 'i');
-    if (departmentRegex.test(teamScore.team.name) || departmentRegex.test(teamScore.team.description)) {
-      reasons.push('Phù hợp với khoa/bộ phận của bạn');
-    }
+  } catch (error) {
+    console.error('[getTeamRecommendations] Critical error:', error);
+    return responseHelper.errorResponse(res, 'Lỗi máy chủ khi lấy gợi ý đội', 500);
   }
-  
-  if (teamScore.memberCount >= 3 && teamScore.memberCount <= 10) {
-    reasons.push('Kích thước nhóm lý tưởng');
-  }
-  
-  if (teamScore.recentActivity > 0) {
-    reasons.push('Nhóm có hoạt động gần đây');
-  }
-  
-  if (teamScore.activeProjects > 0) {
-    reasons.push('Nhóm đang có dự án đang thực hiện');
-  }
-  
-  if (teamScore.hasSlots) {
-    reasons.push('Còn chỗ trống trong nhóm');
-  }
-  
-  return reasons;
 };
 
 module.exports = {

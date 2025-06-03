@@ -6,58 +6,71 @@ const mongoose = require('mongoose');
 
 // Lấy thống kê tổng quan của teams
 const getTeamOverviewStats = async (req, res) => {
-  try {
+  try {    // Bắt đầu thống kê tổng quan
     console.log('🔍 [DEBUG] getTeamOverviewStats started');
-    const userId = req.user.userId || req.user.id || req.user._id;
-    console.log('🔍 [DEBUG] User ID:', userId);
+    console.log('🔍 [DEBUG] Request user:', req.user);
     
+    // Sử dụng safe user ID extraction (giống như teamSearch.controller.js)
+    const userId = req.user?.userId || req.user?.id;
+    console.log('🔍 [DEBUG] User ID extracted:', userId);
+    console.log('🔍 [getTeamOverviewStats] req.user object TOÀN BỘ:', JSON.stringify(req.user, null, 2));
+
+    console.log(`🔍 [getTeamOverviewStats] User ID được lấy từ req.user: ${userId}`);
+
+    if (!userId) {
+      console.error('🚨 [getTeamOverviewStats] No user ID found in req.user');
+      return responseHelper.errorResponse(res, 'Thông tin người dùng không hợp lệ', 401);
+    }
+
     // Lấy danh sách teams mà user tham gia
     console.log('🔍 [DEBUG] Querying TeamMember...');
     const userTeamMemberships = await TeamMember.find({ user_id: userId })
       .populate('team_id');
     console.log('🔍 [DEBUG] Found memberships:', userTeamMemberships.length);
-    
+
     const userTeamIds = userTeamMemberships
       .map(membership => membership.team_id?._id)
       .filter(Boolean);
     console.log('🔍 [DEBUG] User team IDs:', userTeamIds.length);
-    
+
     // Thống kê cơ bản
     const totalTeams = userTeamIds.length;
     const teamsAsAdmin = userTeamMemberships.filter(m => m.role === 'Admin').length;
     const teamsAsEditor = userTeamMemberships.filter(m => m.role === 'Editor').length;
     const teamsAsMember = userTeamMemberships.filter(m => m.role === 'Member').length;
-    
+
     console.log('🔍 [DEBUG] Basic stats calculated');
-    
+
     // Thống kê projects được gán cho các teams
     console.log('🔍 [DEBUG] Querying Projects...');
     const teamProjects = await Project.find({
       team_id: { $in: userTeamIds }
     });
     console.log('🔍 [DEBUG] Found projects:', teamProjects.length);
-    
+
     const totalProjects = teamProjects.length;
     const completedProjects = teamProjects.filter(p => p.status === 'Archived').length;
     const activeProjects = teamProjects.filter(p => p.status === 'Active').length;
-    
+
     // Thống kê thành viên
     const allTeamMembers = await TeamMember.find({
       team_id: { $in: userTeamIds }
     });
-    
+
+    console.log('🔍 [DEBUG] Found team members:', allTeamMembers.length);
+
     const totalMembers = allTeamMembers.length;
     const averageTeamSize = totalTeams > 0 ? Math.round(totalMembers / totalTeams) : 0;
-    
+
     // Teams hoạt động gần đây (có thành viên được thêm trong 30 ngày qua)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     const recentlyActiveTeams = await TeamMember.distinct('team_id', {
       team_id: { $in: userTeamIds },
       joined_at: { $gte: thirtyDaysAgo }
     });
-    
+
     const stats = {
       overview: {
         totalTeams,
@@ -73,11 +86,11 @@ const getTeamOverviewStats = async (req, res) => {
       members: {
         totalMembers,
         averageTeamSize
-      },      activity: {
+      }, activity: {
         recentlyActiveTeams: recentlyActiveTeams.length
       }
     };
-    
+
     const response = responseHelper.successResponse(stats, 'Thống kê teams thành công');
     return responseHelper.sendResponse(res, response);
   } catch (error) {
@@ -95,29 +108,29 @@ const getTeamDetailStats = async (req, res) => {
     const { teamId } = req.params;
     const userId = req.user.userId || req.user.id || req.user._id;
     console.log('🔍 Debug - User ID:', userId, 'Team ID:', teamId);
-    
+
     // Kiểm tra quyền truy cập
     console.log('🔍 Checking membership...');
     const membership = await TeamMember.findOne({
       team_id: teamId,
       user_id: userId
     });
-      if (!membership) {
+    if (!membership) {
       const forbiddenResp = responseHelper.errorResponse('Bạn không có quyền truy cập nhóm này', 403);
       return responseHelper.sendResponse(res, forbiddenResp);
     }
-    
+
     // Lấy thông tin team
     const team = await Team.findById(teamId);
     if (!team) {
       const notFoundResp = responseHelper.errorResponse('Không tìm thấy nhóm', 404);
       return responseHelper.sendResponse(res, notFoundResp);
     }
-    
+
     // Thống kê thành viên
     const teamMembers = await TeamMember.find({ team_id: teamId })
       .populate('user_id', 'name email avatar');
-    
+
     const memberStats = {
       total: teamMembers.length,
       admins: teamMembers.filter(m => m.role === 'Admin').length,
@@ -129,7 +142,7 @@ const getTeamDetailStats = async (req, res) => {
         return m.joined_at >= thirtyDaysAgo;
       }).length
     };
-    
+
     // Thống kê projects
     const teamProjects = await Project.find({ team_id: teamId });
     const projectStats = {
@@ -140,21 +153,21 @@ const getTeamDetailStats = async (req, res) => {
         return p.end_date && new Date(p.end_date) < new Date() && p.status !== 'Archived';
       }).length
     };
-    
+
     // Tính tỷ lệ hoàn thành project
-    const completionRate = teamProjects.length > 0 
-      ? Math.round((projectStats.completed / teamProjects.length) * 100) 
+    const completionRate = teamProjects.length > 0
+      ? Math.round((projectStats.completed / teamProjects.length) * 100)
       : 0;
-    
+
     // Hoạt động gần đây (thành viên mới tham gia trong 7 ngày)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
+
     const recentMembers = await TeamMember.find({
       team_id: teamId,
       joined_at: { $gte: sevenDaysAgo }
     }).populate('user_id', 'name email avatar');
-    
+
     const stats = {
       teamInfo: {
         id: team._id,
@@ -162,7 +175,7 @@ const getTeamDetailStats = async (req, res) => {
         description: team.description,
         createdBy: team.created_by,
         createdAt: team.created_at
-      },      memberStats,
+      }, memberStats,
       projectStats: {
         ...projectStats,
         completionRate
@@ -175,7 +188,7 @@ const getTeamDetailStats = async (req, res) => {
         }))
       }
     };
-    
+
     const response = responseHelper.successResponse(stats, 'Thống kê chi tiết team thành công');
     return responseHelper.sendResponse(res, response);
   } catch (error) {
@@ -189,33 +202,33 @@ const getTeamDetailStats = async (req, res) => {
 const getTeamComparisonStats = async (req, res) => {
   try {
     const userId = req.user.userId || req.user.id || req.user._id;
-    
+
     // Lấy danh sách teams mà user tham gia
     const userTeamMemberships = await TeamMember.find({ user_id: userId })
       .populate('team_id');
-    
+
     const teamComparisons = [];
-    
+
     for (const membership of userTeamMemberships) {
       const team = membership.team_id;
       if (!team) continue;
-      
+
       // Đếm thành viên
       const memberCount = await TeamMember.countDocuments({ team_id: team._id });
-      
+
       // Đếm projects
       const teamProjects = await Project.find({ team_id: team._id });
       const completedProjects = teamProjects.filter(p => p.status === 'Archived').length;
-      
+
       // Tính hoạt động gần đây
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
+
       const recentActivity = await TeamMember.countDocuments({
         team_id: team._id,
         joined_at: { $gte: thirtyDaysAgo }
       });
-      
+
       teamComparisons.push({
         teamId: team._id,
         teamName: team.team_name,
@@ -228,13 +241,13 @@ const getTeamComparisonStats = async (req, res) => {
         createdAt: team.created_at
       });
     }
-    
+
     // Sắp xếp theo các tiêu chí khác nhau
     const sortedByMembers = [...teamComparisons].sort((a, b) => b.memberCount - a.memberCount);
     const sortedByProjects = [...teamComparisons].sort((a, b) => b.projectCount - a.projectCount);
     const sortedByCompletion = [...teamComparisons].sort((a, b) => b.completionRate - a.completionRate);
     const sortedByActivity = [...teamComparisons].sort((a, b) => b.recentActivity - a.recentActivity);
-    
+
     const comparisonStats = {
       allTeams: teamComparisons,
       rankings: {
@@ -245,17 +258,18 @@ const getTeamComparisonStats = async (req, res) => {
       },
       summary: {
         totalTeams: teamComparisons.length,
-        averageMembers: teamComparisons.length > 0 
-          ? Math.round(teamComparisons.reduce((sum, t) => sum + t.memberCount, 0) / teamComparisons.length) 
+        averageMembers: teamComparisons.length > 0
+          ? Math.round(teamComparisons.reduce((sum, t) => sum + t.memberCount, 0) / teamComparisons.length)
           : 0,
-        averageProjects: teamComparisons.length > 0 
-          ? Math.round(teamComparisons.reduce((sum, t) => sum + t.projectCount, 0) / teamComparisons.length) 
+        averageProjects: teamComparisons.length > 0
+          ? Math.round(teamComparisons.reduce((sum, t) => sum + t.projectCount, 0) / teamComparisons.length)
           : 0,
-        averageCompletion: teamComparisons.length > 0 
-          ? Math.round(teamComparisons.reduce((sum, t) => sum + t.completionRate, 0) / teamComparisons.length) 
-          : 0      }
+        averageCompletion: teamComparisons.length > 0
+          ? Math.round(teamComparisons.reduce((sum, t) => sum + t.completionRate, 0) / teamComparisons.length)
+          : 0
+      }
     };
-    
+
     const response = responseHelper.successResponse(comparisonStats, 'So sánh thống kê teams thành công');
     return responseHelper.sendResponse(res, response);
   } catch (error) {
@@ -271,21 +285,21 @@ const getTeamActivityStats = async (req, res) => {
     const { teamId } = req.params;
     const { period = '30' } = req.query; // 7, 30, 90 days
     const userId = req.user.userId || req.user.id || req.user._id;
-    
+
     // Kiểm tra quyền truy cập
     const membership = await TeamMember.findOne({
       team_id: teamId,
       user_id: userId
     });
-      if (!membership) {
+    if (!membership) {
       const forbiddenResp = responseHelper.errorResponse('Bạn không có quyền truy cập nhóm này', 403);
       return responseHelper.sendResponse(res, forbiddenResp);
     }
-    
+
     const daysBack = parseInt(period);
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - daysBack);
-      // Lấy hoạt động thêm thành viên theo ngày
+    // Lấy hoạt động thêm thành viên theo ngày
     const memberActivity = await TeamMember.aggregate([
       {
         $match: {
@@ -308,7 +322,7 @@ const getTeamActivityStats = async (req, res) => {
         $sort: { _id: 1 }
       }
     ]);
-      // Lấy hoạt động project theo ngày
+    // Lấy hoạt động project theo ngày
     const projectActivity = await Project.aggregate([
       {
         $match: {
@@ -331,17 +345,17 @@ const getTeamActivityStats = async (req, res) => {
         $sort: { _id: 1 }
       }
     ]);
-    
+
     // Tạo timeline đầy đủ với các ngày không có hoạt động
     const timeline = [];
     for (let i = daysBack - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateString = date.toISOString().split('T')[0];
-      
+
       const memberCount = memberActivity.find(m => m._id === dateString)?.count || 0;
       const projectCount = projectActivity.find(p => p._id === dateString)?.count || 0;
-      
+
       timeline.push({
         date: dateString,
         newMembers: memberCount,
@@ -349,22 +363,23 @@ const getTeamActivityStats = async (req, res) => {
         totalActivity: memberCount + projectCount
       });
     }
-    
+
     const activityStats = {
       period: `${daysBack} ngày qua`,
       timeline,
       summary: {
         totalNewMembers: memberActivity.reduce((sum, m) => sum + m.count, 0),
         totalNewProjects: projectActivity.reduce((sum, p) => sum + p.count, 0),
-        averageDailyActivity: timeline.length > 0 
+        averageDailyActivity: timeline.length > 0
           ? Math.round(timeline.reduce((sum, t) => sum + t.totalActivity, 0) / timeline.length * 10) / 10
           : 0,
-        mostActiveDay: timeline.reduce((max, day) => 
-          day.totalActivity > max.totalActivity ? day : max, 
+        mostActiveDay: timeline.reduce((max, day) =>
+          day.totalActivity > max.totalActivity ? day : max,
           { totalActivity: 0, date: null }
-        )      }
+        )
+      }
     };
-    
+
     const response = responseHelper.successResponse(activityStats, 'Thống kê hoạt động team thành công');
     return responseHelper.sendResponse(res, response);
   } catch (error) {
@@ -374,9 +389,100 @@ const getTeamActivityStats = async (req, res) => {
   }
 };
 
+// Lấy thống kê team có/chưa có dự án
+const getTeamProjectStats = async (req, res) => {
+  try {
+    console.log('🔍 [DEBUG] getTeamProjectStats started');
+    
+    const userId = req.user?.userId || req.user?.id;
+    console.log('🔍 [DEBUG] User ID extracted:', userId);
+
+    if (!userId) {
+      console.error('🚨 [getTeamProjectStats] No user ID found in req.user');
+      return responseHelper.errorResponse(res, 'Thông tin người dùng không hợp lệ', 401);
+    }
+
+    // Lấy danh sách teams mà user tham gia
+    const userTeamMemberships = await TeamMember.find({ user_id: userId })
+      .populate('team_id');
+    console.log('🔍 [DEBUG] Found memberships:', userTeamMemberships.length);
+
+    const userTeamIds = userTeamMemberships
+      .map(membership => membership.team_id?._id)
+      .filter(Boolean);
+
+    // Lấy tất cả teams và kiểm tra có dự án không
+    const teamsWithProjectInfo = [];
+    let teamsWithProjects = 0;
+    let teamsWithoutProjects = 0;
+
+    for (const membership of userTeamMemberships) {
+      const team = membership.team_id;
+      if (!team) continue;
+
+      // Đếm số dự án của team
+      const projectCount = await Project.countDocuments({ team_id: team._id });
+      
+      const teamInfo = {
+        teamId: team._id,
+        teamName: team.team_name,
+        userRole: membership.role,
+        projectCount: projectCount,
+        hasProjects: projectCount > 0,
+        createdAt: team.created_at
+      };
+
+      teamsWithProjectInfo.push(teamInfo);
+
+      if (projectCount > 0) {
+        teamsWithProjects++;
+      } else {
+        teamsWithoutProjects++;
+      }
+    }
+
+    // Tính phần trăm
+    const totalTeams = userTeamIds.length;
+    const percentageWithProjects = totalTeams > 0 ? Math.round((teamsWithProjects / totalTeams) * 100) : 0;
+    const percentageWithoutProjects = totalTeams > 0 ? Math.round((teamsWithoutProjects / totalTeams) * 100) : 0;
+
+    // Thống kê chi tiết theo số lượng dự án
+    const projectDistribution = {
+      noProjects: teamsWithProjectInfo.filter(t => t.projectCount === 0).length,
+      oneProject: teamsWithProjectInfo.filter(t => t.projectCount === 1).length,
+      twoToFiveProjects: teamsWithProjectInfo.filter(t => t.projectCount >= 2 && t.projectCount <= 5).length,
+      moreThanFiveProjects: teamsWithProjectInfo.filter(t => t.projectCount > 5).length
+    };
+
+    const stats = {
+      summary: {
+        totalTeams,
+        teamsWithProjects,
+        teamsWithoutProjects,
+        percentageWithProjects,
+        percentageWithoutProjects
+      },
+      distribution: projectDistribution,
+      teams: {
+        withProjects: teamsWithProjectInfo.filter(t => t.hasProjects),
+        withoutProjects: teamsWithProjectInfo.filter(t => !t.hasProjects)
+      },
+      allTeams: teamsWithProjectInfo
+    };
+
+    const response = responseHelper.successResponse(stats, 'Thống kê team và dự án thành công');
+    return responseHelper.sendResponse(res, response);
+  } catch (error) {
+    console.error('Error getting team project stats:', error);
+    const errorResp = responseHelper.errorResponse('Lỗi lấy thống kê team và dự án', 500);
+    return responseHelper.sendResponse(res, errorResp);
+  }
+};
+
 module.exports = {
   getTeamOverviewStats,
   getTeamDetailStats,
   getTeamComparisonStats,
-  getTeamActivityStats
+  getTeamActivityStats,
+  getTeamProjectStats
 };

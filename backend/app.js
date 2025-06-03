@@ -3,18 +3,36 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
-const widgetRoutes = require("./routes/widgetRoutes");
+
+// Feature toggles for safe operation
+const { isFeatureEnabled, featureToggleMiddleware, getEnabledFeatures, getDisabledFeatures } = require('./config/featureToggles');
+
+// Only import routes for enabled features
 const adminRoutes = require('./routes/admin.routes');
 const projectRoutes = require('./routes/project.routes');
 const projectMemberRoutes = require('./routes/projectMember.routes');
-const notificationRoutes = require('./routes/notification.routes');
-const projectTypeRoutes = require('./routes/projectType.routes');
-const kanbanRoutes = require('./routes/kanban.routes');
-const kanbanTaskRoutes = require('./routes/kanbanTask.routes');
-const personalMemberListRoutes = require('./routes/personalMemberList.routes');
 const teamRoutes = require('./routes/team.routes');
-const teamEnhancedRoutes = require('./routes/teamEnhanced.routes');
+const projectTypeRoutes = require('./routes/projectType.routes'); // Always enable - essential for projects
 const { generalRateLimit } = require('./middleware/rateLimiting');
+
+// Conditionally import complex features only if enabled
+let widgetRoutes, notificationRoutes, kanbanRoutes, kanbanTaskRoutes, personalMemberListRoutes, teamEnhancedRoutes, userRoleRoutes;
+
+if (isFeatureEnabled('CUSTOM_WIDGETS')) {
+  widgetRoutes = require("./routes/widgetRoutes");
+}
+if (isFeatureEnabled('REAL_TIME_NOTIFICATIONS')) {
+  notificationRoutes = require('./routes/notification.routes');
+}
+if (isFeatureEnabled('ENHANCED_TEAMS')) {
+  teamEnhancedRoutes = require('./routes/teamEnhanced.routes');
+}
+if (isFeatureEnabled('ADVANCED_SEARCH')) {
+  kanbanRoutes = require('./routes/kanban.routes');
+  kanbanTaskRoutes = require('./routes/kanbanTask.routes');
+  personalMemberListRoutes = require('./routes/personalMemberList.routes');
+  userRoleRoutes = require('./routes/userRole.routes');
+}
 
 // Load biến môi trường từ .env
 dotenv.config();
@@ -37,27 +55,62 @@ app.use(morgan("dev"));
 // Apply general rate limiting to all requests
 app.use(generalRateLimit);
 
-// Middleware để truyền server (io) vào request (được set từ server.js)
-// Đặt trước các route để tất cả route đều truy cập được req.server
-app.use((req, res, next) => {
-  req.server = req.app.get('server'); // Lấy server từ app (đã được set trong server.js)
-  next();
+// Middleware para truyền server (io) vào request (được set từ server.js)
+// Chỉ áp dụng nếu Socket.IO được bật
+if (isFeatureEnabled('SOCKET_IO')) {
+  app.use((req, res, next) => {
+    req.server = req.app.get('server'); // Lấy server từ app (đã được set trong server.js)
+    next();
+  });
+}
+
+// System status endpoint
+app.get('/api/system/status', (req, res) => {
+  res.json({
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    features: {
+      enabled: getEnabledFeatures(),
+      disabled: getDisabledFeatures(),
+      total: getEnabledFeatures().length + getDisabledFeatures().length
+    },
+    message: 'UniPlan Backend - Safe Mode with Feature Toggles'
+  });
 });
 
-// Routes
+// Routes - Only include routes for enabled features
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/password", require("./routes/password.routes"));
-app.use("/api/widgets", widgetRoutes);
+
+// Basic always-enabled routes
 app.use('/api/admin', adminRoutes);
 app.use('/api', projectRoutes);
 app.use('/api/project-members', projectMemberRoutes);
-app.use('/api', notificationRoutes);
-app.use('/api', projectTypeRoutes);
-app.use('/api/kanban', kanbanRoutes);
-app.use('/api/kanban-tasks', kanbanTaskRoutes);
-app.use('/api/personal-members', personalMemberListRoutes);
 app.use('/api/teams', teamRoutes);
-app.use('/api/teams-enhanced', teamEnhancedRoutes); // Enhanced team functionality
+app.use('/api', projectTypeRoutes); // Essential for project creation
+
+// ===== SIMPLE SEARCH (Always enabled - our working APIs) =====
+app.use('/api/teams-simple', require('./routes/teamSimpleRoutes')); // Simple team search functionality
 app.use('/api/users', require('./routes/user.routes')); // Route cho users
+
+// ===== CONDITIONAL ROUTES (Only if features are enabled) =====
+if (isFeatureEnabled('CUSTOM_WIDGETS') && widgetRoutes) {
+  app.use("/api/widgets", featureToggleMiddleware('CUSTOM_WIDGETS'), widgetRoutes);
+}
+
+if (isFeatureEnabled('REAL_TIME_NOTIFICATIONS') && notificationRoutes) {
+  app.use('/api', featureToggleMiddleware('REAL_TIME_NOTIFICATIONS'), notificationRoutes);
+}
+
+if (isFeatureEnabled('ENHANCED_TEAMS') && teamEnhancedRoutes) {
+  app.use('/api/teams-enhanced', featureToggleMiddleware('ENHANCED_TEAMS'), teamEnhancedRoutes);
+}
+
+if (isFeatureEnabled('ADVANCED_SEARCH')) {
+  if (kanbanRoutes) app.use('/api/kanban', featureToggleMiddleware('ADVANCED_SEARCH'), kanbanRoutes);
+  if (kanbanTaskRoutes) app.use('/api/kanban-tasks', featureToggleMiddleware('ADVANCED_SEARCH'), kanbanTaskRoutes);
+  if (personalMemberListRoutes) app.use('/api/personal-members', featureToggleMiddleware('ADVANCED_SEARCH'), personalMemberListRoutes);
+  if (userRoleRoutes) app.use('/api/user-roles', featureToggleMiddleware('ADVANCED_SEARCH'), userRoleRoutes);
+}
 
 module.exports = app;

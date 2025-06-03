@@ -146,7 +146,7 @@ exports.restoreProject = async (req, res) => {
 exports.updateProject = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const { project_name, description, status, priority, start_date, end_date, project_type_id } = req.body;
+    const { project_name, description, status, priority, start_date, end_date, project_type_id, team_id } = req.body;
     const userId = req.user.userId;
 
     const project = await Project.findOne({ _id: projectId, is_deleted: false });
@@ -165,6 +165,15 @@ exports.updateProject = async (req, res) => {
       }
     }
 
+    // Validate team_id if provided
+    if (team_id) {
+      const Team = require('../models/team.model');
+      const team = await Team.findById(team_id);
+      if (!team) {
+        return res.status(400).json({ message: 'Team không tồn tại' });
+      }
+    }
+
     project.project_name = project_name || project.project_name;
     project.description = description || project.description;
     project.status = status || project.status;
@@ -172,6 +181,7 @@ exports.updateProject = async (req, res) => {
     project.start_date = start_date || project.start_date;
     project.end_date = end_date || project.end_date;
     project.project_type_id = project_type_id || project.project_type_id;
+    project.team_id = team_id !== undefined ? team_id : project.team_id; // Allow null to unassign team
     project.updated_at = new Date();
     
     await project.save();
@@ -200,5 +210,197 @@ exports.getProjectDetailsFromAPI = async (req, res) => {
   } catch (error) {
     console.error('Lỗi lấy chi tiết dự án từ API:', error);
     res.status(500).json({ message: 'Lỗi khi lấy chi tiết dự án từ API', error: error.message });
+  }
+};
+
+// ==== TEAM PROJECT METHODS ====
+
+// Lấy danh sách dự án của team - GET /api/teams/:teamId/projects
+exports.getTeamProjects = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const currentUserId = req.user.userId;
+
+    // Import TeamMember model
+    const TeamMember = require('../models/teamMember.model');
+    const Team = require('../models/team.model');
+
+    // Kiểm tra team tồn tại
+    const team = await Team.findOne({ _id: teamId, is_deleted: false });
+    if (!team) {
+      return res.status(404).json({ message: 'Không tìm thấy nhóm' });
+    }
+
+    // Kiểm tra quyền truy cập (phải là thành viên của team)
+    const currentMember = await TeamMember.findOne({
+      team_id: teamId,
+      user_id: currentUserId,
+      is_active: true
+    });
+
+    if (!currentMember) {
+      return res.status(403).json({ message: 'Bạn không có quyền xem dự án của nhóm này' });
+    }
+
+    // Lấy danh sách dự án của team
+    const projects = await Project.find({ 
+      team_id: teamId, 
+      is_deleted: false 
+    }).populate('project_type_id', 'name description')
+      .populate('created_by', 'full_name email')
+      .sort({ created_at: -1 });
+
+    res.json({
+      message: 'Lấy danh sách dự án thành công',
+      team: {
+        id: team._id,
+        name: team.team_name,
+        description: team.description
+      },
+      projects: projects.map(project => ({
+        id: project._id,
+        name: project.project_name,
+        description: project.description,
+        status: project.status,
+        priority: project.priority,
+        start_date: project.start_date,
+        end_date: project.end_date,
+        project_type: project.project_type_id ? {
+          id: project.project_type_id._id,
+          name: project.project_type_id.name
+        } : null,
+        created_by: project.created_by ? {
+          id: project.created_by._id,
+          name: project.created_by.full_name
+        } : null,
+        created_at: project.created_at
+      })),
+      total: projects.length
+    });
+
+  } catch (error) {
+    console.error('Error getting team projects:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
+// Gán dự án vào team - POST /api/teams/:teamId/projects
+exports.assignProjectToTeam = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { project_id, project_name, description, start_date, end_date, status, priority, project_type_id } = req.body;
+    const currentUserId = req.user.userId;
+
+    // Import TeamMember model
+    const TeamMember = require('../models/teamMember.model');
+    const Team = require('../models/team.model');
+
+    // Kiểm tra quyền (Admin hoặc Editor)
+    const currentMember = await TeamMember.findOne({
+      team_id: teamId,
+      user_id: currentUserId,
+      role: { $in: ['Admin', 'Editor'] },
+      is_active: true
+    });
+
+    if (!currentMember) {
+      return res.status(403).json({ message: 'Bạn không có quyền gán dự án cho nhóm' });
+    }
+
+    // Kiểm tra team tồn tại
+    const team = await Team.findOne({ _id: teamId, is_deleted: false });
+    if (!team) {
+      return res.status(404).json({ message: 'Không tìm thấy nhóm' });
+    }
+
+    let project;
+
+    if (project_id) {
+      // Gán dự án có sẵn vào team
+      project = await Project.findOne({ _id: project_id, is_deleted: false });
+      if (!project) {
+        return res.status(404).json({ message: 'Không tìm thấy dự án' });
+      }
+
+      // Kiểm tra dự án đã được gán cho team khác chưa
+      if (project.team_id && project.team_id.toString() !== teamId) {
+        return res.status(400).json({ message: 'Dự án đã được gán cho nhóm khác' });
+      }
+
+      // Gán dự án vào team
+      project.team_id = teamId;
+      await project.save();
+
+    } else {
+      // Tạo dự án mới và gán vào team
+      if (!project_name) {
+        return res.status(400).json({ message: 'Tên dự án là bắt buộc' });
+      }
+
+      // Tìm hoặc tạo phân loại mặc định
+      let finalProjectTypeId = project_type_id;
+      if (!project_type_id) {
+        try {
+          let defaultType = await ProjectType.findOne({ name: "Không phân loại", userId: currentUserId });
+          if (!defaultType) {
+            defaultType = await ProjectType.create({
+              name: "Không phân loại",
+              userId: currentUserId,
+              description: "Phân loại mặc định cho các dự án"
+            });
+          }
+          finalProjectTypeId = defaultType._id;
+        } catch (error) {
+          console.error('Lỗi khi tạo phân loại mặc định:', error);
+        }
+      }
+
+      project = new Project({
+        project_name,
+        description,
+        start_date: start_date || new Date(),
+        end_date: end_date || new Date(new Date().setMonth(new Date().getMonth() + 1)),
+        status: status || 'Active',
+        priority: priority || 'Medium',
+        project_type_id: finalProjectTypeId,
+        team_id: teamId,
+        created_by: currentUserId,
+        is_deleted: false
+      });
+
+      await project.save();
+    }
+
+    // Populate thông tin cần thiết
+    const populatedProject = await Project.findById(project._id)
+      .populate('project_type_id', 'name description')
+      .populate('created_by', 'full_name email');
+
+    res.status(201).json({
+      message: project_id ? 'Gán dự án vào nhóm thành công' : 'Tạo và gán dự án vào nhóm thành công',
+      project: {
+        id: populatedProject._id,
+        name: populatedProject.project_name,
+        description: populatedProject.description,
+        status: populatedProject.status,
+        priority: populatedProject.priority,
+        start_date: populatedProject.start_date,
+        end_date: populatedProject.end_date,
+        team_id: populatedProject.team_id,
+        project_type: populatedProject.project_type_id ? {
+          id: populatedProject.project_type_id._id,
+          name: populatedProject.project_type_id.name
+        } : null,
+        created_by: populatedProject.created_by ? {
+          id: populatedProject.created_by._id,
+          name: populatedProject.created_by.full_name
+        } : null,
+        created_at: populatedProject.created_at
+      }
+    });
+
+  } catch (error) {
+    console.error('Error assigning project to team:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };

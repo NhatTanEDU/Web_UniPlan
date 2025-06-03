@@ -4,47 +4,51 @@ const Project = require('../models/project.model');
 const User = require('../models/user.model');
 const responseHelper = require('../utils/responseHelper');
 
-// Thêm nhiều thành viên vào team
+// Thêm nhiều thành viên vào team - Optimized version
 const addMultipleMembers = async (req, res) => {
   try {
     const { teamId } = req.params;
     const { userIds, role = 'member' } = req.body;
-    const currentUserId = req.user.id;
+    const currentUserId = req.user.userId || req.user.id; // Fix: support both field names
 
-    // Kiểm tra quyền (chỉ admin hoặc leader mới được thêm thành viên)
-    const currentMembership = await TeamMember.findOne({
-      teamId,
-      userId: currentUserId,
-      role: { $in: ['admin', 'leader'] }
-    });
+    // Validate input early
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return responseHelper.errorResponse(res, 'Danh sách người dùng không hợp lệ', 400);
+    }
 
+    // Batch limit to prevent timeout
+    if (userIds.length > 50) {
+      return responseHelper.errorResponse(res, 'Tối đa 50 thành viên mỗi lần thêm', 400);
+    }    // Use Promise.all for parallel processing to reduce time
+    const [currentMembership, team, currentMembers, users] = await Promise.all([
+      // Check permissions
+      TeamMember.findOne({
+        team_id: teamId, // Fix: use correct field name
+        user_id: currentUserId, // Fix: use correct field name
+        role: { $in: ['Admin', 'Editor'] }, // Fix: match model enum values
+        is_active: true // Fix: use correct field name
+      }).lean(),
+      
+      // Check team exists
+      Team.findById(teamId).lean(),
+        // Get current members (only IDs for faster query)
+      TeamMember.find({ team_id: teamId }).select('user_id').lean(), // Fix: correct field names
+      
+      // Validate user IDs (parallel to other queries)
+      User.find({ _id: { $in: userIds } }).select('_id name email').lean()
+    ]);
+
+    // Fast permission check
     if (!currentMembership) {
       return responseHelper.forbiddenResponse(res, 'Chỉ quản trị viên hoặc trưởng nhóm mới có thể thêm thành viên');
     }
 
-    // Kiểm tra team tồn tại
-    const team = await Team.findById(teamId);
+    // Fast team existence check
     if (!team) {
       return responseHelper.notFoundResponse(res, 'Không tìm thấy nhóm');
     }
 
-    // Lấy danh sách thành viên hiện tại
-    const currentMembers = await TeamMember.find({ teamId }).select('userId');
-    const currentMemberIds = currentMembers.map(m => m.userId.toString());
-
-    // Kiểm tra giới hạn thành viên
-    if (team.maxMembers) {
-      const newTotalMembers = currentMembers.length + userIds.length;
-      if (newTotalMembers > team.maxMembers) {
-        return responseHelper.errorResponse(res, 
-          `Không thể thêm ${userIds.length} thành viên. Nhóm chỉ có thể chứa tối đa ${team.maxMembers} thành viên. Hiện tại có ${currentMembers.length} thành viên.`, 
-          400
-        );
-      }
-    }
-
-    // Kiểm tra tính hợp lệ của userIds
-    const users = await User.find({ _id: { $in: userIds } });
+    // Fast user validation
     if (users.length !== userIds.length) {
       const foundUserIds = users.map(u => u._id.toString());
       const invalidIds = userIds.filter(id => !foundUserIds.includes(id));
@@ -52,51 +56,67 @@ const addMultipleMembers = async (req, res) => {
         `Một số ID người dùng không hợp lệ: ${invalidIds.join(', ')}`, 
         400
       );
+    }    // Convert to Set for O(1) lookup performance
+    const currentMemberIds = new Set(currentMembers.map(m => m.user_id.toString())); // Fix: correct field name
+
+    // Check member limit early
+    if (team.maxMembers) {
+      const newMembersCount = userIds.filter(userId => !currentMemberIds.has(userId)).length;
+      const newTotalMembers = currentMembers.length + newMembersCount;
+      
+      if (newTotalMembers > team.maxMembers) {
+        return responseHelper.errorResponse(res, 
+          `Không thể thêm ${newMembersCount} thành viên mới. Nhóm chỉ có thể chứa tối đa ${team.maxMembers} thành viên. Hiện tại có ${currentMembers.length} thành viên.`, 
+          400
+        );
+      }
     }
 
-    // Phân loại users
+    // Fast classification using Set
     const existingMembers = [];
     const newMembers = [];
 
     userIds.forEach(userId => {
-      if (currentMemberIds.includes(userId)) {
+      if (currentMemberIds.has(userId)) {
         existingMembers.push(userId);
       } else {
         newMembers.push(userId);
       }
     });
 
-    // Tạo các membership mới
-    const newMemberships = [];
-    if (newMembers.length > 0) {
-      const membershipsToCreate = newMembers.map(userId => ({
-        teamId,
-        userId,
+    // Bulk insert for performance
+    let newMemberships = [];
+    if (newMembers.length > 0) {      const membershipsToCreate = newMembers.map(userId => ({
+        team_id: teamId, // Fix: correct field name
+        user_id: userId, // Fix: correct field name
         role,
-        joinedAt: new Date(),
-        addedBy: currentUserId
+        joined_at: new Date(),
+        // addedBy: currentUserId // Remove this if not in model
       }));
 
-      const createdMemberships = await TeamMember.insertMany(membershipsToCreate);
-      newMemberships.push(...createdMemberships);
+      // Use insertMany for better performance
+      newMemberships = await TeamMember.insertMany(membershipsToCreate);
     }
 
-    // Lấy thông tin chi tiết của các thành viên mới
-    const newMemberDetails = await TeamMember.find({
-      _id: { $in: newMemberships.map(m => m._id) }
-    }).populate('userId', 'name email avatar');
+    // Get detailed info only for response (optimize by using lean())
+    const newMemberDetails = newMemberships.length > 0 
+      ? await TeamMember.find({
+          _id: { $in: newMemberships.map(m => m._id) }
+        })
+        .populate('user_id', 'full_name email avatar') // Fix: correct field names
+        .lean()
+      : [];
 
     const result = {
       teamId,
       teamName: team.name,
       totalRequested: userIds.length,
       successful: newMembers.length,
-      skipped: existingMembers.length,
-      newMembers: newMemberDetails.map(m => ({
+      skipped: existingMembers.length,      newMembers: newMemberDetails.map(m => ({
         memberId: m._id,
-        user: m.userId,
+        user: m.user_id, // Fix: correct field name
         role: m.role,
-        joinedAt: m.joinedAt
+        joinedAt: m.joined_at // Fix: correct field name
       })),
       skippedUsers: existingMembers,
       summary: {
@@ -113,100 +133,105 @@ const addMultipleMembers = async (req, res) => {
   }
 };
 
-// Xóa nhiều thành viên khỏi team
+// Xóa nhiều thành viên khỏi team - Optimized version
 const removeMultipleMembers = async (req, res) => {
   try {
     const { teamId } = req.params;
     const { userIds } = req.body;
-    const currentUserId = req.user.id;
+    const currentUserId = req.user.userId || req.user.id; // Fix: support both field names
 
-    // Kiểm tra quyền
-    const currentMembership = await TeamMember.findOne({
-      teamId,
-      userId: currentUserId,
-      role: { $in: ['admin', 'leader'] }
-    });
+    // Validate input early
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return responseHelper.errorResponse(res, 'Danh sách người dùng không hợp lệ', 400);
+    }
 
+    // Batch limit to prevent timeout
+    if (userIds.length > 50) {
+      return responseHelper.errorResponse(res, 'Tối đa 50 thành viên mỗi lần xóa', 400);
+    }    // Use Promise.all for parallel processing
+    const [currentMembership, team, membersToRemove, allLeaders] = await Promise.all([
+      // Check permissions
+      TeamMember.findOne({
+        team_id: teamId, // Fix: correct field name
+        user_id: currentUserId, // Fix: correct field name
+        role: { $in: ['Admin', 'Editor'] }, // Fix: match model enum
+        is_active: true // Fix: correct field name
+      }).lean(),
+      
+      // Check team exists
+      Team.findById(teamId).lean(),
+        // Get members to remove
+      TeamMember.find({
+        team_id: teamId, // Fix: correct field name
+        user_id: { $in: userIds } // Fix: correct field name
+      })
+      .populate('user_id', 'full_name email avatar') // Fix: correct field names
+      .lean(),
+      
+      // Get all leaders for validation
+      TeamMember.find({
+        team_id: teamId, // Fix: correct field name
+        role: 'Admin' // Fix: use Admin instead of leader
+      }).lean()
+    ]);
+
+    // Fast permission check
     if (!currentMembership) {
       return responseHelper.forbiddenResponse(res, 'Chỉ quản trị viên hoặc trưởng nhóm mới có thể xóa thành viên');
     }
 
-    // Kiểm tra team tồn tại
-    const team = await Team.findById(teamId);
+    // Fast team existence check
     if (!team) {
       return responseHelper.notFoundResponse(res, 'Không tìm thấy nhóm');
     }
 
-    // Lấy thông tin các thành viên cần xóa
-    const membersToRemove = await TeamMember.find({
-      teamId,
-      userId: { $in: userIds }
-    }).populate('userId', 'name email avatar');
-
     if (membersToRemove.length === 0) {
       return responseHelper.errorResponse(res, 'Không tìm thấy thành viên nào để xóa', 400);
+    }    // Fast leader validation using filter
+    const leadersToRemove = membersToRemove.filter(m => m.role === 'Admin'); // Fix: use Admin
+    if (leadersToRemove.length > 0 && allLeaders.length <= leadersToRemove.length) {
+      return responseHelper.errorResponse(res, 'Không thể xóa tất cả Admin. Phải có ít nhất một Admin.', 400);
     }
 
-    // Kiểm tra không được xóa leader cuối cùng
-    const leaders = await TeamMember.find({
-      teamId,
-      role: 'leader'
-    });
-
-    const leadersToRemove = membersToRemove.filter(m => m.role === 'leader');
-    if (leadersToRemove.length > 0 && leaders.length <= leadersToRemove.length) {
-      return responseHelper.errorResponse(res, 'Không thể xóa tất cả trưởng nhóm. Phải có ít nhất một trưởng nhóm.', 400);
-    }
-
-    // Kiểm tra không được tự xóa bản thân nếu là leader duy nhất
-    const isCurrentUserLeader = currentMembership.role === 'leader';
+    // Fast self-removal check
+    const isCurrentUserLeader = currentMembership.role === 'Admin'; // Fix: use Admin
     const isRemovingSelf = userIds.includes(currentUserId);
     
-    if (isCurrentUserLeader && isRemovingSelf && leaders.length === 1) {
+    if (isCurrentUserLeader && isRemovingSelf && allLeaders.length === 1) {
       return responseHelper.errorResponse(res, 'Bạn không thể rời khỏi nhóm khi là trưởng nhóm duy nhất. Hãy chỉ định trưởng nhóm mới trước.', 400);
     }
 
-    // Thực hiện xóa
-    const deletedMembers = [];
-    const failedDeletions = [];
+    // Use bulk delete for performance instead of loop
+    const memberIdsToDelete = membersToRemove.map(m => m._id);
+    
+    try {
+      // Bulk delete operation - much faster than individual deletes
+      const deleteResult = await TeamMember.deleteMany({
+        _id: { $in: memberIdsToDelete }
+      });
 
-    for (const member of membersToRemove) {
-      try {
-        await TeamMember.findByIdAndDelete(member._id);
-        deletedMembers.push({
-          memberId: member._id,
-          user: member.userId,
-          role: member.role,
+      const result = {
+        teamId,
+        teamName: team.name,
+        totalRequested: userIds.length,
+        successful: deleteResult.deletedCount,
+        failed: membersToRemove.length - deleteResult.deletedCount,
+        removedMembers: membersToRemove.map(m => ({
+          memberId: m._id,
+          user: m.userId,
+          role: m.role,
           removedAt: new Date()
-        });
-      } catch (error) {
-        console.error(`Error removing member ${member.userId._id}:`, error);
-        failedDeletions.push({
-          userId: member.userId._id,
-          reason: 'Lỗi khi xóa thành viên'
-        });
-      }
+        })),
+        summary: {
+          message: `Đã xóa ${deleteResult.deletedCount} thành viên khỏi nhóm`,
+          removedCount: deleteResult.deletedCount,
+          remainingMembersEstimate: Math.max(0, allLeaders.length + membersToRemove.length - deleteResult.deletedCount)
+        }
+      };      return responseHelper.successResponse(res, result, 'Xóa thành viên hàng loạt thành công');
+    } catch (deleteError) {
+      console.error('Bulk delete error:', deleteError);
+      return responseHelper.errorResponse(res, 'Lỗi khi xóa thành viên', 500);
     }
-
-    // Lấy số lượng thành viên còn lại
-    const remainingMembersCount = await TeamMember.countDocuments({ teamId });
-
-    const result = {
-      teamId,
-      teamName: team.name,
-      totalRequested: userIds.length,
-      successful: deletedMembers.length,
-      failed: failedDeletions.length,
-      removedMembers: deletedMembers,
-      failedRemovals: failedDeletions,
-      summary: {
-        message: `Đã xóa ${deletedMembers.length} thành viên. ${failedDeletions.length} thành viên không thể xóa.`,
-        removedCount: deletedMembers.length,
-        remainingMembersCount
-      }
-    };
-
-    return responseHelper.successResponse(res, result, 'Xóa thành viên hàng loạt thành công');
   } catch (error) {
     console.error('Error removing multiple members:', error);
     return responseHelper.errorResponse(res, 'Lỗi xóa thành viên hàng loạt', 500);

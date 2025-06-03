@@ -6,8 +6,15 @@ const User = require('../models/user.model');
 // Tạo nhóm mới
 exports.createTeam = async (req, res) => {
   try {
-    const { team_name, description, members = [], project_data } = req.body;
+    const { team_name, name, description, type, members = [], project_data } = req.body;
     const userId = req.user.userId; // Thay đổi từ req.user._id thành req.user.userId
+
+    // Support both 'team_name' and 'name' fields for backward compatibility
+    const finalTeamName = team_name || name;
+    
+    if (!finalTeamName) {
+      return res.status(400).json({ message: 'Tên nhóm là bắt buộc (team_name hoặc name)' });
+    }
 
     // Validate project_data (nếu có)
     let project = null;
@@ -20,8 +27,9 @@ exports.createTeam = async (req, res) => {
 
     // Tạo nhóm
     const team = await Team.create({
-      team_name,
+      team_name: finalTeamName, // Use the resolved name
       description,
+      type, // Add type field
       created_by: userId,
       project_data: project ? project._id : null
     });
@@ -86,10 +94,9 @@ exports.createTeam = async (req, res) => {
 };
 
 // Lấy danh sách nhóm
-exports.getTeams = async (req, res) => {
-  try {
+exports.getTeams = async (req, res) => {  try {
     const userId = req.user.userId; // Thay đổi từ req.user._id thành req.user.userId
-    const { page = 1, limit = 10, search = '', sortBy = 'created_at', sortOrder = 'desc' } = req.query;
+    const { page = 1, limit = 10, search = '', sortBy = 'team_name', sortOrder = 'asc' } = req.query;
 
     // Tìm các nhóm mà user là thành viên
     const userTeams = await TeamMember.find({ 
@@ -112,9 +119,16 @@ exports.getTeams = async (req, res) => {
       ];
     }
 
-    // Sorting
+    // Sorting - ensure consistent ordering
     const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    const validSortFields = ['team_name', 'created_at', 'updated_at'];
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'team_name';
+    sort[sortField] = sortOrder === 'desc' ? -1 : 1;
+    
+    // Add secondary sort by team_name for consistency when sorting by other fields
+    if (sortField !== 'team_name') {
+      sort['team_name'] = 1;
+    }
 
     // Pagination
     const skip = (page - 1) * limit;

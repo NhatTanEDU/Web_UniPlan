@@ -74,10 +74,13 @@ const paginationResponse = (data, total, page, limit, message = "Lấy dữ li�
  * @returns {Object} Formatted validation error response
  */
 const validationErrorResponse = (validationErrors) => {
+  // Ensure validationErrors is an array
+  const errors = Array.isArray(validationErrors) ? validationErrors : [validationErrors];
+  
   return errorResponse(
     "Dữ liệu không hợp lệ",
     400,
-    validationErrors.map(error => ({
+    errors.map(error => ({
       field: error.path || error.field,
       message: error.message || error.msg,
       value: error.value

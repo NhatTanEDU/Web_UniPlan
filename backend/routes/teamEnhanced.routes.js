@@ -61,8 +61,6 @@ router.get('/health', (req, res) => {
 router.use(auth);
 router.use(generalRateLimit);
 router.use(logRateLimitViolation);
-router.use(generalRateLimit); // Apply general rate limiting
-router.use(logRateLimitViolation); // Log rate limit violations
 
 // =============================================================================
 // STATISTICS ROUTES
@@ -87,6 +85,12 @@ router.get('/stats/comparison',
   teamStatsController.getTeamComparisonStats
 );
 
+// GET /api/teams/stats/projects - Thống kê team có/chưa có dự án
+router.get('/stats/projects',
+  statsRateLimit,
+  teamStatsController.getTeamProjectStats
+);
+
 // GET /api/teams/:teamId/stats/activity - Thống kê hoạt động theo thời gian
 router.get('/:teamId/stats/activity',
   statsRateLimit,
@@ -95,51 +99,67 @@ router.get('/:teamId/stats/activity',
 );
 
 // =============================================================================
-// SEARCH ROUTES
+// SEARCH ROUTES (Moved before parameterized routes to avoid conflicts)
 // =============================================================================
 
 // GET /api/teams/search - Tìm kiếm teams của user
 router.get('/search',
+  auth, // Fix: add authentication middleware
   searchRateLimit,
   teamSearchController.searchTeams
 );
 
 // GET /api/teams/search/public - Tìm kiếm teams công khai
 router.get('/search/public',
+  auth, // Fix: add authentication middleware
   searchRateLimit,
   teamSearchController.searchPublicTeams
 );
 
+// GET /api/teams/recommendations - Gợi ý teams phù hợp
+router.get('/recommendations',
+  auth, // Fix: add authentication middleware
+  searchRateLimit,
+  teamSearchController.getTeamRecommendations
+);
+
 // GET /api/teams/:teamId/members/search - Tìm kiếm thành viên trong team
 router.get('/:teamId/members/search',
+  auth, // Fix: add authentication middleware
   searchRateLimit,
   checkTeamAccess(['member', 'admin', 'leader']),
   teamSearchController.searchTeamMembers
 );
 
-// GET /api/teams/recommendations - Gợi ý teams phù hợp
-router.get('/recommendations',
-  searchRateLimit,
-  teamSearchController.getTeamRecommendations
-);
-
 // =============================================================================
-// BULK OPERATIONS ROUTES
+// BULK OPERATIONS ROUTES (Enhanced with timeout handling)
 // =============================================================================
 
 // POST /api/teams/:teamId/members/bulk/add - Thêm nhiều thành viên
 router.post('/:teamId/members/bulk/add',
+  auth, // Fix: add authentication middleware
   bulkOperationRateLimit,
   validateAddMultipleMembers,
   handleValidationErrors,
   checkTeamAdminOrLeader,
+  // Enhanced timeout wrapper
+  (req, res, next) => {
+    req.timeout = 10000; // 10 seconds for bulk operations
+    next();
+  },
   teamBulkController.addMultipleMembers
 );
 
 // DELETE /api/teams/:teamId/members/bulk/remove - Xóa nhiều thành viên
 router.delete('/:teamId/members/bulk/remove',
+  auth, // Fix: add authentication middleware
   bulkOperationRateLimit,
   checkTeamAdminOrLeader,
+  // Enhanced timeout wrapper
+  (req, res, next) => {
+    req.timeout = 10000; // 10 seconds for bulk operations
+    next();
+  },
   teamBulkController.removeMultipleMembers
 );
 
@@ -147,6 +167,11 @@ router.delete('/:teamId/members/bulk/remove',
 router.put('/:teamId/members/bulk/roles',
   bulkOperationRateLimit,
   checkTeamAdminOrLeader,
+  // Enhanced timeout wrapper
+  (req, res, next) => {
+    req.timeout = 8000; // 8 seconds for role updates
+    next();
+  },
   teamBulkController.updateMultipleMemberRoles
 );
 
@@ -154,12 +179,22 @@ router.put('/:teamId/members/bulk/roles',
 router.post('/:teamId/projects/bulk/assign',
   bulkOperationRateLimit,
   checkTeamAdminOrLeader,
+  // Enhanced timeout wrapper
+  (req, res, next) => {
+    req.timeout = 10000; // 10 seconds for project assignments
+    next();
+  },
   teamBulkController.assignMultipleProjects
 );
 
 // DELETE /api/teams/bulk/delete - Xóa nhiều teams
 router.delete('/bulk/delete',
   deleteTeamRateLimit,
+  // Enhanced timeout wrapper
+  (req, res, next) => {
+    req.timeout = 15000; // 15 seconds for team deletions
+    next();
+  },
   teamBulkController.deleteMultipleTeams
 );
 
@@ -372,7 +407,6 @@ router.get('/health', (req, res) => {
 
 // Team Activity Feed endpoints
 router.get('/activity', 
-  auth, 
   generalRateLimit,
   async (req, res) => {
     try {
@@ -478,7 +512,7 @@ router.get('/activity',
 
 // Team Health Check endpoints
 router.get('/health/:teamId', 
-  auth, 
+  
   generalRateLimit,
   async (req, res) => {
     try {
@@ -606,7 +640,7 @@ router.get('/health/:teamId',
 
 // Team Recommendations endpoints
 router.get('/recommendations', 
-  auth, 
+  
   generalRateLimit,
   async (req, res) => {
     try {
@@ -725,7 +759,7 @@ router.get('/recommendations',
 
 // Recommendation feedback endpoint
 router.post('/recommendations/:id/feedback', 
-  auth, 
+  
   generalRateLimit,
   async (req, res) => {
     try {
@@ -752,7 +786,7 @@ router.post('/recommendations/:id/feedback',
 
 // Notifications endpoints
 router.get('/notifications', 
-  auth, 
+  
   generalRateLimit,
   async (req, res) => {
     try {
@@ -895,7 +929,7 @@ router.get('/notifications',
 
 // Mark notifications as read
 router.patch('/notifications/read', 
-  auth, 
+  
   generalRateLimit,
   async (req, res) => {
     try {
@@ -921,7 +955,7 @@ router.patch('/notifications/read',
 
 // Toggle star notification
 router.patch('/notifications/:id/star', 
-  auth, 
+  
   generalRateLimit,
   async (req, res) => {
     try {

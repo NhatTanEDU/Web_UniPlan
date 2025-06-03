@@ -14,12 +14,10 @@ const auth = async (req, res, next) => {
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(401).json({ message: 'Không tìm thấy người dùng' });
-    }
-
-    // Chuẩn hóa user vào req
+    }    // Chuẩn hóa user vào req
     req.user = {
       userId: user._id.toString(),
-      name: user.name,
+      name: user.full_name, // Fix: đổi từ user.name thành user.full_name
       email: user.email,
       role: user.role,
     };

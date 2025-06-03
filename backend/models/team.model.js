@@ -6,11 +6,16 @@ const teamSchema = new mongoose.Schema({
     required: [true, 'Tên nhóm là bắt buộc'],
     trim: true,
     maxlength: [100, 'Tên nhóm không được vượt quá 100 ký tự']
-  },
-  description: {
+  },  description: {
     type: String,
     trim: true,
     maxlength: [500, 'Mô tả không được vượt quá 500 ký tự']
+  },
+  type: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'Loại nhóm không được vượt quá 50 ký tự'],
+    default: 'Public'
   },
   created_by: {
     type: mongoose.Schema.Types.ObjectId,
