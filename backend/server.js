@@ -87,15 +87,15 @@ mongoose
 // Socket.IO logic - Only if enabled
 if (isFeatureEnabled('SOCKET_IO') && io && isFeatureEnabled('CUSTOM_WIDGETS') && UserWidget) {
   io.on('connection', (socket) => {
-    console.log('⚡ New client connected:', socket.id);
+    // console.log('⚡ New client connected:', socket.id);
 
     // Logic cho thông báo: Client tham gia phòng dựa trên userId
     socket.on('join', (userId) => {
       if (userId) {
         socket.join(userId);
-        console.log(`User ${userId} joined room`);
+        // console.log(`User ${userId} joined room`);
       } else {
-        console.log('❌ No userId provided for join event');
+        // console.log('❌ No userId provided for join event');
       }
     });
 
@@ -110,11 +110,11 @@ if (isFeatureEnabled('SOCKET_IO') && io && isFeatureEnabled('CUSTOM_WIDGETS') &&
     });
 
     socket.on('disconnect', () => {
-      console.log('💨 Client disconnected:', socket.id);
+      // console.log('💨 Client disconnected:', socket.id);
     });
   });
 } else {
-  console.log('⚠️  Socket.IO features disabled - Running in safe mode without real-time updates');
+  // console.log('⚠️  Socket.IO features disabled - Running in safe mode without real-time updates');
 }
 
 module.exports = server;

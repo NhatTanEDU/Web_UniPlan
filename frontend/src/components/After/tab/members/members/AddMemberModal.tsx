@@ -21,6 +21,22 @@ export default function AddMemberModal({
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // Helper function to safely get avatar initial
+  const getAvatarInitial = (user: SearchUser): string => {
+    try {
+      if (user.name && typeof user.name === 'string' && user.name.trim().length > 0) {
+        return user.name.trim().charAt(0).toUpperCase();
+      }
+      if (user.email && typeof user.email === 'string' && user.email.trim().length > 0) {
+        return user.email.trim().charAt(0).toUpperCase();
+      }
+      return '?';
+    } catch (error) {
+      console.error('Error getting avatar initial:', error);
+      return '?';
+    }
+  };
+
   // Handle search with debounce
   useEffect(() => {
     if (searchTimeoutRef.current) {
@@ -57,11 +73,14 @@ export default function AddMemberModal({
             'Content-Type': 'application/json'
           }
         }
-      );
-
-      if (response.ok) {
+      );      if (response.ok) {
         const data = await response.json();
         setSearchResults(data.data || []);
+        setSearchPerformed(true);
+      } else if (response.status === 400) {
+        // Backend requires at least 2 characters for search
+        console.log('Search requires at least 2 characters');
+        setSearchResults([]);
         setSearchPerformed(true);
       } else {
         console.error('Search failed:', response.statusText);
@@ -159,21 +178,18 @@ export default function AddMemberModal({
                       <div
                         key={user._id}
                         className="flex items-center justify-between p-2 sm:p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-                      >
-                        <div className="flex items-center space-x-2 sm:space-x-3">
-                          <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                      >                        <div className="flex items-center space-x-2 sm:space-x-3">
+                          <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                               <span className="text-xs sm:text-sm font-medium text-white">
-                                {user.name.charAt(0).toUpperCase()}
+                                {getAvatarInitial(user)}
                               </span>
                             </div>
-                          </div>
-                          <div>
+                          </div><div>
                             <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {user.name}
+                              {(user.name && user.name.trim().length > 0) ? user.name : 'Không có tên'}
                             </p>
                             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                              {user.email}
+                              {user.email || 'Không có email'}
                             </p>
                           </div>
                         </div>

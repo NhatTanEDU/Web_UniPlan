@@ -4,7 +4,7 @@ import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
 import TopButton from "../../../TopButton";
 import Breadcrumb from "../../Breadcrumb";
-import TeamsManagementEnhanced from "./TeamsManagementEnhanced";
+import TeamList from "./components/TeamList";
 
 export default function TeamPage() {
   const handleFooterClick = (item: string) => {
@@ -16,8 +16,8 @@ export default function TeamPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <Breadcrumb items={["Dashboard", "Quản lý nhóm"]} />        <main className="flex-1 overflow-y-auto p-4">
-          <TeamsManagementEnhanced />
+        <Breadcrumb items={["Dashboard", "Quản lý nhóm"]} />          <main className="flex-1 overflow-y-auto p-4">
+          <TeamList />
         </main>
         <Footer onFooterClick={handleFooterClick} />
         <TopButton />

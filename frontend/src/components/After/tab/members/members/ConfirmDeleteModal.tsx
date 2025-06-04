@@ -62,15 +62,15 @@ export default function ConfirmDeleteModal({
               <div className="flex justify-center mb-2 sm:mb-3">
                 <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                   <span className="text-lg sm:text-xl font-medium text-white">
-                    {member.member_user_id.name.charAt(0).toUpperCase()}
+                    {member.member_user_id?.name?.charAt(0).toUpperCase() || '?'}
                   </span>
                 </div>
               </div>
               <h4 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-                {member.member_user_id.name}
+                {member.member_user_id?.name || 'Không có tên'}
               </h4>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                {member.member_user_id.email}
+                {member.member_user_id?.email || 'Không có email'}
               </p>
               {member.custom_role && (
                 <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 mt-1">
@@ -80,7 +80,7 @@ export default function ConfirmDeleteModal({
             </div>            {/* Warning Message */}
             <div className="mb-4 sm:mb-6">
               <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mb-2">
-                Bạn có chắc muốn xóa <strong>{member.member_user_id.name}</strong> khỏi danh sách cá nhân của mình không?
+                Bạn có chắc muốn xóa <strong>{member.member_user_id?.name || 'thành viên này'}</strong> khỏi danh sách cá nhân của mình không?
               </p>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-2 sm:p-3 mt-2 sm:mt-3">
                 <div className="flex">

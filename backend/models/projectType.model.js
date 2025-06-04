@@ -4,7 +4,6 @@ const projectTypeSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
     userId: {
@@ -18,6 +17,9 @@ const projectTypeSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+// Tạo compound unique index cho name + userId thay vì chỉ name
+projectTypeSchema.index({ name: 1, userId: 1 }, { unique: true });
 
 const ProjectType = mongoose.model('ProjectType', projectTypeSchema);
 

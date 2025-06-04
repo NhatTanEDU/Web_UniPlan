@@ -305,14 +305,13 @@ async function searchTeamMembers(req, res) {
         from: 'users',
         localField: 'user_id',
         foreignField: '_id',
-        as: 'user',
-        pipeline: [
+        as: 'user',        pipeline: [
           {
             $project: {
               name: 1,
               full_name: 1,
               email: 1,
-              avatar: 1,
+              avatar_url: 1,
               phone: 1,
               department: 1
             }

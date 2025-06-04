@@ -103,7 +103,7 @@ const addMultipleMembers = async (req, res) => {
       ? await TeamMember.find({
           _id: { $in: newMemberships.map(m => m._id) }
         })
-        .populate('user_id', 'full_name email avatar') // Fix: correct field names
+        .populate('user_id', 'full_name email avatar_url') // Fix: correct field names
         .lean()
       : [];
 
@@ -165,7 +165,7 @@ const removeMultipleMembers = async (req, res) => {
         team_id: teamId, // Fix: correct field name
         user_id: { $in: userIds } // Fix: correct field name
       })
-      .populate('user_id', 'full_name email avatar') // Fix: correct field names
+      .populate('user_id', 'full_name email avatar_url') // Fix: correct field names
       .lean(),
       
       // Get all leaders for validation
@@ -278,7 +278,7 @@ const updateMultipleMemberRoles = async (req, res) => {
     const membersToUpdate = await TeamMember.find({
       teamId,
       userId: { $in: userIdsToUpdate }
-    }).populate('userId', 'name email avatar');
+    }).populate('userId', 'name email avatar_url');
 
     if (membersToUpdate.length === 0) {
       return responseHelper.errorResponse(res, 'Không tìm thấy thành viên nào để cập nhật', 400);

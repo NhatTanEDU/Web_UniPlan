@@ -49,11 +49,16 @@ export default function PersonalMembersList() {
   useEffect(() => {
     fetchMembers();
   }, []);
-
-  const filteredMembers = members.filter(member =>
-    member.member_user_id.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.member_user_id.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMembers = members.filter(member => {
+    if (!member?.member_user_id) return false;
+    
+    const userName = member.member_user_id.name || '';
+    const userEmail = member.member_user_id.email || '';
+    const searchLower = searchTerm.toLowerCase();
+    
+    return userName.toLowerCase().includes(searchLower) ||
+           userEmail.toLowerCase().includes(searchLower);
+  });
 
   if (loading) {
     return (
@@ -131,16 +136,16 @@ export default function PersonalMembersList() {
                     <div className="flex-shrink-0">
                       <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center">
                         <span className="text-sm font-medium text-white">
-                          {member.member_user_id.name.charAt(0).toUpperCase()}
+                          {member.member_user_id?.name?.charAt(0).toUpperCase() || '?'}
                         </span>
                       </div>
                     </div>
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {member.member_user_id.name}
+                        {member.member_user_id?.name || 'Không có tên'}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {member.member_user_id.email}
+                        {member.member_user_id?.email || 'Không có email'}
                       </div>
                     </div>
                   </div>

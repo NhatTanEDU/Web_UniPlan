@@ -18,15 +18,14 @@ exports.getUserTeamRole = async (req, res) => {
       return res.status(404).json({ 
         success: false,
         message: 'Không tìm thấy nhóm' 
-      });
-    }
+      });    }
 
     // Tìm role của user trong team
     const membership = await TeamMember.findOne({
       team_id: teamId,
       user_id: userId,
       is_active: true
-    }).populate('user_id', 'full_name email avatar');
+    }).populate('user_id', 'full_name email avatar_url');
 
     if (!membership) {
       return res.status(403).json({
@@ -123,9 +122,7 @@ exports.getUserProjectRole = async (req, res) => {
 // Lấy tất cả roles của user trong tất cả teams và projects
 exports.getAllUserRoles = async (req, res) => {
   try {
-    const userId = req.user.userId || req.user.id;
-
-    console.log('🔍 [DEBUG] Getting all roles for user:', userId);
+    const userId = req.user.userId || req.user.id;    console.log('🔍 [DEBUG] Getting all roles for user:', userId);
 
     // Lấy tất cả team memberships
     const teamMemberships = await TeamMember.find({
@@ -133,7 +130,7 @@ exports.getAllUserRoles = async (req, res) => {
       is_active: true
     })
     .populate('team_id', 'team_name description created_by')
-    .populate('user_id', 'full_name email avatar');
+    .populate('user_id', 'full_name email avatar_url');
 
     // Lấy tất cả project memberships
     const projectMemberships = await ProjectMember.find({
@@ -204,11 +201,9 @@ exports.checkDeletePermission = async (req, res) => {
         message: 'Bạn không phải là thành viên của nhóm này',
         canDelete: false
       });
-    }
-
-    // Lấy thông tin member cần xóa
+    }    // Lấy thông tin member cần xóa
     const targetMember = await TeamMember.findById(memberId)
-      .populate('user_id', 'full_name email avatar');
+      .populate('user_id', 'full_name email avatar_url');
 
     if (!targetMember) {
       return res.status(404).json({

@@ -111,15 +111,19 @@ export default function ProjectForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Trạng thái
-        </label>
-        <select
+        </label>        <select
           value={newProject.status}
           onChange={(e) =>
             setNewProject({ ...newProject, status: e.target.value })
           }
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           required
-        >          <option value="Active">Đang hoạt động</option>
+        >
+          <option value="Planning">Lập kế hoạch</option>
+          <option value="Active">Đang hoạt động</option>
+          <option value="On Hold">Tạm dừng</option>
+          <option value="Completed">Hoàn thành</option>
+          <option value="Cancelled">Đã hủy</option>
           <option value="Archived">Đã lưu trữ</option>
         </select>
       </div>
@@ -128,17 +132,18 @@ export default function ProjectForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Ưu tiên
-        </label>
-        <select
+        </label>        <select
           value={newProject.priority}
           onChange={(e) =>
             setNewProject({ ...newProject, priority: e.target.value })
           }
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           required
-        >          <option value="Low">Thấp</option>
+        >
+          <option value="Low">Thấp</option>
           <option value="Medium">Trung bình</option>
           <option value="High">Cao</option>
+          <option value="Critical">Khẩn cấp</option>
         </select>
       </div>
 

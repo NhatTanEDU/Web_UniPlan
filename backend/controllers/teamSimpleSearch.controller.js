@@ -220,13 +220,12 @@ async function searchMembersInTeam(req, res) {
           from: 'users',
           localField: 'user_id',
           foreignField: '_id',
-          as: 'user',
-          pipeline: [
+          as: 'user',          pipeline: [
             {
               $project: {
                 full_name: 1,
                 email: 1,
-                avatar: 1
+                avatar_url: 1
               }
             }
           ]

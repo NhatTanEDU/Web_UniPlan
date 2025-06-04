@@ -2,9 +2,52 @@ const Project = require("../models/project.model.js");
 const ProjectType = require('../models/projectType.model.js');
 const axios = require('axios');
 
+// Helper function to get or create default project type
+const getOrCreateDefaultProjectType = async (userId) => {
+  try {
+    let defaultType = await ProjectType.findOne({ name: "Không phân loại", userId });
+    if (!defaultType) {
+      try {
+        defaultType = await ProjectType.create({
+          name: "Không phân loại",
+          userId,
+          description: "Phân loại mặc định cho các dự án"
+        });
+        console.log('Created new default project type:', defaultType._id);
+      } catch (createError) {
+        // Nếu có lỗi duplicate key, thử tìm lại (có thể đã được tạo bởi request khác)
+        if (createError.code === 11000) {
+          console.log('Project type already exists, finding it...');
+          defaultType = await ProjectType.findOne({ name: "Không phân loại", userId });
+          if (!defaultType) {
+            // Thử tìm global default (không có userId)
+            defaultType = await ProjectType.findOne({ name: "Không phân loại" });
+            if (!defaultType) {
+              throw new Error('Không thể tạo hoặc tìm phân loại mặc định');
+            } else {
+              console.log('Found global default project type:', defaultType._id);
+            }
+          } else {
+            console.log('Found user-specific default project type:', defaultType._id);
+          }
+        } else {
+          throw createError;
+        }
+      }
+    } else {
+      console.log('Found existing default project type:', defaultType._id);
+    }
+    return defaultType._id;
+  } catch (error) {
+    console.error('Lỗi khi tạo/tìm phân loại mặc định:', error);
+    throw error;
+  }
+};
+
 // Tạo dự án mới
 exports.createProject = async (req, res) => {
   try {
+    console.log('Request body:', req.body); // Debug log
     const { project_name, description, start_date, end_date, status, priority, project_type_id } = req.body;
     const userId = req.user.userId;
 
@@ -15,18 +58,11 @@ exports.createProject = async (req, res) => {
     // Tìm hoặc tạo phân loại mặc định
     let finalProjectTypeId = project_type_id;
     if (!project_type_id) {
+      console.log('Project type ID not provided, using helper function...'); // Debug log
       try {
-        let defaultType = await ProjectType.findOne({ name: "Không phân loại", userId });
-        if (!defaultType) {
-          defaultType = await ProjectType.create({
-            name: "Không phân loại",
-            userId,
-            description: "Phân loại mặc định cho các dự án"
-          });
-        }
-        finalProjectTypeId = defaultType._id;
+        finalProjectTypeId = await getOrCreateDefaultProjectType(userId);
       } catch (error) {
-        console.error('Lỗi khi tạo phân loại mặc định:', error);
+        return res.status(500).json({ message: 'Lỗi khi tạo phân loại mặc định', error: error.message });
       }
     }
 
@@ -35,7 +71,7 @@ exports.createProject = async (req, res) => {
       description,
       start_date: start_date || new Date(),
       end_date: end_date || new Date(new Date().setMonth(new Date().getMonth() + 1)),
-      status: status || 'Active',
+      status: status || 'Planning', // Changed from 'Active' to 'Planning'
       priority: priority || 'Medium',
       project_type_id: finalProjectTypeId,
       created_by: userId,
@@ -43,6 +79,7 @@ exports.createProject = async (req, res) => {
       deleted_at: null
     });
 
+    console.log('Project before save:', project); // Debug log
     await project.save();
 
     // Emit socket event khi tạo dự án thành công
@@ -341,17 +378,9 @@ exports.assignProjectToTeam = async (req, res) => {
       let finalProjectTypeId = project_type_id;
       if (!project_type_id) {
         try {
-          let defaultType = await ProjectType.findOne({ name: "Không phân loại", userId: currentUserId });
-          if (!defaultType) {
-            defaultType = await ProjectType.create({
-              name: "Không phân loại",
-              userId: currentUserId,
-              description: "Phân loại mặc định cho các dự án"
-            });
-          }
-          finalProjectTypeId = defaultType._id;
+          finalProjectTypeId = await getOrCreateDefaultProjectType(currentUserId);
         } catch (error) {
-          console.error('Lỗi khi tạo phân loại mặc định:', error);
+          return res.status(500).json({ message: 'Lỗi khi tạo phân loại mặc định', error: error.message });
         }
       }
 
@@ -360,7 +389,7 @@ exports.assignProjectToTeam = async (req, res) => {
         description,
         start_date: start_date || new Date(),
         end_date: end_date || new Date(new Date().setMonth(new Date().getMonth() + 1)),
-        status: status || 'Active',
+        status: status || 'Planning',
         priority: priority || 'Medium',
         project_type_id: finalProjectTypeId,
         team_id: teamId,

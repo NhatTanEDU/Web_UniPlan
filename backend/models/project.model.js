@@ -20,12 +20,12 @@ const projectSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Active', 'Archived'],
-        default: 'Active'
+        enum: ['Planning', 'Active', 'On Hold', 'Completed', 'Cancelled', 'Archived'],
+        default: 'Planning'
     },
     priority: {
         type: String,
-        enum: ['Low', 'Medium', 'High'],
+        enum: ['Low', 'Medium', 'High', 'Critical'],
         default: 'Medium'
     },
     project_type_id: {

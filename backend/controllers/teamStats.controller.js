@@ -125,11 +125,9 @@ const getTeamDetailStats = async (req, res) => {
     if (!team) {
       const notFoundResp = responseHelper.errorResponse('Không tìm thấy nhóm', 404);
       return responseHelper.sendResponse(res, notFoundResp);
-    }
-
-    // Thống kê thành viên
+    }    // Thống kê thành viên
     const teamMembers = await TeamMember.find({ team_id: teamId })
-      .populate('user_id', 'name email avatar');
+      .populate('user_id', 'name email avatar_url');
 
     const memberStats = {
       total: teamMembers.length,
@@ -161,12 +159,10 @@ const getTeamDetailStats = async (req, res) => {
 
     // Hoạt động gần đây (thành viên mới tham gia trong 7 ngày)
     const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    const recentMembers = await TeamMember.find({
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);    const recentMembers = await TeamMember.find({
       team_id: teamId,
       joined_at: { $gte: sevenDaysAgo }
-    }).populate('user_id', 'name email avatar');
+    }).populate('user_id', 'name email avatar_url');
 
     const stats = {
       teamInfo: {

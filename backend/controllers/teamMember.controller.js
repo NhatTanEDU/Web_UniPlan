@@ -42,9 +42,8 @@ exports.addMember = async (req, res) => {
         existingMember.is_active = true;
         existingMember.role = role;
         await existingMember.save();
-        
-        const memberWithUser = await TeamMember.findById(existingMember._id)
-          .populate('user_id', 'full_name email avatar');
+          const memberWithUser = await TeamMember.findById(existingMember._id)
+          .populate('user_id', 'full_name email avatar_url');
           
         return res.json({
           message: 'Thêm thành viên thành công',
@@ -60,10 +59,8 @@ exports.addMember = async (req, res) => {
       role
     });
 
-    await newMember.save();
-
-    const memberWithUser = await TeamMember.findById(newMember._id)
-      .populate('user_id', 'full_name email avatar');
+    await newMember.save();    const memberWithUser = await TeamMember.findById(newMember._id)
+      .populate('user_id', 'full_name email avatar_url');
 
     res.status(201).json({
       message: 'Thêm thành viên thành công',
@@ -121,10 +118,8 @@ exports.updateMemberRole = async (req, res) => {
     }
 
     member.role = role;
-    await member.save();
-
-    const updatedMember = await TeamMember.findById(member._id)
-      .populate('user_id', 'full_name email avatar');
+    await member.save();    const updatedMember = await TeamMember.findById(member._id)
+      .populate('user_id', 'full_name email avatar_url');
 
     res.json({
       message: 'Cập nhật vai trò thành công',
@@ -149,27 +144,24 @@ exports.removeMember = async (req, res) => {
       userObject: req.user
     });
 
-    const member = await TeamMember.findById(id).populate('user_id', 'full_name email name');
+    const member = await TeamMember.findById(id).populate('user_id', 'full_name email avatar_url');
     if (!member) {
       console.log('❌ [DEBUG] Member not found:', id);
       return res.status(404).json({ message: 'Không tìm thấy thành viên' });
-    }
-
-    console.log('🔍 [DEBUG] Target member found:', {
+    }    console.log('🔍 [DEBUG] Target member found:', {
       memberId: member._id,
       userId: member.user_id._id,
-      userName: member.user_id.full_name || member.user_id.name,
+      userName: member.user_id.full_name || 'Unknown User',
       role: member.role,
       teamId: member.team_id,
-      isActive: member.is_active
-    });
+      isActive: member.is_active    });
 
     // Kiểm tra quyền
     const currentMember = await TeamMember.findOne({
       team_id: member.team_id,
       user_id: currentUserId,
       is_active: true
-    }).populate('user_id', 'full_name email name');
+    }).populate('user_id', 'full_name email avatar_url');
 
     if (!currentMember) {
       console.log('❌ [DEBUG] Current user not found in team:', {
@@ -177,12 +169,10 @@ exports.removeMember = async (req, res) => {
         currentUserId
       });
       return res.status(403).json({ message: 'Bạn không có quyền trong nhóm này' });
-    }
-
-    console.log('🔍 [DEBUG] Current member found:', {
+    }    console.log('🔍 [DEBUG] Current member found:', {
       memberId: currentMember._id,
       userId: currentMember.user_id._id,
-      userName: currentMember.user_id.full_name || currentMember.user_id.name,
+      userName: currentMember.user_id.full_name || 'Unknown User',
       role: currentMember.role,
       isActive: currentMember.is_active
     });
@@ -228,20 +218,17 @@ exports.removeMember = async (req, res) => {
 
     // Thực hiện xóa (soft delete)
     member.is_active = false;
-    await member.save();
-
-    console.log('✅ [DEBUG] Member removed successfully:', {
+    await member.save();    console.log('✅ [DEBUG] Member removed successfully:', {
       memberId: member._id,
-      userName: member.user_id.full_name || member.user_id.name,
-      removedBy: currentMember.user_id.full_name || currentMember.user_id.name
+      userName: member.user_id.full_name || 'Unknown User',
+      removedBy: currentMember.user_id.full_name || 'Unknown User'
     });
 
     res.json({ 
-      message: 'Xóa thành viên thành công',
-      removedMember: {
+      message: 'Xóa thành viên thành công',      removedMember: {
         id: member._id,
         userId: member.user_id._id,
-        name: member.user_id.full_name || member.user_id.name,
+        name: member.user_id.full_name || 'Unknown User',
         role: member.role
       }
     });
@@ -271,30 +258,35 @@ exports.searchUsersToAdd = async (req, res) => {
     }
 
     // Lấy danh sách user đã là thành viên
+    // CHỈ loại trừ user đã là thành viên nhóm, KHÔNG loại trừ user đã là personal member!
     const existingMembers = await TeamMember.find({ 
       team_id, 
       is_active: true 
     }).select('user_id');
-    
     const excludeUserIds = existingMembers.map(m => m.user_id);
 
     // Tìm kiếm user chưa là thành viên
-    const conditions = {
-      _id: { $nin: excludeUserIds },
-      is_active: true
-    };
+    // Include users with either `is_active` (new field) or `isActive` (legacy field)
+    const conditions = { _id: { $nin: excludeUserIds } };
+    // Only active users (soft-delete support): check both possible fields
+    const activeFilter = { $or: [ { is_active: true }, { isActive: true } ] };
+    // Combine base and active filters
+    conditions.$and = [ activeFilter ];
 
+    // Add search regex if provided
     if (search) {
-      conditions.$or = [
-        { full_name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
-      ];
+      conditions.$and.push({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { full_name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ]
+      });
     }
 
     const skip = (page - 1) * limit;
-    
-    const users = await User.find(conditions)
-      .select('full_name email avatar')
+      const users = await User.find(conditions)
+      .select('full_name email avatar_url')
       .skip(skip)
       .limit(parseInt(limit))
       .sort({ full_name: 1 });
@@ -351,24 +343,19 @@ exports.getTeamMembers = async (req, res) => {
         currentUserId
       });
       return res.status(403).json({ message: 'Bạn không có quyền xem danh sách thành viên của nhóm này' });
-    }
-
-    // Lấy danh sách thành viên
+    }    // Lấy danh sách thành viên
     const members = await TeamMember.find({
       team_id: teamId,
-      is_active: true
-    })
-    .populate('user_id', 'full_name email avatar name')
+      is_active: true    })
+    .populate('user_id', 'full_name email avatar_url')
     .populate('team_id', 'team_name')
-    .sort({ created_at: -1 });
-
-    console.log('✅ [DEBUG] Found team members:', {
+    .sort({ created_at: -1 });    console.log('✅ [DEBUG] Found team members:', {
       teamId,
       memberCount: members.length,
       members: members.map(m => ({
         id: m._id,
         userId: m.user_id._id,
-        userName: m.user_id.full_name || m.user_id.name,
+        userName: m.user_id.full_name || 'Unknown User',
         role: m.role
       }))
     });
@@ -381,12 +368,11 @@ exports.getTeamMembers = async (req, res) => {
         description: team.description
       },
       members: members.map(member => ({
-        id: member._id,
-        user: {
+        id: member._id,        user: {
           id: member.user_id._id,
-          full_name: member.user_id.full_name || member.user_id.name,
+          full_name: member.user_id.full_name || 'Unknown User',
           email: member.user_id.email,
-          avatar: member.user_id.avatar
+          avatar: member.user_id.avatar_url
         },
         role: member.role,
         joined_at: member.created_at,
@@ -448,10 +434,9 @@ exports.addMemberToTeam = async (req, res) => {
         // Kích hoạt lại thành viên
         existingMember.is_active = true;
         existingMember.role = role;
-        await existingMember.save();
-        
+        await existingMember.save();        
         const memberWithUser = await TeamMember.findById(existingMember._id)
-          .populate('user_id', 'full_name email avatar name');
+          .populate('user_id', 'full_name email avatar_url');
           
         return res.json({
           message: 'Thêm thành viên thành công',
@@ -467,10 +452,8 @@ exports.addMemberToTeam = async (req, res) => {
       role
     });
 
-    await newMember.save();
-
-    const memberWithUser = await TeamMember.findById(newMember._id)
-      .populate('user_id', 'full_name email avatar name');
+    await newMember.save();    const memberWithUser = await TeamMember.findById(newMember._id)
+      .populate('user_id', 'full_name email avatar_url');
 
     console.log('✅ [DEBUG] Member added successfully:', {
       memberId: newMember._id,
@@ -505,14 +488,12 @@ exports.updateTeamMemberRole = async (req, res) => {
       memberId,
       role,
       currentUserId
-    });
-
-    // Tìm thành viên cần cập nhật
+    });    // Tìm thành viên cần cập nhật
     const member = await TeamMember.findOne({
       _id: memberId,
       team_id: teamId,
       is_active: true
-    }).populate('user_id', 'full_name email name');
+    }).populate('user_id', 'full_name email avatar_url');
 
     if (!member) {
       return res.status(404).json({ message: 'Không tìm thấy thành viên trong nhóm này' });
@@ -549,16 +530,12 @@ exports.updateTeamMemberRole = async (req, res) => {
 
     // Cập nhật vai trò
     member.role = role;
-    await member.save();
-
-    const updatedMember = await TeamMember.findById(member._id)
-      .populate('user_id', 'full_name email avatar name');
-
-    console.log('✅ [DEBUG] Member role updated successfully:', {
+    await member.save();    const updatedMember = await TeamMember.findById(member._id)
+      .populate('user_id', 'full_name email avatar_url');    console.log('✅ [DEBUG] Member role updated successfully:', {
       memberId,
       oldRole: member.role,
       newRole: role,
-      userName: member.user_id.full_name || member.user_id.name
+      userName: member.user_id.full_name || 'Unknown User'
     });
 
     res.json({
@@ -582,14 +559,12 @@ exports.removeMemberFromTeam = async (req, res) => {
       teamId,
       memberId,
       currentUserId
-    });
-
-    // Tìm thành viên cần xóa
+    });    // Tìm thành viên cần xóa
     const member = await TeamMember.findOne({
       _id: memberId,
       team_id: teamId,
       is_active: true
-    }).populate('user_id', 'full_name email name');
+    }).populate('user_id', 'full_name email avatar_url');
 
     if (!member) {
       return res.status(404).json({ message: 'Không tìm thấy thành viên trong nhóm này' });
@@ -628,11 +603,9 @@ exports.removeMemberFromTeam = async (req, res) => {
 
     // Xóa thành viên (soft delete)
     member.is_active = false;
-    await member.save();
-
-    console.log('✅ [DEBUG] Member removed successfully:', {
+    await member.save();    console.log('✅ [DEBUG] Member removed successfully:', {
       memberId,
-      userName: member.user_id.full_name || member.user_id.name,
+      userName: member.user_id.full_name || 'Unknown User',
       role: member.role
     });
 
@@ -642,7 +615,7 @@ exports.removeMemberFromTeam = async (req, res) => {
         id: member._id,
         user: {
           id: member.user_id._id,
-          full_name: member.user_id.full_name || member.user_id.name,
+          full_name: member.user_id.full_name || 'Unknown User',
           email: member.user_id.email
         },
         role: member.role

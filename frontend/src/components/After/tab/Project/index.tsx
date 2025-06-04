@@ -4,7 +4,8 @@ import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
 import TopButton from "../../../TopButton";
 import Breadcrumb from "../../Breadcrumb";
-import { socket, connectToSocket } from "../../../../services/socket";
+// TEMPORARILY DISABLED - Preventing Socket.IO 404 logs
+// import { socket, connectToSocket } from "../../../../services/socket";
 import { AuthContext } from "../../../context/AuthContext";
 import { Project } from "../../../../types/project";
 import { getProjects, createProject, softDeleteProject, restoreProject, updateProject } from "../../../../services/api";
@@ -21,13 +22,12 @@ interface ToastConfig {
 
 export default function ProjectPage() {
   const { userId } = useContext(AuthContext);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [newProject, setNewProject] = useState({
+  const [projects, setProjects] = useState<Project[]>([]);  const [newProject, setNewProject] = useState({
     project_name: "",
     description: "",
     start_date: "",
     end_date: "",
-    status: "Active",  // Đảm bảo giá trị mặc định khớp với enum trong schema
+    status: "Planning",  // Đổi từ "Active" thành "Planning" để khớp với enum schema
     priority: "Medium",
     project_type: "",
     project_type_id: { _id: "", name: "" }
@@ -57,28 +57,24 @@ export default function ProjectPage() {
       } finally {
         setLoading(false);
       }
-    };
+    };    // TEMPORARILY DISABLED - Socket.IO to prevent 404 logs
+    // connectToSocket(userId);
 
-    // Kết nối socket và join room
-    connectToSocket(userId);
+    // TEMPORARILY DISABLED - Socket.IO to prevent 404 logs  
+    // const handleProjectChanged = () => {
+    //   fetchProjects();
+    // };
 
-    // Lắng nghe sự kiện project_changed
-    const handleProjectChanged = () => {
-      fetchProjects();
-    };
-
-    socket.on('project_changed', handleProjectChanged);
+    // socket.on('project_changed', handleProjectChanged);
 
     // Load dự án ban đầu
-    fetchProjects();
-
-    // Cleanup function
-    return () => {
-      socket.off('project_changed', handleProjectChanged);
-      if (userId) {
-        socket.emit('leave', userId);
-      }
-    };
+    fetchProjects();    // TEMPORARILY DISABLED - Socket.IO cleanup to prevent 404 logs
+    // return () => {
+    //   socket.off('project_changed', handleProjectChanged);
+    //   if (userId) {
+    //     socket.emit('leave', userId);
+    //   }
+    // };
   }, [userId]);
 
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -112,17 +108,16 @@ export default function ProjectPage() {
         description: newProject.description || "",
         start_date: new Date(newProject.start_date).toISOString(),
         end_date: new Date(newProject.end_date).toISOString(),
-        status: newProject.status || 'Active',
+        status: newProject.status || 'Planning',
         priority: newProject.priority || 'Medium',
         project_type_id: newProject.project_type_id._id
       };const project = await createProject(projectToCreate);
-      setProjects([...projects, project.project]);
-      setNewProject({
+      setProjects([...projects, project.project]);      setNewProject({
         project_name: "",
         description: "",
         start_date: "",
         end_date: "",
-        status: "Active",
+        status: "Planning",  // Đổi từ "Active" thành "Planning"
         priority: "Medium",
         project_type: "",
         project_type_id: { _id: "", name: "" } // Thêm trường này vào object reset

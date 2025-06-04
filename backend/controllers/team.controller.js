@@ -205,14 +205,12 @@ exports.getTeamById = async (req, res) => {
 
     if (!team) {
       return res.status(404).json({ message: 'Không tìm thấy nhóm' });
-    }
-
-    // Lấy danh sách thành viên
+    }    // Lấy danh sách thành viên
     const members = await TeamMember.find({ 
       team_id: id, 
       is_active: true 
     })
-      .populate('user_id', 'full_name email avatar')
+      .populate('user_id', 'full_name email avatar_url')
       .sort({ role: 1, joined_at: 1 });
 
     // Lấy dự án liên quan
@@ -240,7 +238,7 @@ exports.getTeamById = async (req, res) => {
 exports.updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { team_name, description } = req.body;
+    const { team_name, description, type } = req.body;
     const userId = req.user.userId; // Thay đổi từ req.user._id thành req.user.userId
 
     // Kiểm tra quyền (chỉ Admin mới được cập nhật)
@@ -257,7 +255,7 @@ exports.updateTeam = async (req, res) => {
 
     const team = await Team.findOneAndUpdate(
       { _id: id, is_deleted: false },
-      { team_name, description },
+      { team_name, description, type },
       { new: true, runValidators: true }
     ).populate('created_by', 'full_name email');
 

@@ -48,28 +48,24 @@ export default function MembersTable({ members, onEditMember, onDeleteMember }: 
               <tr key={member._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">                <td className="px-2 sm:px-3 md:px-4 py-2 sm:py-3">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-6 w-6 sm:h-8 sm:w-8">
-                      <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
-                        <span className="text-xs font-medium text-white">
-                          {member.member_user_id.name.charAt(0).toUpperCase()}
+                      <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">                        <span className="text-xs font-medium text-white">
+                          {member.member_user_id?.name?.charAt(0).toUpperCase() || '?'}
                         </span>
                       </div>
                     </div>
-                    <div className="ml-2 sm:ml-3">
-                      <div className="text-xs font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
-                        {member.member_user_id.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden line-clamp-1">
-                        {member.member_user_id.email.split('@')[0]}...
+                    <div className="ml-2 sm:ml-3">                      <div className="text-xs font-medium text-gray-900 dark:text-gray-100 line-clamp-1">
+                        {member.member_user_id?.name || 'Không có tên'}
+                      </div>                      <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden line-clamp-1">
+                        {member.member_user_id?.email?.split('@')[0] || 'N/A'}...
                       </div>
                     </div>
                   </div>
-                </td><td className="hidden sm:table-cell px-2 sm:px-3 md:px-4 py-2 sm:py-3 md:py-4">
-                  <div className="text-xs sm:text-sm text-gray-900 dark:text-gray-100">
+                </td><td className="hidden sm:table-cell px-2 sm:px-3 md:px-4 py-2 sm:py-3 md:py-4">                  <div className="text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                     {window.innerWidth < 640 ? 
-                      `${member.member_user_id.email.substring(0, 10)}...` : 
+                      `${member.member_user_id?.email?.substring(0, 10) || 'N/A'}...` : 
                       window.innerWidth < 768 ? 
-                        `${member.member_user_id.email.split('@')[0]}@...` : 
-                        member.member_user_id.email
+                        `${member.member_user_id?.email?.split('@')[0] || 'N/A'}@...` : 
+                        member.member_user_id?.email || 'Không có email'
                     }
                   </div>
                 </td>                <td className="hidden md:table-cell px-2 sm:px-3 md:px-4 py-2 sm:py-3">

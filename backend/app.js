@@ -50,7 +50,25 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(morgan("dev"));
+
+// Block ALL Socket.IO requests silently BEFORE any logging
+app.use((req, res, next) => {
+  // Check if this is a Socket.IO request
+  if (req.url.startsWith('/socket.io/') && !isFeatureEnabled('SOCKET_IO')) {
+    // Silent drop - no logging, no response, just end immediately
+    res.statusCode = 404;
+    res.end();
+    return;
+  }
+  next();
+});
+
+// Custom morgan logging that skips Socket.IO requests (backup safety)
+app.use(morgan("dev", {
+  skip: function (req, res) { 
+    return req.url.startsWith('/socket.io/'); 
+  }
+}));
 
 // Apply general rate limiting to all requests
 app.use(generalRateLimit);
@@ -63,6 +81,8 @@ if (isFeatureEnabled('SOCKET_IO')) {
     next();
   });
 }
+
+
 
 // System status endpoint
 app.get('/api/system/status', (req, res) => {

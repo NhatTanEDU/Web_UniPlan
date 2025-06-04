@@ -57,7 +57,7 @@ export default function EditMemberModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-            Chỉnh sửa Vai trò của {member.member_user_id.name}
+            Chỉnh sửa Vai trò của {member.member_user_id?.name || 'thành viên'}
           </h3>
           <button
             onClick={onClose}
@@ -75,16 +75,16 @@ export default function EditMemberModal({
                 <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12">
                   <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                     <span className="text-base sm:text-lg font-medium text-white">
-                      {member.member_user_id.name.charAt(0).toUpperCase()}
+                      {member.member_user_id?.name?.charAt(0).toUpperCase() || '?'}
                     </span>
                   </div>
                 </div>
                 <div>
                   <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {member.member_user_id.name}
+                    {member.member_user_id?.name || 'Không có tên'}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                    {member.member_user_id.email}
+                    {member.member_user_id?.email || 'Không có email'}
                   </p>
                 </div>
               </div>

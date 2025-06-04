@@ -1,8 +1,16 @@
 // filepath: d:\Official_Project\Project_UniPlan\my_uniplan\frontend\src\services\teamsEnhanced.api.ts
 import api from './api';
 
+// Helper timeout cho promise
+function withTimeout<T>(promise: Promise<T>, ms = 10000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
+  ]);
+}
+
 // Enhanced Teams API Service
-export const teamsEnhancedApi = {
+const teamsEnhancedApi = {
   // Health Check
   healthCheck: async () => {
     const response = await api.get('/teams-enhanced/health');
@@ -17,18 +25,27 @@ export const teamsEnhancedApi = {
     limit?: number;
     userId?: string;
   } = {}) => {
-    const response = await api.get('/teams-enhanced/search', { params });
+    const response = await withTimeout(api.get('/teams-enhanced/search', { params }), 10000);
     return response.data;
   },
-
-  // Statistics
+  // Statistics - ✅ TESTED WORKING APIs
   getOverviewStats: async () => {
     const response = await api.get('/teams-enhanced/stats/overview');
     return response.data;
   },
+  
+  getDetailStats: async (teamId: string) => {
+    const response = await api.get(`/teams-enhanced/${teamId}/stats/detail`);
+    return response.data;
+  },
 
-  getDetailedStats: async (teamId: string) => {
-    const response = await api.get(`/teams-enhanced/stats/detailed/${teamId}`);
+  getComparisonStats: async () => {
+    const response = await api.get('/teams-enhanced/stats/comparison');
+    return response.data;
+  },
+
+  getActivityStats: async (teamId: string) => {
+    const response = await api.get(`/teams-enhanced/${teamId}/stats/activity`);
     return response.data;
   },
 
@@ -154,7 +171,33 @@ export const teamsEnhancedApi = {
       responseType: 'blob'
     });
     return response.data;
-  }
+  },
+
+  // Basic Teams API (fallback when enhanced search is not available)
+  getTeams: async () => {
+    const response = await api.get('/teams');
+    return response.data;
+  },
+
+  getTeamById: async (teamId: string) => {
+    const response = await api.get(`/teams/${teamId}`);
+    return response.data;
+  },
+
+  createTeam: async (teamData: any) => {
+    const response = await api.post('/teams', teamData);
+    return response.data;
+  },
+
+  updateTeam: async (teamId: string, teamData: any) => {
+    const response = await api.put(`/teams/${teamId}`, teamData);
+    return response.data;
+  },
+
+  deleteTeam: async (teamId: string) => {
+    const response = await api.delete(`/teams/${teamId}`);
+    return response.data;
+  },
 };
 
 export default teamsEnhancedApi;
