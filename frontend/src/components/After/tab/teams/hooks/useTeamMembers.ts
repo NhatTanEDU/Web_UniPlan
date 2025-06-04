@@ -9,14 +9,15 @@ import { teamMemberApi, TeamMember, AddMemberData, UpdateMemberRoleData } from "
 
 export function useTeamMembers(teamId: string) {
   const [members, setMembers] = useState<TeamMember[]>([]);
+  const [userRole, setUserRole] = useState<"Admin" | "Editor" | "Member" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   /**
    * fetchMembers()
    *  - Gọi API getTeamMembers(teamId)
    *  - Cập nhật state members
-   */  const fetchMembers = useCallback(async () => {
+   */
+  const fetchMembers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -32,6 +33,30 @@ export function useTeamMembers(teamId: string) {
       setError(err.message || "Không tải được danh sách thành viên");
     } finally {
       setLoading(false);
+    }
+  }, [teamId]);
+
+  /**
+   * fetchUserRole()
+   *  - Gọi API getUserTeamRole(teamId)
+   *  - Cập nhật state userRole
+   */  const fetchUserRole = useCallback(async () => {
+    try {
+      console.log('🔍 Fetching user role for teamId:', teamId);
+      const roleData = await teamMemberApi.getUserTeamRole(teamId);
+      console.log('✅ Fetched userRole data:', roleData);
+      console.log('📋 Setting userRole to:', roleData.userRole);
+      setUserRole(roleData.userRole);
+    } catch (err: any) {
+      console.error('🐛 useTeamMembers - Role API Error:', err);
+      console.error('🔍 Error details:', {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        responseData: err.response?.data
+      });
+      // Không set error cho role fetch vì không critical
+      setUserRole(null);
     }
   }, [teamId]);
 
@@ -61,11 +86,13 @@ export function useTeamMembers(teamId: string) {
     await teamMemberApi.removeMember(teamId, memberId);
     await fetchMembers();
   };
-
   // Auto fetch khi teamId thay đổi
   useEffect(() => {
-    if (teamId) fetchMembers();
-  }, [fetchMembers, teamId]);
+    if (teamId) {
+      fetchMembers();
+      fetchUserRole();
+    }
+  }, [fetchMembers, fetchUserRole, teamId]);
 
-  return { members, loading, error, fetchMembers, addMembers, updateRole, removeMember };
+  return { members, userRole, loading, error, fetchMembers, addMembers, updateRole, removeMember };
 } 

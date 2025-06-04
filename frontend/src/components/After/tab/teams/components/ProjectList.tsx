@@ -11,25 +11,31 @@
 import React, { useState } from 'react';
 import { 
   FolderOpen, 
-  Calendar, 
-  Users, 
   Trash2, 
   Edit3, 
   ExternalLink,
   Search,
   Filter,
-  Plus,
   AlertCircle,
   CheckCircle,
   Clock,
   PlayCircle,
-  PauseCircle
+  PauseCircle,
+  Archive
 } from 'lucide-react';
 import { TeamProject } from "../../../../../services/teamProjectApi";
 import { Project } from "../../../../../types/project";
 import ProjectEditModal from "../../Project/ProjectEditModal";
 import ConfirmModal from "../components/ConfirmModal";
 import LoadingSpinner from "./LoadingSpinner";
+import { 
+  PROJECT_STATUS_OPTIONS, 
+  getProjectStatusLabel, 
+  getProjectStatusColorClasses,
+  getProjectStatusIconColor,
+  getProjectPriorityLabel,
+  getProjectPriorityColorClasses
+} from '../../../../../constants/projectLabels';
 
 interface Props {
   projects: TeamProject[];
@@ -39,78 +45,43 @@ interface Props {
   onRemove: (projectId: string) => Promise<void>;
 }
 
-export default function ProjectList({ projects, loading, error, onUpdate, onRemove }: Props) {
-  const [editProject, setEditProject] = useState<TeamProject | null>(null);
+export default function ProjectList({ projects, loading, error, onUpdate, onRemove }: Props) {  const [editProject, setEditProject] = useState<TeamProject | null>(null);
   const [confirm, setConfirm] = useState<{ visible: boolean; id?: string }>({ visible: false });
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [showFilters, setShowFilters] = useState(false);
-
   // Filter projects based on search and status
   const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.project_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         project.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = project.project_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
+    // Hàm tạo icon cho status với màu sắc động
   const getStatusIcon = (status: string) => {
+    const iconBaseClass = "h-4 w-4";
+    const colorClass = getProjectStatusIconColor(status);
+
     switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'in-progress':
-        return <PlayCircle className="h-4 w-4 text-blue-500" />;
-      case 'on-hold':
-        return <PauseCircle className="h-4 w-4 text-yellow-500" />;
-      case 'planning':
-        return <Clock className="h-4 w-4 text-gray-500" />;
+      case 'Completed':
+        return <CheckCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Active':
+        return <PlayCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'On Hold':
+        return <PauseCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Planning':
+        return <Clock className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Cancelled':
+        return <AlertCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Archived':
+        return <Archive className={`${iconBaseClass} ${colorClass}`} />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-400" />;
+        return <AlertCircle className={`${iconBaseClass} ${colorClass}`} />;
     }
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100';
-      case 'on-hold':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
-      case 'planning':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
-      case 'medium':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100';
-      case 'low':
-        return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
-    }
-  };
-
   const formatDate = (dateString: string) => {
     if (!dateString) return 'Chưa đặt';
     return new Date(dateString).toLocaleDateString('vi-VN');
-  };
-
-  const handleRemoveProject = async (projectId: string, projectName: string) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa dự án "${projectName}" khỏi nhóm?`)) {
-      try {
-        await onRemove(projectId);
-      } catch (error) {
-        console.error('Error removing project:', error);
-        alert('Có lỗi xảy ra khi xóa dự án');
-      }
-    }
   };
 
   if (loading) {
@@ -162,19 +133,18 @@ export default function ProjectList({ projects, loading, error, onUpdate, onRemo
               onChange={e => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             />
-          </div>
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <select
+          </div>          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />            <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
               className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             >
               <option value="all">Tất cả trạng thái</option>
-              <option value="planning">Planning</option>
-              <option value="in-progress">In Progress</option>
-              <option value="on-hold">On Hold</option>
-              <option value="completed">Completed</option>
+              {PROJECT_STATUS_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -188,10 +158,10 @@ export default function ProjectList({ projects, loading, error, onUpdate, onRemo
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-max divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
+            <table className="w-full min-w-max divide-y divide-gray-200 dark:divide-gray-700">              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tiêu đề</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Loại dự án</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Trạng thái</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ưu tiên</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ngày bắt đầu</th>
@@ -199,23 +169,24 @@ export default function ProjectList({ projects, loading, error, onUpdate, onRemo
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredProjects.map(p => (
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">                {filteredProjects.map(p => (
                   <tr key={p._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{p.project_name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(p.status)}`}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                      {p.project_type_id?.name || 'Chưa xác định'}
+                    </td>                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getProjectStatusColorClasses(p.status)}`}>
                         {getStatusIcon(p.status)}
-                        <span className="ml-1 capitalize">{p.status.replace('-', ' ')}</span>
+                        <span className="ml-1">{getProjectStatusLabel(p.status)}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(p.priority)}`}>
-                        {p.priority.charAt(0).toUpperCase() + p.priority.slice(1)}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProjectPriorityColorClasses(p.priority)}`}>
+                        {getProjectPriorityLabel(p.priority)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{formatDate(p.start_date)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{formatDate(p.end_date)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 dark:text-blue-400">{formatDate(p.start_date)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-600 dark:text-purple-400">{formatDate(p.end_date)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={() => setEditProject(p)} className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa">

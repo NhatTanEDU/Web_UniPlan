@@ -13,10 +13,14 @@ import TeamMemberModal from "../components/TeamMemberModal";
 
 export default function TeamMembersPage() {
   const { teamId } = useParams<{ teamId: string }>();
-  const { members, loading, error, addMembers, updateRole, removeMember } =
+  const { members, userRole, loading, error, addMembers, updateRole, removeMember } =
     useTeamMembers(teamId!);
 
   const [showModal, setShowModal] = useState(false);
+
+  // Debug logging
+  console.log('🔍 TeamMembersPage - userRole from hook:', userRole);
+  console.log('🔍 TeamMembersPage - teamRole being passed to MemberList:', userRole || 'Member');
 
   // Wrapper function to convert role string to UpdateMemberRoleData object
   const handleUpdateRole = async (memberId: string, role: string) => {
@@ -37,6 +41,7 @@ export default function TeamMembersPage() {
         error={error}
         onUpdateRole={handleUpdateRole}
         onRemove={removeMember}
+        teamRole={userRole || 'Member'} // Default to 'Member' if role not loaded yet
       />
 
       {/* Modal thêm thành viên */}      <TeamMemberModal

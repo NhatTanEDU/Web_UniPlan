@@ -28,6 +28,7 @@ export interface CreateProjectData {
   status?: 'Active' | 'Completed' | 'On Hold' | 'Cancelled';
   priority?: 'Low' | 'Medium' | 'High';
   project_type_id?: string;
+  team_id?: string;
 }
 
 export interface AssignProjectData {

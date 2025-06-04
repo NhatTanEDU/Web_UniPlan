@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Pencil, Trash2, RotateCcw, MoreVertical, Filter } from "lucide-react";
+import { Pencil, Trash2, RotateCcw, MoreVertical, Filter, Calendar, CheckCircle, PlayCircle, PauseCircle, Clock, AlertCircle, Archive } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Project } from "../../../../types/project";
-import { PRIORITY_LABELS, STATUS_LABELS } from "../../../../constants/projectLabels";
+import { 
+  getProjectStatusLabel, 
+  getProjectStatusColorClasses,
+  getProjectStatusIconColor,
+  getProjectPriorityLabel,
+  getProjectPriorityColorClasses
+} from "../../../../constants/projectLabels";
 
 interface Props {
   projects: Project[];
@@ -15,6 +21,29 @@ const ProjectList: React.FC<Props> = ({ projects, onEdit, onDelete, onRestore })
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string>("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Hàm tạo icon cho status với màu sắc
+  const getStatusIcon = (status: string) => {
+    const iconBaseClass = "h-4 w-4";
+    const colorClass = getProjectStatusIconColor(status);
+
+    switch (status) {
+      case 'Completed':
+        return <CheckCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Active':
+        return <PlayCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'On Hold':
+        return <PauseCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Planning':
+        return <Clock className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Cancelled':
+        return <AlertCircle className={`${iconBaseClass} ${colorClass}`} />;
+      case 'Archived':
+        return <Archive className={`${iconBaseClass} ${colorClass}`} />;
+      default:
+        return <AlertCircle className={`${iconBaseClass} ${colorClass}`} />;
+    }
+  };
 
   // Đóng menu khi click ra ngoài
   useEffect(() => {
@@ -116,12 +145,25 @@ const ProjectList: React.FC<Props> = ({ projects, onEdit, onDelete, onRestore })
                   )}
                 </div>
               )}
-            </div>
-            <div className="mt-3 space-y-1 text-sm text-gray-500 dark:text-gray-400">
-              <p>Ngày bắt đầu: {project.start_date ? new Date(project.start_date).toLocaleDateString() : ""}</p>
-              <p>Ngày kết thúc: {project.end_date ? new Date(project.end_date).toLocaleDateString() : ""}</p>
-              <p>Trạng thái: {STATUS_LABELS[project.status]} | Ưu tiên: {PRIORITY_LABELS[project.priority]}</p>
-              <p>Phân loại: {project.project_type_id?.name || "Không phân loại"}</p>
+            </div>            <div className="mt-3 space-y-2 text-sm">
+              <div className="flex items-center text-blue-600 dark:text-blue-400">
+                <Calendar size={14} className="mr-2" />
+                <span>Bắt đầu: {project.start_date ? new Date(project.start_date).toLocaleDateString() : ""}</span>
+              </div>
+              <div className="flex items-center text-purple-600 dark:text-purple-400">
+                <Calendar size={14} className="mr-2" />
+                <span>Kết thúc: {project.end_date ? new Date(project.end_date).toLocaleDateString() : ""}</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getProjectStatusColorClasses(project.status)}`}>
+                  {getStatusIcon(project.status)}
+                  <span className="ml-1">{getProjectStatusLabel(project.status)}</span>
+                </span>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProjectPriorityColorClasses(project.priority)}`}>
+                  {getProjectPriorityLabel(project.priority)}
+                </span>
+              </div>
+              <p className="text-gray-500 dark:text-gray-400">Phân loại: {project.project_type_id?.name || "Không phân loại"}</p>
             </div>
           </div>
           {project.is_deleted && (

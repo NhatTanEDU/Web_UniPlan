@@ -53,14 +53,33 @@ export interface UpdateMemberRoleData {
   role: "Admin" | "Editor" | "Member";
 }
 
-const teamMemberApi = {  /**
+/**
+ * UserTeamRole
+ * - Response structure for user's role in team
+ */
+export interface UserTeamRole {
+  teamId: string;
+  teamName: string;
+  userId: string;
+  userRole: "Admin" | "Editor" | "Member";
+  joinedAt: string;
+  isActive: boolean;
+  permissions: string[];
+}
+
+/**
+ * teamMemberApi class
+ * - Main API service for team member operations
+ */
+class TeamMemberApi {
+  /**
    * getTeamMembers(teamId)
    * - Lấy danh sách thành viên của team
    */
   async getTeamMembers(teamId: string): Promise<{ members: TeamMember[] }> {
     const response = await baseApi.get(`/teams/${teamId}/members`);
     return response.data;
-  },  /**
+  }  /**
    * addMemberToTeam(teamId, data)
    * - Thêm 1 thành viên mới vào team
    */
@@ -69,7 +88,9 @@ const teamMemberApi = {  /**
       user_id: data.userId, // Backend expects user_id not userId
       role: data.role
     });
-  },/**
+  }
+
+  /**
    * bulkAddMembers(teamId, list)
    * - Thêm nhiều thành viên cùng lúc (sử dụng individual API calls)
    */
@@ -81,7 +102,7 @@ const teamMemberApi = {  /**
         role: member.role
       });
     }
-  },
+  }
 
   /**
    * updateMemberRole(teamId, memberId, data)
@@ -93,15 +114,15 @@ const teamMemberApi = {  /**
     data: UpdateMemberRoleData
   ): Promise<void> {
     await baseApi.put(`/teams/${teamId}/members/${memberId}`, data);
-  },
-
+  }
   /**
    * removeMember(teamId, memberId)
    * - Xóa 1 thành viên khỏi team
    */
   async removeMember(teamId: string, memberId: string): Promise<void> {
     await baseApi.delete(`/teams/${teamId}/members/${memberId}`);
-  },
+  }
+
   /**
    * bulkRemoveMembers(teamId, memberIds)
    * - Xóa nhiều thành viên cùng lúc
@@ -110,8 +131,19 @@ const teamMemberApi = {  /**
     await baseApi.delete(`/teams-enhanced/${teamId}/members/bulk/remove`, {
       data: { memberIds },
     });
-  },
-};
+  }
+
+  /**
+   * getUserTeamRole(teamId)
+   * - Get current user's role in a specific team
+   */
+  async getUserTeamRole(teamId: string): Promise<UserTeamRole> {
+    const response = await baseApi.get(`/user-roles/teams/${teamId}`);
+    return response.data.data;
+  }
+}
+
+const teamMemberApi = new TeamMemberApi();
 
 export default teamMemberApi;
 export { teamMemberApi };

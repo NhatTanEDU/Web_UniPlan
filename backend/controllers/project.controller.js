@@ -1,5 +1,6 @@
 const Project = require("../models/project.model.js");
 const ProjectType = require('../models/projectType.model.js');
+const mongoose = require('mongoose');
 const axios = require('axios');
 
 // Helper function to get or create default project type
@@ -48,7 +49,10 @@ const getOrCreateDefaultProjectType = async (userId) => {
 exports.createProject = async (req, res) => {
   try {
     console.log('Request body:', req.body); // Debug log
-    const { project_name, description, start_date, end_date, status, priority, project_type_id } = req.body;
+    const { project_name, description, start_date, end_date, status, priority, project_type_id, team_id } = req.body;
+    console.log('Extracted team_id:', team_id, 'Type:', typeof team_id); // Debug log
+    console.log('team_id value check:', JSON.stringify(team_id)); // Check exact value
+    console.log('team_id truthy check:', !!team_id); // Check if truthy
     const userId = req.user.userId;
 
     if (!project_name) {
@@ -66,6 +70,8 @@ exports.createProject = async (req, res) => {
       }
     }
 
+    console.log(`Value of 'team_id' variable before new Project(): [${team_id}]`, typeof team_id);
+    
     const project = new Project({
       project_name,
       description,
@@ -74,6 +80,7 @@ exports.createProject = async (req, res) => {
       status: status || 'Planning', // Changed from 'Active' to 'Planning'
       priority: priority || 'Medium',
       project_type_id: finalProjectTypeId,
+      team_id: team_id, // Simplified assignment - let Mongoose handle null/undefined
       created_by: userId,
       is_deleted: false,
       deleted_at: null
@@ -186,6 +193,11 @@ exports.updateProject = async (req, res) => {
     const { project_name, description, status, priority, start_date, end_date, project_type_id, team_id } = req.body;
     const userId = req.user.userId;
 
+    // Validate projectId
+    if (!projectId || projectId === 'undefined' || !mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(400).json({ message: 'ID dự án không hợp lệ hoặc bị thiếu' });
+    }
+
     const project = await Project.findOne({ _id: projectId, is_deleted: false });
     if (!project) {
       return res.status(404).json({ message: 'Dự án không tồn tại' });
@@ -295,22 +307,21 @@ exports.getTeamProjects = async (req, res) => {
         description: team.description
       },
       projects: projects.map(project => ({
-        id: project._id,
-        name: project.project_name,
+        _id: project._id,
+        project_name: project.project_name,
         description: project.description,
         status: project.status,
         priority: project.priority,
         start_date: project.start_date,
         end_date: project.end_date,
-        project_type: project.project_type_id ? {
-          id: project.project_type_id._id,
+        team_id: project.team_id,
+        project_type_id: project.project_type_id ? {
+          _id: project.project_type_id._id,
           name: project.project_type_id.name
         } : null,
-        created_by: project.created_by ? {
-          id: project.created_by._id,
-          name: project.created_by.full_name
-        } : null,
-        created_at: project.created_at
+        created_by: project.created_by ? project.created_by._id : null,
+        created_at: project.created_at,
+        updated_at: project.updated_at
       })),
       total: projects.length
     });

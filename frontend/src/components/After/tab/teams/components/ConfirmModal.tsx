@@ -4,7 +4,7 @@ import { XMarkIcon, ExclamationTriangleIcon, TrashIcon } from '@heroicons/react/
 export interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  message: string | React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   type?: 'danger' | 'warning' | 'info';
@@ -104,13 +104,11 @@ export default function ConfirmModal({
           >
             <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
-        </div>
-
-        {/* Content */}
+        </div>        {/* Content */}
         <div className="p-4 sm:p-6">
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
             {message}
-          </p>
+          </div>
         </div>
 
         {/* Actions */}

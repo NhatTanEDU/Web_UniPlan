@@ -166,10 +166,21 @@ export default function ProjectPage() {
       });
     }
   };
-
   const handleEditProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editProject) return;
+    
+    console.log('editProject in handleEditProject:', editProject);
+    console.log('editProject._id:', editProject._id);
+    
+    if (!editProject._id) {
+      setToast({
+        message: "Lỗi: Không tìm thấy ID dự án để cập nhật",
+        type: 'error'
+      });
+      return;
+    }
+    
     try {
       const updated = await updateProject(editProject._id, editProject);
       setProjects(projects.map((p) => (p._id === editProject._id ? updated.project : p)));
