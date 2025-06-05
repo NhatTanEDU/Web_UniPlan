@@ -10,7 +10,7 @@ exports.createKanban = async (req, res) => {
     console.log('User:', req.user);
 
     const { project_id, name, description } = req.body;
-    const userId = req.user._id;
+    const userId = req.user.userId || req.user.id;
 
     // Kiểm tra quyền truy cập
     const project = await Project.findById(project_id);

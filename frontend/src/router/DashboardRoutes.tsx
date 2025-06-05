@@ -16,11 +16,9 @@ const DashboardRoutes = () => (
     <Route path="/projects" element={<ProjectPage />} />
     <Route path="/documents" element={<DocumentsPage />} />
     <Route path="/teams" element={<TeamPage />} />
-    <Route path="/chat" element={<ChatPage />} />
-    <Route path="/gantt" element={<GanttPage />} />
-    <Route path="/reports" element={<ReportPage />} />
+    <Route path="/chat" element={<ChatPage />} />    <Route path="/gantt" element={<GanttPage />} />    <Route path="/reports" element={<ReportPage />} />
     <Route path="/projects/:projectId/kanban" element={<Kanban />} />
-// Team routes
+    {/* Team routes */}
     <Route path="/teams" element={<TeamOverviewPage />} />
     <Route path="/teams/:teamId/*" element={<TeamDetailPage />} />
   </>

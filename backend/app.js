@@ -4,6 +4,23 @@ const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 
+// Register all models with Mongoose before any routes are defined
+require('./models/user.model');
+require('./models/project.model');
+require('./models/kanban.model');
+require('./models/kanbanTask.model');
+require('./models/tag.model');
+require('./models/counter.model');
+require('./models/projectMember.model');
+require('./models/team.model');
+require('./models/teamMember.model');
+require('./models/projectType.model');
+require('./models/notification.model');
+require('./models/personalMemberList.model');
+require('./models/teamActivity.model');
+require('./models/userWidget.model');
+require('./models/widget.model');
+
 // Feature toggles for safe operation
 const { isFeatureEnabled, featureToggleMiddleware, getEnabledFeatures, getDisabledFeatures } = require('./config/featureToggles');
 
@@ -105,7 +122,7 @@ app.use("/api/password", require("./routes/password.routes"));
 // Basic always-enabled routes
 app.use('/api/admin', adminRoutes);
 app.use('/api', projectRoutes);
-app.use('/api/project-members', projectMemberRoutes);
+app.use('/api', projectMemberRoutes); // Changed from /api/project-members to /api to support /api/projects/:id/members routes
 app.use('/api/teams', teamRoutes);
 app.use('/api', projectTypeRoutes); // Essential for project creation
 

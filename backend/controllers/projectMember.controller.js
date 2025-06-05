@@ -290,9 +290,80 @@ exports.getProjectMembers = async (req, res) => {
       .populate('user_id', 'name email avatar_url')
       .sort('createdAt');
 
+    res.json(members);  } catch (error) {
+    console.error('Error getting project members:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
+// Lấy danh sách thành viên dự án cho việc assignment task (dành cho Kanban)
+exports.getProjectMembersForAssignment = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user.userId || req.user._id;
+
+    console.log('Get Project Members for Assignment:', { projectId, userId });
+
+    // Kiểm tra project có tồn tại
+    const project = await Project.findOne({ _id: projectId, is_deleted: false });
+    if (!project) {
+      return res.status(404).json({ message: 'Dự án không tồn tại' });
+    }
+
+    // Kiểm tra quyền truy cập - user phải là creator hoặc member của project
+    let hasAccess = project.created_by.toString() === userId.toString();
+
+    if (!hasAccess) {
+      const projectMember = await ProjectMember.findOne({
+        project_id: projectId,
+        user_id: userId,
+        is_active: true
+      });
+      hasAccess = !!projectMember;
+    }
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: 'Không có quyền truy cập dự án này' });
+    }
+
+    // Lấy danh sách thành viên dự án
+    const projectMembers = await ProjectMember.find({
+      project_id: projectId,
+      is_active: true
+    }).populate('user_id', 'name email avatar');
+
+    // Thêm người tạo dự án vào danh sách nếu chưa có
+    const creatorMember = projectMembers.find(member => 
+      member.user_id._id.toString() === project.created_by.toString()
+    );
+
+    let members = projectMembers.map(member => ({
+      _id: member.user_id._id,
+      name: member.user_id.name,
+      email: member.user_id.email,
+      avatar: member.user_id.avatar,
+      role: member.role_in_project
+    }));
+
+    if (!creatorMember) {
+      // Lấy thông tin người tạo dự án
+      const User = require('../models/user.model');
+      const creator = await User.findById(project.created_by);
+      if (creator) {
+        members.unshift({
+          _id: creator._id,
+          name: creator.name,
+          email: creator.email,
+          avatar: creator.avatar,
+          role: 'Người tạo'
+        });
+      }
+    }
+
+    console.log('Retrieved project members for assignment:', members.length);
     res.json(members);
   } catch (error) {
-    console.error('Error getting project members:', error);
+    console.error('Error getting project members for assignment:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };

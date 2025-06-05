@@ -1,5 +1,6 @@
 const Project = require("../models/project.model.js");
 const ProjectType = require('../models/projectType.model.js');
+const Kanban = require('../models/kanban.model.js'); // Import Kanban model
 const mongoose = require('mongoose');
 const axios = require('axios');
 
@@ -89,6 +90,19 @@ exports.createProject = async (req, res) => {
     console.log('Project before save:', project); // Debug log
     await project.save();
 
+    // Tự động tạo Kanban board cho Project này
+    const kanban = await Kanban.create({
+      name: `Bảng Kanban cho ${project.project_name}`, // Tên mặc định cho Kanban board
+      project_id: project._id,
+      created_by: userId
+    });
+
+    // Liên kết Kanban vừa tạo với Project
+    project.kanban_id = kanban._id;
+    await project.save();
+
+    console.log('Kanban board created:', kanban._id); // Debug log
+
     // Emit socket event khi tạo dự án thành công
     if (req.server?.io) {
       req.server.io.to(userId).emit('project_changed', { action: 'create', project });
@@ -121,7 +135,9 @@ exports.getProjectById = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.userId;
-    const project = await Project.findOne({ _id: id, created_by: userId, is_deleted: false });
+    const project = await Project.findOne({ _id: id, created_by: userId, is_deleted: false })
+                                .populate('project_type_id', 'name')
+                                .populate('kanban_id'); // Populate kanban_id để trả về thông tin Kanban
     if (!project) {
       return res.status(404).json({ message: 'Không tìm thấy dự án' });
     }

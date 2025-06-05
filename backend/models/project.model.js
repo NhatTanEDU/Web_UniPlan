@@ -50,6 +50,10 @@ const projectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team',
         default: null // Dự án có thể không thuộc nhóm nào
+    },
+    kanban_id: { // Thêm trường này để liên kết với Kanban board
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Kanban'
     }
 }, {
     timestamps: true

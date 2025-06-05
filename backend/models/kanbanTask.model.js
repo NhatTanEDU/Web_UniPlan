@@ -22,6 +22,9 @@ const kanbanTaskSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  start_date: {
+    type: Date
+  },
   due_date: {
     type: Date
   },
@@ -42,13 +45,22 @@ const kanbanTaskSchema = new mongoose.Schema({
     type: String,
     enum: ['Thấp', 'Trung bình', 'Cao'],
     default: 'Trung bình'
+  },
+  color: { // Màu sắc của task card
+    type: String,
+    default: '#ffffff' // Mặc định màu trắng
+  },
+  is_pinned: { // Task có được ghim lên đầu cột không
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
 });
 
-// Index cho kanban_id và status
-kanbanTaskSchema.index({ kanban_id: 1, status: 1 });
+// Index để tối ưu truy vấn thường dùng
+kanbanTaskSchema.index({ kanban_id: 1, status: 1, order: 1 });
+kanbanTaskSchema.index({ kanban_id: 1, is_pinned: -1, order: 1 }); // Cho việc sort ghim
 
 const KanbanTask = mongoose.model('KanbanTask', kanbanTaskSchema);
 

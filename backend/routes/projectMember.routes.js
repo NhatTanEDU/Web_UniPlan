@@ -38,6 +38,13 @@ router.get(
   projectMemberController.getMembers
 );
 
+// Lấy danh sách thành viên dự án cho việc assignment task (Kanban)
+router.get(
+  '/projects/:projectId/members-for-assignment',
+  verifyToken,
+  projectMemberController.getProjectMembersForAssignment
+);
+
 // Thêm thành viên vào project
 router.post('/', auth, projectMemberController.addProjectMember);
 
