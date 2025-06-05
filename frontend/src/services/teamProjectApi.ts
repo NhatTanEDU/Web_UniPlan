@@ -43,10 +43,9 @@ export const teamProjectApi = {
     const response = await baseApi.get(`/teams/${teamId}/projects`);
     return response.data;
   },
-
   // Get available projects (not assigned to any team or user has access)
   getAvailableProjects: async (): Promise<{ projects: TeamProject[], total: number }> => {
-    const response = await baseApi.get('/projects');
+    const response = await baseApi.get('/projects/available');
     return response.data;
   },
 
@@ -75,7 +74,6 @@ export const teamProjectApi = {
     const response = await baseApi.put(`/projects/${projectId}`, projectData);
     return response.data.project;
   },
-
   // Search projects
   searchProjects: async (query: string): Promise<{ projects: TeamProject[], total: number }> => {
     const response = await baseApi.get('/projects/search', {

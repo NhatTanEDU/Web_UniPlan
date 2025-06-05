@@ -21,6 +21,7 @@ router.delete('/:teamId/members/:memberId', auth, teamMemberController.removeMem
 // Team project routes
 router.get('/:teamId/projects', auth, projectController.getTeamProjects);
 router.post('/:teamId/projects', auth, projectController.assignProjectToTeam);
+router.delete('/:teamId/projects/:projectId', auth, projectController.removeProjectFromTeam);
 
 // Legacy member routes (backward compatibility)
 router.post('/members', auth, teamMemberController.addMember);

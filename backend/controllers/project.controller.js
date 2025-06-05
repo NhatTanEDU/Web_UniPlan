@@ -444,3 +444,145 @@ exports.assignProjectToTeam = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };
+
+// Gỡ dự án khỏi team - DELETE /api/teams/:teamId/projects/:projectId
+exports.removeProjectFromTeam = async (req, res) => {
+  try {
+    const { teamId, projectId } = req.params;
+    const currentUserId = req.user.userId;
+
+    // Import TeamMember model
+    const TeamMember = require('../models/teamMember.model');
+    const Team = require('../models/team.model');
+
+    // Kiểm tra quyền (Admin hoặc Editor)
+    const currentMember = await TeamMember.findOne({
+      team_id: teamId,
+      user_id: currentUserId,
+      role: { $in: ['Admin', 'Editor'] },
+      is_active: true
+    });
+
+    if (!currentMember) {
+      return res.status(403).json({ message: 'Bạn không có quyền gỡ dự án khỏi nhóm' });
+    }
+
+    // Kiểm tra team tồn tại
+    const team = await Team.findOne({ _id: teamId, is_deleted: false });
+    if (!team) {
+      return res.status(404).json({ message: 'Không tìm thấy nhóm' });
+    }
+
+    // Kiểm tra project tồn tại và đã được gán cho team này
+    const project = await Project.findOne({ 
+      _id: projectId, 
+      team_id: teamId,
+      is_deleted: false 
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án hoặc dự án không thuộc nhóm này' });
+    }
+
+    // Gỡ dự án khỏi team (set team_id = null)
+    project.team_id = null;
+    project.updated_at = new Date();
+    await project.save();
+
+    // Emit socket event nếu có
+    if (req.server?.io) {
+      req.server.io.to(currentUserId).emit('project_changed', { 
+        action: 'remove_from_team', 
+        project: project,
+        teamId: teamId 
+      });
+    }
+
+    res.json({
+      message: 'Gỡ dự án khỏi nhóm thành công',
+      project: {
+        id: project._id,
+        name: project.project_name,
+        description: project.description,
+        team_id: project.team_id // Should be null now
+      }
+    });
+
+  } catch (error) {
+    console.error('Error removing project from team:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
+// Lấy danh sách project có thể gán vào team (projects không thuộc team nào hoặc thuộc user hiện tại)
+exports.getAvailableProjects = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    // Lấy các project mà user tạo và chưa được gán vào team nào
+    // hoặc user có quyền truy cập (created_by = userId)
+    const projects = await Project.find({
+      created_by: userId,
+      $or: [
+        { team_id: { $exists: false } }, // Projects not assigned to any team
+        { team_id: null } // Or team_id is null
+      ],
+      is_deleted: { $ne: true } // Exclude soft-deleted projects
+    })
+    .populate('project_type_id', 'name description')
+    .sort({ created_at: -1 });
+
+    res.json({
+      projects: projects,
+      total: projects.length
+    });
+
+  } catch (error) {
+    console.error('Error getting available projects:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
+// Tìm kiếm project theo tên hoặc mô tả
+exports.searchProjects = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { query } = req.query;
+    
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    // Tìm kiếm các project mà user tạo và chưa được gán vào team
+    const searchRegex = new RegExp(query.trim(), 'i');
+    const projects = await Project.find({
+      created_by: userId,
+      $or: [
+        { team_id: { $exists: false } }, // Projects not assigned to any team
+        { team_id: null } // Or team_id is null
+      ],
+      is_deleted: { $ne: true }, // Exclude soft-deleted projects
+      $and: [
+        {
+          $or: [
+            { project_name: searchRegex },
+            { description: searchRegex }
+          ]
+        }
+      ]
+    })
+    .populate('project_type_id', 'name description')
+    .sort({ created_at: -1 })
+    .limit(20); // Limit results to prevent performance issues
+
+    res.json({
+      projects: projects,
+      total: projects.length,
+      query: query
+    });
+
+  } catch (error) {
+    console.error('Error searching projects:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};

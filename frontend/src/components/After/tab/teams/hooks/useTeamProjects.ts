@@ -51,18 +51,26 @@ export function useTeamProjects(teamId: string) {
     priority?: string;
     startDate?: string;
     endDate?: string;
+    project_type_id?: string | null; // << THÊM VÀO KIỂU DỮ LIỆU
   }) => {
-    const projectData = {
+    const projectData: CreateProjectData = { // Đảm bảo projectData khớp với CreateProjectData
       project_name: data.title,
       description: data.description,
       start_date: data.startDate || new Date().toISOString(),
       end_date: data.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-      status: data.status as 'Active' | 'Completed' | 'On Hold' | 'Cancelled' || 'Active',
-      priority: data.priority as 'Low' | 'Medium' | 'High' || 'Medium',
+      status: data.status ? data.status as 'Active' | 'Completed' | 'On Hold' | 'Cancelled' : 'Active', // Sửa lại cách gán status
+      priority: data.priority ? data.priority as 'Low' | 'Medium' | 'High' : 'Medium', // Sửa lại cách gán priority
+      project_type_id: data.project_type_id || undefined // << THÊM VÀO projectData
     };
+    
+    // Loại bỏ project_type_id nếu nó là null hoặc undefined để backend tự xử lý default
+    if (!projectData.project_type_id) {
+      delete projectData.project_type_id;
+    }
+
     await teamProjectApi.createAndAssignProject(teamId, projectData);
     await fetchProjects();
-  };  /**
+  };/**
    * updateProject(projectId, data)
    *  - Gọi API updateProject
    *  - Sau đó refetch
