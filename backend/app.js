@@ -119,16 +119,23 @@ app.get('/api/system/status', (req, res) => {
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/password", require("./routes/password.routes"));
 
-// Basic always-enabled routes
+// IMPORTANT: Place specific routes BEFORE generic/dynamic routes
 app.use('/api/admin', adminRoutes);
-app.use('/api', projectRoutes);
-app.use('/api', projectMemberRoutes); // Changed from /api/project-members to /api to support /api/projects/:id/members routes
-app.use('/api/teams', teamRoutes);
-app.use('/api', projectTypeRoutes); // Essential for project creation
-
-// ===== SIMPLE SEARCH (Always enabled - our working APIs) =====
+app.use('/api/teams', teamRoutes); // Specific route first
 app.use('/api/teams-simple', require('./routes/teamSimpleRoutes')); // Simple team search functionality
 app.use('/api/users', require('./routes/user.routes')); // Route cho users
+
+// ===== CONDITIONAL SPECIFIC ROUTES (Only if features are enabled) =====
+if (isFeatureEnabled('ADVANCED_SEARCH') && personalMemberListRoutes) {
+  app.use('/api/personal-members', featureToggleMiddleware('ADVANCED_SEARCH'), personalMemberListRoutes);
+}
+
+// Place project-types BEFORE dynamic project routes
+app.use('/api', projectTypeRoutes); // Essential for project creation - must come before dynamic routes
+
+// Place dynamic routes AFTER specific ones
+app.use('/api', projectRoutes); // This contains /projects/:id which should be after specific routes
+app.use('/api', projectMemberRoutes); // Changed from /api/project-members to /api to support /api/projects/:id/members routes
 
 // ===== CONDITIONAL ROUTES (Only if features are enabled) =====
 if (isFeatureEnabled('CUSTOM_WIDGETS') && widgetRoutes) {
@@ -146,7 +153,6 @@ if (isFeatureEnabled('ENHANCED_TEAMS') && teamEnhancedRoutes) {
 if (isFeatureEnabled('ADVANCED_SEARCH')) {
   if (kanbanRoutes) app.use('/api/kanban', featureToggleMiddleware('ADVANCED_SEARCH'), kanbanRoutes);
   if (kanbanTaskRoutes) app.use('/api/kanban-tasks', featureToggleMiddleware('ADVANCED_SEARCH'), kanbanTaskRoutes);
-  if (personalMemberListRoutes) app.use('/api/personal-members', featureToggleMiddleware('ADVANCED_SEARCH'), personalMemberListRoutes);
   if (userRoleRoutes) app.use('/api/user-roles', featureToggleMiddleware('ADVANCED_SEARCH'), userRoleRoutes);
 }
 

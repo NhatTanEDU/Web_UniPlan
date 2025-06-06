@@ -94,7 +94,8 @@ exports.createTeam = async (req, res) => {
 };
 
 // Lấy danh sách nhóm
-exports.getTeams = async (req, res) => {  try {
+exports.getTeams = async (req, res) => {
+  try {
     const userId = req.user.userId; // Thay đổi từ req.user._id thành req.user.userId
     const { page = 1, limit = 10, search = '', sortBy = 'team_name', sortOrder = 'asc' } = req.query;
 
@@ -201,11 +202,11 @@ exports.getTeamById = async (req, res) => {
     }
 
     const team = await Team.findOne({ _id: id, is_deleted: false })
-      .populate('created_by', 'full_name email');
-
-    if (!team) {
+      .populate('created_by', 'full_name email');    if (!team) {
       return res.status(404).json({ message: 'Không tìm thấy nhóm' });
-    }    // Lấy danh sách thành viên
+    }
+
+    // Lấy danh sách thành viên
     const members = await TeamMember.find({ 
       team_id: id, 
       is_active: true 

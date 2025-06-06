@@ -4,7 +4,6 @@ import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
 import TopButton from "../../../TopButton";
 import Breadcrumb from "../../Breadcrumb";
-import PersonalMembersListWorking from "./members/PersonalMembersListWorking";
 import PersonalMembersList from "./members/PersonalMembersList";
 import React from "react";
 

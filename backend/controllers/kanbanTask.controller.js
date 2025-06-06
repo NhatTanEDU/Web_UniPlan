@@ -130,22 +130,76 @@ exports.createTask = async (req, res) => {
       }
     }
 
-    // Validation assigned_to phải là thành viên dự án
+    // Validation assigned_to phải là thành viên dự án hoặc team
     if (assigned_to) {
       // Kiểm tra null/undefined safety
       const isCreator = project && project.created_by && 
                        project.created_by.toString() === assigned_to.toString();
       
       if (!isCreator) {
+        let hasAccess = false;
+        
+        // Kiểm tra trong ProjectMember trước
         const projectMember = await ProjectMember.findOne({
           project_id: kanban.project_id,
           user_id: assigned_to,
           is_active: true
         });
 
-        if (!projectMember) {
+        if (projectMember) {
+          hasAccess = true;
+        }
+        
+        // Nếu không có trong ProjectMember và project có team_id, kiểm tra TeamMember
+        if (!hasAccess && project.team_id) {
+          const TeamMember = require('../models/teamMember.model');
+          const teamMember = await TeamMember.findOne({
+            team_id: project.team_id,
+            user_id: assigned_to,
+            is_active: true
+          });
+          
+          if (teamMember) {
+            hasAccess = true;
+            console.log(`📋 User ${assigned_to} found in team ${project.team_id}, allowing assignment`);
+            
+            // Đồng bộ hóa team member này vào project member để tránh lỗi tương lai
+            try {
+              const existingProjectMember = await ProjectMember.findOne({
+                project_id: kanban.project_id,
+                user_id: assigned_to
+              });
+              
+              if (!existingProjectMember) {
+                // Map team role to project role
+                let projectRole = 'Member';
+                if (teamMember.role === 'Admin') {
+                  projectRole = 'Manager';
+                } else if (teamMember.role === 'Editor') {
+                  projectRole = 'Editor';
+                }
+                
+                const newProjectMember = new ProjectMember({
+                  project_id: kanban.project_id,
+                  user_id: assigned_to,
+                  role_in_project: projectRole,
+                  joined_at: new Date(),
+                  is_active: true
+                });
+                
+                await newProjectMember.save();
+                console.log(`✅ Auto-synced team member ${assigned_to} to project members with role ${projectRole}`);
+              }
+            } catch (syncError) {
+              console.error('⚠️ Error auto-syncing team member to project:', syncError);
+              // Không fail task assignment nếu sync lỗi
+            }
+          }
+        }
+
+        if (!hasAccess) {
           return res.status(400).json({ 
-            message: 'Người được giao phải là thành viên của dự án' 
+            message: 'Người được giao phải là thành viên của dự án hoặc thành viên của team được gán dự án' 
           });
         }
       }
@@ -323,20 +377,74 @@ exports.updateTask = async (req, res) => {
       assignedToId = null;
     }
 
-    // Validation assigned_to phải là thành viên dự án (nếu có giá trị và khác với giá trị cũ)
+    // Validation assigned_to phải là thành viên dự án hoặc team (nếu có giá trị và khác với giá trị cũ)
     if (assignedToId && assignedToId !== task.assigned_to?.toString()) {
       const isCreator = project.created_by && project.created_by.toString() === assignedToId.toString();
       
       if (!isCreator) {
+        let hasAccess = false;
+        
+        // Kiểm tra trong ProjectMember trước
         const projectMember = await ProjectMember.findOne({
           project_id: kanban.project_id,
           user_id: assignedToId,
           is_active: true
         });
 
-        if (!projectMember) {
+        if (projectMember) {
+          hasAccess = true;
+        }
+        
+        // Nếu không có trong ProjectMember và project có team_id, kiểm tra TeamMember
+        if (!hasAccess && project.team_id) {
+          const TeamMember = require('../models/teamMember.model');
+          const teamMember = await TeamMember.findOne({
+            team_id: project.team_id,
+            user_id: assignedToId,
+            is_active: true
+          });
+          
+          if (teamMember) {
+            hasAccess = true;
+            console.log(`📋 User ${assignedToId} found in team ${project.team_id}, allowing assignment`);
+            
+            // Đồng bộ hóa team member này vào project member để tránh lỗi tương lai
+            try {
+              const existingProjectMember = await ProjectMember.findOne({
+                project_id: kanban.project_id,
+                user_id: assignedToId
+              });
+              
+              if (!existingProjectMember) {
+                // Map team role to project role
+                let projectRole = 'Member';
+                if (teamMember.role === 'Admin') {
+                  projectRole = 'Manager';
+                } else if (teamMember.role === 'Editor') {
+                  projectRole = 'Editor';
+                }
+                
+                const newProjectMember = new ProjectMember({
+                  project_id: kanban.project_id,
+                  user_id: assignedToId,
+                  role_in_project: projectRole,
+                  joined_at: new Date(),
+                  is_active: true
+                });
+                
+                await newProjectMember.save();
+                console.log(`✅ Auto-synced team member ${assignedToId} to project members with role ${projectRole}`);
+              }
+            } catch (syncError) {
+              console.error('⚠️ Error auto-syncing team member to project:', syncError);
+              // Không fail task assignment nếu sync lỗi
+            }
+          }
+        }
+
+        if (!hasAccess) {
           return res.status(400).json({ 
-            message: 'Người được giao phải là thành viên của dự án' 
+            message: 'Người được giao phải là thành viên của dự án hoặc thành viên của team được gán dự án' 
           });
         }
       }

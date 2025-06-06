@@ -2,10 +2,10 @@ import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import {
   getProjectTypes,
-  createProjectType,
   ProjectType,
 } from "../../../../services/projectTypeApi";
 import ProjectTypeManagerModal from "./ProjectTypeManagerModal";
+import CreateProjectTypeModal from "./CreateProjectTypeModal";
 import { PROJECT_STATUS_OPTIONS, PROJECT_PRIORITY_OPTIONS } from "../../../../constants/projectLabels";
 
 interface ProjectFormProps {
@@ -35,6 +35,20 @@ export default function ProjectForm({
   const [projectTypes, setProjectTypes] = useState<ProjectType[]>([]);
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [showTypeManager, setShowTypeManager] = useState(false);
+  const [isCreateTypeModalOpen, setIsCreateTypeModalOpen] = useState(false);
+
+  // Hàm xử lý khi tạo project type mới thành công
+  const handleTypeCreated = (newType: ProjectType) => {
+    console.log("[DEBUG] New project type created:", newType);
+    // Cập nhật danh sách project types
+    setProjectTypes([...projectTypes, newType]);
+    // Tự động chọn phân loại mới tạo cho dự án đang tạo
+    setNewProject({
+      ...newProject,
+      project_type: newType.name,
+      project_type_id: newType,
+    });
+  };
 
   useEffect(() => {
     if (!userId) return;
@@ -153,25 +167,14 @@ export default function ProjectForm({
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Phân loại dự án
         </label>
-        <div className="flex items-center gap-2">
-          <select
+        <div className="flex items-center gap-2">          <select
             value={newProject.project_type_id?._id || ""}
             onChange={(e) => {
               const selectedId = e.target.value;
               if (selectedId === "__new__") {
-                const name = prompt("Nhập tên phân loại mới:");
-                if (name && name.trim() !== "") {
-                  if (userId) {
-                    createProjectType(name, userId).then((newType) => {
-                      setProjectTypes([...projectTypes, newType]);
-                      setNewProject({
-                        ...newProject,
-                        project_type: name,
-                        project_type_id: newType,
-                      });
-                    });
-                  }
-                }
+                // Mở modal tạo phân loại mới thay vì prompt
+                console.log("[DEBUG] User selected '+ Tạo phân loại mới...', opening modal.");
+                setIsCreateTypeModalOpen(true);
               } else {
                 const found = projectTypes.find((pt) => pt._id === selectedId);
                 if (found) {
@@ -203,8 +206,7 @@ export default function ProjectForm({
           >
             Quản lý phân loại
           </button>
-        </div>
-        <ProjectTypeManagerModal
+        </div>        <ProjectTypeManagerModal
           open={showTypeManager}
           onClose={() => setShowTypeManager(false)}
         />
@@ -217,6 +219,13 @@ export default function ProjectForm({
       >
         Tạo Dự án
       </button>
+
+      {/* Modal tạo phân loại mới */}
+      <CreateProjectTypeModal
+        isOpen={isCreateTypeModalOpen}
+        onClose={() => setIsCreateTypeModalOpen(false)}
+        onTypeCreated={handleTypeCreated}
+      />
     </form>
   );
 }

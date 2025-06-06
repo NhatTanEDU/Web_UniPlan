@@ -103,12 +103,17 @@ exports.createProject = async (req, res) => {
 
     console.log('Kanban board created:', kanban._id); // Debug log
 
+    // Populate the project before sending it back to ensure consistent data structure
+    const populatedProject = await Project.findById(project._id)
+      .populate('project_type_id', 'name description')
+      .populate('created_by', 'full_name email');
+
     // Emit socket event khi tạo dự án thành công
     if (req.server?.io) {
-      req.server.io.to(userId).emit('project_changed', { action: 'create', project });
+      req.server.io.to(userId).emit('project_changed', { action: 'create', project: populatedProject });
     }
 
-    res.status(201).json({ message: 'Tạo dự án thành công', project });
+    res.status(201).json({ message: 'Tạo dự án thành công', project: populatedProject });
   } catch (error) {
     console.error('Lỗi tạo dự án:', error);
     res.status(500).json({ message: 'Lỗi khi tạo dự án', error: error.message });
@@ -164,11 +169,16 @@ exports.softDeleteProject = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy dự án hoặc không có quyền" });
     }
 
+    // Populate the project before sending response
+    const populatedProject = await Project.findById(project._id)
+      .populate('project_type_id', 'name description')
+      .populate('created_by', 'full_name email');
+
     if (req.server?.io) {
       req.server.io.to(userId).emit('project_changed');
     }
 
-    res.json({ message: "Đã xóa dự án (ẩn tạm thời)", project });
+    res.json({ message: "Đã xóa dự án (ẩn tạm thời)", project: populatedProject });
   } catch (error) {
     console.error('Lỗi xóa mềm dự án:', error);
     res.status(500).json({ message: "Lỗi khi xóa dự án", error: error.message });
@@ -191,11 +201,16 @@ exports.restoreProject = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy hoặc không thể khôi phục" });
     }
 
+    // Populate the project before sending response
+    const populatedProject = await Project.findById(project._id)
+      .populate('project_type_id', 'name description')
+      .populate('created_by', 'full_name email');
+
     if (req.server?.io) {
       req.server.io.to(userId).emit('project_changed');
     }
 
-    res.json({ message: "Đã khôi phục dự án", project });
+    res.json({ message: "Đã khôi phục dự án", project: populatedProject });
   } catch (error) {
     console.error('Lỗi khôi phục dự án:', error);
     res.status(500).json({ message: "Lỗi khi khôi phục dự án", error: error.message });
@@ -239,24 +254,82 @@ exports.updateProject = async (req, res) => {
       }
     }
 
-    project.project_name = project_name || project.project_name;
-    project.description = description || project.description;
-    project.status = status || project.status;
-    project.priority = priority || project.priority;
-    project.start_date = start_date || project.start_date;
-    project.end_date = end_date || project.end_date;
-    project.project_type_id = project_type_id || project.project_type_id;
-    project.team_id = team_id !== undefined ? team_id : project.team_id; // Allow null to unassign team
-    project.updated_at = new Date();
-    
-    await project.save();
+    // --- BẮT ĐẦU LOGGING ---
+    console.log(`[DEBUG] Updating Project ID: ${projectId}`);
+    // Log dữ liệu gốc trước khi thay đổi
+    console.log('[DEBUG] Original Data:', JSON.stringify(project.toObject(), null, 2));
+    // Log dữ liệu nhận được từ request
+    console.log('[DEBUG] Received Updates:', JSON.stringify({ project_name, description, status, priority, start_date, end_date, project_type_id, team_id }, null, 2));
+
+    const changedFields = {};
+
+    // Gán giá trị và ghi nhận các trường đã thay đổi
+    if (project_name && project.project_name !== project_name) {
+      changedFields.project_name = { from: project.project_name, to: project_name };
+      project.project_name = project_name;
+    }
+    if (description !== undefined && project.description !== description) {
+      changedFields.description = { from: project.description, to: description };
+      project.description = description;
+    }
+    if (status && project.status !== status) {
+      changedFields.status = { from: project.status, to: status };
+      project.status = status;
+    }
+    if (priority && project.priority !== priority) {
+      changedFields.priority = { from: project.priority, to: priority };
+      project.priority = priority;
+    }
+    if (start_date && project.start_date !== start_date) {
+      changedFields.start_date = { from: project.start_date, to: start_date };
+      project.start_date = start_date;
+    }
+    if (end_date && project.end_date !== end_date) {
+      changedFields.end_date = { from: project.end_date, to: end_date };
+      project.end_date = end_date;
+    }
+    if (project_type_id && project.project_type_id.toString() !== project_type_id) {
+      changedFields.project_type_id = { from: project.project_type_id, to: project_type_id };
+      project.project_type_id = project_type_id;
+    }
+    if (team_id !== undefined && project.team_id?.toString() !== team_id?.toString()) {
+      changedFields.team_id = { from: project.team_id, to: team_id };
+      project.team_id = team_id;
+    }
+
+    if (Object.keys(changedFields).length > 0) {
+      console.log('[DEBUG] Fields Changed:', JSON.stringify(changedFields, null, 2));
+      project.updated_at = new Date();
+      await project.save();
+      console.log(`[DEBUG] Project ${projectId} update saved to DB.`);
+      
+      // 🔄 Sync team members to project members when team_id changes
+      if (changedFields.team_id && team_id) {
+        try {
+          console.log(`🔄 Team ID changed from ${changedFields.team_id.from} to ${changedFields.team_id.to}, syncing team members...`);
+          const syncResult = await syncTeamMembersToProject(projectId, team_id);
+          console.log('🔄 Team member sync result:', syncResult);
+        } catch (syncError) {
+          console.error('❌ Error syncing team members to project during update:', syncError);
+          // Don't fail the update operation if sync fails, just log the error
+        }
+      }
+    } else {
+      console.log(`[DEBUG] No actual changes detected for Project ${projectId}.`);
+    }
+    // --- KẾT THÚC LOGGING ---
+
+    // IMPORTANT: Repopulate the project before sending it back
+    const populatedProject = await Project.findById(project._id)
+      .populate('project_type_id', 'name description') // << THIS LINE IS KEY
+      .populate('created_by', 'full_name email');
 
     // Emit socket event khi cập nhật dự án thành công
     if (req.server?.io) {
-      req.server.io.to(userId).emit('project_changed', { action: 'update', project });
+      req.server.io.to(userId).emit('project_changed', { action: 'update', project: populatedProject });
     }
 
-    res.status(200).json({ message: 'Cập nhật dự án thành công', project });
+    res.status(200).json({ message: 'Cập nhật dự án thành công', project: populatedProject });
   } catch (error) {
     console.error('Lỗi cập nhật dự án:', error);
     if (error.name === 'CastError') {
@@ -394,6 +467,9 @@ exports.assignProjectToTeam = async (req, res) => {
       // Gán dự án vào team
       project.team_id = teamId;
       await project.save();
+      
+      // Đồng bộ hóa team members sang project members
+      await syncTeamMembersToProject(project._id, teamId);
 
     } else {
       // Tạo dự án mới và gán vào team
@@ -431,6 +507,16 @@ exports.assignProjectToTeam = async (req, res) => {
     const populatedProject = await Project.findById(project._id)
       .populate('project_type_id', 'name description')
       .populate('created_by', 'full_name email');
+
+    // Sync team members to project members when a project is assigned to a team
+    if (teamId) {
+      try {
+        const syncResult = await syncTeamMembersToProject(project._id, teamId);
+        console.log('🔄 Sync result:', syncResult);
+      } catch (syncError) {
+        console.error('❌ Error syncing team members to project:', syncError);
+      }
+    }
 
     res.status(201).json({
       message: project_id ? 'Gán dự án vào nhóm thành công' : 'Tạo và gán dự án vào nhóm thành công',
@@ -599,6 +685,148 @@ exports.searchProjects = async (req, res) => {
 
   } catch (error) {
     console.error('Error searching projects:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
+};
+
+// Helper function to sync team members to project members (exported for reuse)
+const syncTeamMembersToProject = async (projectId, teamId) => {
+  try {
+    console.log('🔄 Syncing team members to project members...', { projectId, teamId });
+    
+    const TeamMember = require('../models/teamMember.model');
+    const ProjectMember = require('../models/projectMember.model');
+    
+    // Get all active team members
+    const teamMembers = await TeamMember.find({
+      team_id: teamId,
+      is_active: true
+    });
+    
+    console.log(`📋 Found ${teamMembers.length} team members to sync`);
+    
+    // Get existing project members to avoid duplicates
+    const existingProjectMembers = await ProjectMember.find({
+      project_id: projectId,
+      is_active: true
+    });
+    
+    const existingUserIds = existingProjectMembers.map(pm => pm.user_id.toString());
+    console.log(`📋 Found ${existingProjectMembers.length} existing project members`);
+    
+    // Add team members to project members if they don't already exist
+    const newProjectMembers = [];
+    for (const teamMember of teamMembers) {
+      if (!existingUserIds.includes(teamMember.user_id.toString())) {
+        // Map team roles to project roles
+        let projectRole = 'Member';
+        if (teamMember.role === 'Admin') {
+          projectRole = 'Manager';
+        } else if (teamMember.role === 'Editor') {
+          projectRole = 'Editor';
+        }
+        
+        const projectMember = new ProjectMember({
+          project_id: projectId,
+          user_id: teamMember.user_id,
+          role_in_project: projectRole,
+          joined_at: new Date(),
+          is_active: true
+        });
+        
+        newProjectMembers.push(projectMember);
+      }
+    }
+    
+    if (newProjectMembers.length > 0) {
+      await ProjectMember.insertMany(newProjectMembers);
+      console.log(`✅ Added ${newProjectMembers.length} new project members from team`);
+    } else {
+      console.log('ℹ️ No new project members to add - all team members already exist');
+    }
+    
+    return {
+      success: true,
+      teamMembersCount: teamMembers.length,
+      newProjectMembersCount: newProjectMembers.length,
+      existingProjectMembersCount: existingProjectMembers.length
+    };
+  } catch (error) {
+    console.error('❌ Error syncing team members to project:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
+// Export the sync function for external use
+module.exports.syncTeamMembersToProject = syncTeamMembersToProject;
+
+// API endpoint để đồng bộ hóa team members sang project members thủ công
+exports.manualSyncTeamMembers = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const currentUserId = req.user.userId;
+
+    // Kiểm tra project tồn tại và user có quyền
+    const project = await Project.findOne({ 
+      _id: projectId, 
+      is_deleted: false 
+    }).populate('team_id');
+
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+
+    // Kiểm tra quyền: phải là creator của project hoặc Admin/Editor của team
+    let hasPermission = project.created_by.toString() === currentUserId;
+
+    if (!hasPermission && project.team_id) {
+      const TeamMember = require('../models/teamMember.model');
+      const teamMember = await TeamMember.findOne({
+        team_id: project.team_id,
+        user_id: currentUserId,
+        role: { $in: ['Admin', 'Editor'] },
+        is_active: true
+      });
+      hasPermission = !!teamMember;
+    }
+
+    if (!hasPermission) {
+      return res.status(403).json({ 
+        message: 'Bạn không có quyền đồng bộ hóa thành viên cho dự án này' 
+      });
+    }
+
+    if (!project.team_id) {
+      return res.status(400).json({ 
+        message: 'Dự án này chưa được gán cho team nào' 
+      });
+    }
+
+    // Thực hiện đồng bộ
+    const syncResult = await syncTeamMembersToProject(projectId, project.team_id);
+
+    if (syncResult.success) {
+      res.json({
+        message: 'Đồng bộ hóa thành viên thành công',
+        syncResult: {
+          teamMembersCount: syncResult.teamMembersCount,
+          newProjectMembersAdded: syncResult.newProjectMembersCount,
+          existingProjectMembers: syncResult.existingProjectMembersCount,
+          totalProjectMembersNow: syncResult.existingProjectMembersCount + syncResult.newProjectMembersCount
+        }
+      });
+    } else {
+      res.status(500).json({
+        message: 'Lỗi khi đồng bộ hóa thành viên',
+        error: syncResult.error
+      });
+    }
+
+  } catch (error) {
+    console.error('Error in manual sync team members:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };

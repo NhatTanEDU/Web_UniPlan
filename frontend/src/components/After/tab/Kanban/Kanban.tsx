@@ -9,15 +9,16 @@ import Breadcrumb from "../../Breadcrumb";
 import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask, ProjectMember } from "../../../../services/kanbanApi";
+import { teamMemberApi } from "../../../../services/teamMemberApi";
 
 const STATUS = ["Cần làm", "Đang làm", "Hoàn thành"];
 
 const Kanban = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [tasks, setTasks] = useState<KanbanTask[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingTask, setEditingTask] = useState<KanbanTask | null>(null);
+  const [showForm, setShowForm] = useState(false);  const [editingTask, setEditingTask] = useState<KanbanTask | null>(null);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [currentProject, setCurrentProject] = useState<any>(null);
   const [currentKanban, setCurrentKanban] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -84,8 +85,7 @@ const Kanban = () => {
         
         console.log("🔍 DEBUG: currentProjectId resolved to:", currentProjectId);        
         if (currentProjectId) {
-          console.log("🔍 DEBUG: currentProjectId exists, proceeding with data loading");
-          // Fetch project details
+          console.log("🔍 DEBUG: currentProjectId exists, proceeding with data loading");          // Fetch project details
           const projectDetails = await projectApi.getProject(currentProjectId);
           console.log("🔍 DEBUG: projectDetails loaded:", projectDetails);
           setCurrentProject(projectDetails);
@@ -98,6 +98,21 @@ const Kanban = () => {
           } catch (memberError) {
             console.warn('Could not load project members:', memberError);
             setProjectMembers([]);
+          }          // Load team members if project belongs to a team
+          if (projectDetails.team_id) {
+            try {
+              console.log("🔍 DEBUG: Loading team members for teamId:", projectDetails.team_id);
+              const teamMembersResponse = await teamMemberApi.getTeamMembers(projectDetails.team_id);
+              console.log("🔍 DEBUG: teamMembers loaded:", teamMembersResponse);
+              // API service đã được sửa để trả về mảng trực tiếp
+              setTeamMembers(teamMembersResponse || []);
+            } catch (teamMemberError) {
+              console.warn('Could not load team members:', teamMemberError);
+              setTeamMembers([]);
+            }
+          } else {
+            console.log("🔍 DEBUG: Project does not belong to any team, using project members");
+            setTeamMembers([]);
           }
           
           // Try to get existing kanban or create one
@@ -168,7 +183,6 @@ const Kanban = () => {
   // Debug useEffect to monitor showForm state changes
   useEffect(() => {
     console.log("🔍 DEBUG: showForm state changed to:", showForm);  }, [showForm]);
-
   // Utility functions
   const resetForm = () => {
     console.log("🔍 DEBUG: resetForm called");
@@ -187,6 +201,21 @@ const Kanban = () => {
     setEditingTask(null);
     
     console.log("🔍 DEBUG: Form reset completed, editingTask set to null");
+  };
+  // Get assignable members - prioritize team members if available, fallback to project members
+  const getAssignableMembers = () => {
+    if (currentProject?.team_id && teamMembers && teamMembers.length > 0) {
+      console.log("🔍 DEBUG: Using team members for assignment:", teamMembers.length);
+      return teamMembers.map(teamMember => ({
+        _id: teamMember.user?.id || teamMember.user?.id,
+        name: teamMember.user?.full_name || teamMember.user?.name || 'Unknown User',
+        email: teamMember.user?.email || '',
+        role: teamMember.role
+      }));
+    } else {
+      console.log("🔍 DEBUG: Using project members for assignment:", projectMembers?.length || 0);
+      return projectMembers || [];
+    }
   };
 
   const showSuccessMessage = (message: string) => {
@@ -722,9 +751,7 @@ const Kanban = () => {
                     <option value="Đang làm">Đang làm</option>
                     <option value="Hoàn thành">Hoàn thành</option>
                   </select>
-                </div>
-
-                {/* Assigned To */}
+                </div>                {/* Assigned To */}
                 <div>
                   <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Người được giao
@@ -735,7 +762,7 @@ const Kanban = () => {
                     className="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Chưa giao</option>
-                    {projectMembers.map((member) => (
+                    {getAssignableMembers().map((member) => (
                       <option key={member._id} value={member._id}>
                         {member.name} ({member.email})
                       </option>
@@ -818,10 +845,10 @@ const Kanban = () => {
                             // Pinned tasks first, then by order
                             if (a.is_pinned && !b.is_pinned) return -1;
                             if (!a.is_pinned && b.is_pinned) return 1;
-                            return (a.order || 0) - (b.order || 0);
-                          })
+                            return (a.order || 0) - (b.order || 0);                          })
                           .map((task, index) => {
-                            const assignedMember = projectMembers.find(m => m._id === task.assigned_to);
+                            const assignableMembers = getAssignableMembers();
+                            const assignedMember = assignableMembers.find(m => m._id === task.assigned_to);
                             const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'Hoàn thành';
                               return (
                               <Draggable

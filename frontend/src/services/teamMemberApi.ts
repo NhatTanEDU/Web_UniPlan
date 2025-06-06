@@ -71,15 +71,15 @@ export interface UserTeamRole {
  * teamMemberApi class
  * - Main API service for team member operations
  */
-class TeamMemberApi {
-  /**
+class TeamMemberApi {  /**
    * getTeamMembers(teamId)
    * - Lấy danh sách thành viên của team
    */
-  async getTeamMembers(teamId: string): Promise<{ members: TeamMember[] }> {
+  async getTeamMembers(teamId: string): Promise<TeamMember[]> {
     const response = await baseApi.get(`/teams/${teamId}/members`);
-    return response.data;
-  }  /**
+    // Backend trả về { message, team, members, total }, chúng ta chỉ cần array members
+    return response.data.members || [];
+  }/**
    * addMemberToTeam(teamId, data)
    * - Thêm 1 thành viên mới vào team
    */

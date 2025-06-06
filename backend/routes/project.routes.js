@@ -21,6 +21,9 @@ router.get('/projects/:id', auth, projectController.getProjectById);
 // API: Cập nhật dự án
 router.put('/projects/:projectId', auth, projectController.updateProject);
 
+// API: Đồng bộ hóa team members sang project members thủ công
+router.post('/projects/:projectId/sync-team-members', auth, projectController.manualSyncTeamMembers);
+
 // Xóa mềm dự án
 router.delete('/projects/:id', auth, projectController.softDeleteProject);
 

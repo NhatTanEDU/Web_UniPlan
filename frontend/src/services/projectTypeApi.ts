@@ -16,7 +16,9 @@ export const createProjectType = async (name: string, userId: string): Promise<P
 };
 
 // Đảm bảo file được coi là module
-export default {
+const projectTypeApi = {
   getProjectTypes,
   createProjectType
-}; 
+};
+
+export default projectTypeApi;

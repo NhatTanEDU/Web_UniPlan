@@ -5,14 +5,13 @@
  * - Hiển thị “Danger Zone” xóa team vĩnh viễn kèm confirm modal
  */
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTeam } from "../hooks/useTeam";
 import { teamApi } from "../../../../../services/teamApi";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ConfirmModal from "../components/ConfirmModal";
 
 export default function TeamSettingsPage() {
-  const { teamId } = useParams<{ teamId: string }>();
   const { team, loading, error } = useTeam();
   const navigate = useNavigate();
 

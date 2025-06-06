@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserPlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import AddMemberModal from './AddMemberModal';
 import EditMemberModal from './EditMemberModal';
@@ -34,20 +34,19 @@ export default function PersonalMembersList() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<PersonalMember | null>(null);
-
-  // Fetch members data
-  const fetchMembers = async (page: number = currentPage, limit: number = itemsPerPage) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-     
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        sortBy: sortField,
-        sortOrder: sortOrder,
-        search: searchTerm
-      }).toString();
+  // Fetch members data
+  const fetchMembers = useCallback(async (page: number = currentPage, limit: number = itemsPerPage) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+     
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        sortBy: sortField,
+        sortOrder: sortOrder,
+        search: searchTerm
+      }).toString();
 
       const response = await fetch(`http://localhost:5000/api/personal-members?${queryParams}`, {
         headers: {
@@ -72,15 +71,14 @@ export default function PersonalMembersList() {
       console.error('Error fetching members:', error);
       setMembers([]);
       setFilteredMembers([]);
-      setTotalMembers(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setTotalMembers(0);    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, itemsPerPage, sortField, sortOrder, searchTerm]);
 
-  useEffect(() => {
-    fetchMembers(currentPage, itemsPerPage);
-  }, [currentPage, itemsPerPage, sortField, sortOrder, searchTerm]);
+  useEffect(() => {
+    fetchMembers(currentPage, itemsPerPage);
+  }, [fetchMembers, currentPage, itemsPerPage]);
 
   const handleAddMember = async (memberUserId: string, customRole?: string) => {
     try {

@@ -32,30 +32,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, navigate }
     return user ? JSON.parse(user).id : undefined;
   });
 
-  useEffect(() => {
-    if (!isOnline) {
+  useEffect(() => {    if (!isOnline) {
       navigate("/404");
       return;
     }
-
-    const fetchUserRole = async () => {
-      try {
-        const response = await fetch("/api/user/role", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch role");
-        }
-        const data = await response.json();
-        setRole(data.role);
-        if (data.userId) {
-          setUserId(data.userId);
-        }
-      } catch (error) {
-        console.error("Error fetching role:", error);
-        navigate("/404");
-      }
-    };
 
     // Giữ logic tĩnh như yêu cầu
     setRole("admin");

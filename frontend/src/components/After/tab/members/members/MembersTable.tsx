@@ -41,11 +41,9 @@ export default function MembersTable({ members, onEditMember, onDeleteMember }: 
               <th className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Hành động
               </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {members.map((member) => (
-              <tr key={member._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">                <td className="px-2 sm:px-3 md:px-4 py-2 sm:py-3">
+            </tr>          </thead>
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">{members.map((member) => (
+              <tr key={member._id} className="hover:bg-gray-50 dark:hover:bg-gray-700"><td className="px-2 sm:px-3 md:px-4 py-2 sm:py-3">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-6 w-6 sm:h-8 sm:w-8">
                       <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">                        <span className="text-xs font-medium text-white">
@@ -104,8 +102,7 @@ export default function MembersTable({ members, onEditMember, onDeleteMember }: 
                       <TrashIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     </button>
                   </div>
-                </td>
-              </tr>
+                </td>              </tr>
             ))}
           </tbody>
         </table>

@@ -6,7 +6,6 @@ import {
   Folder,
   FileText,
   Users,
-  User,
   List,
   Settings,
   ChevronLeft,
@@ -30,7 +29,7 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC = () => {
-  const { role, isProUser, setRole, userId } = useContext(AuthContext);
+  const { role, setRole, userId } = useContext(AuthContext);
   const [collapsed, setCollapsed] = useState(() => {
     const savedState = localStorage.getItem("sidebarCollapsed");
     return savedState ? JSON.parse(savedState) : false;

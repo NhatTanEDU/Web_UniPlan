@@ -16,18 +16,26 @@ export function useTeamMembers(teamId: string) {
    * fetchMembers()
    *  - Gọi API getTeamMembers(teamId)
    *  - Cập nhật state members
-   */
-  const fetchMembers = useCallback(async () => {
+   */  const fetchMembers = useCallback(async () => {
+    if (!teamId) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await teamMemberApi.getTeamMembers(teamId);
-      console.log('🐛 useTeamMembers - API Response:', JSON.stringify(res, null, 2));
-      console.log('🐛 useTeamMembers - Members array:', JSON.stringify(res.members, null, 2));
-      if (res.members && res.members.length > 0) {
-        console.log('🐛 useTeamMembers - First member structure:', JSON.stringify(res.members[0], null, 2));
+      const membersArray = await teamMemberApi.getTeamMembers(teamId);
+      console.log('🐛 useTeamMembers - API Response:', JSON.stringify(membersArray, null, 2));
+      
+      // --- FIX IS HERE ---
+      // API service now returns the members array directly, not an object with members property
+      if (Array.isArray(membersArray)) {
+        console.log('🐛 useTeamMembers - Members array:', JSON.stringify(membersArray, null, 2));
+        if (membersArray.length > 0) {
+          console.log('🐛 useTeamMembers - First member structure:', JSON.stringify(membersArray[0], null, 2));
+        }
+        setMembers(membersArray); // Set state with the members array directly
+      } else {
+        console.warn('🐛 useTeamMembers - API response is not an array. Setting to empty.');
+        setMembers([]); // Fallback to an empty array if the structure is wrong
       }
-      setMembers(res.members);
     } catch (err: any) {
       console.error('🐛 useTeamMembers - API Error:', err);
       setError(err.message || "Không tải được danh sách thành viên");

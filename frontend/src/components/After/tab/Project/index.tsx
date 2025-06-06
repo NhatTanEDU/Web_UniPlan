@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import Header from "../../Header";
 import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
@@ -7,22 +7,31 @@ import Breadcrumb from "../../Breadcrumb";
 // TEMPORARILY DISABLED - Preventing Socket.IO 404 logs
 // import { socket, connectToSocket } from "../../../../services/socket";
 import { AuthContext } from "../../../context/AuthContext";
+import { useToast } from "../../../context/ToastContext";
 import { Project } from "../../../../types/project";
-import { getProjects, createProject, softDeleteProject, restoreProject, updateProject } from "../../../../services/api";
+import { useProjects } from "./hooks/useProjects";
 import ProjectForm from "./ProjectForm";
 import ProjectList from "./ProjectList";
 import ProjectEditModal from "./ProjectEditModal";
 import { Plus } from "lucide-react";
-import Toast from "../../../common/Toast";
-
-interface ToastConfig {
-  message: string;
-  type: 'success' | 'error';
-}
 
 export default function ProjectPage() {
   const { userId } = useContext(AuthContext);
-  const [projects, setProjects] = useState<Project[]>([]);  const [newProject, setNewProject] = useState({
+  const { showToast } = useToast();
+  
+  // Use the new useProjects hook with optimistic updates
+  const {
+    projects,
+    loading,
+    error,
+    createProject,
+    updateProject,
+    deleteProject,
+    restoreProject,
+  } = useProjects();
+
+  // Local state for UI modals and forms
+  const [newProject, setNewProject] = useState({
     project_name: "",
     description: "",
     start_date: "",
@@ -33,73 +42,40 @@ export default function ProjectPage() {
     project_type_id: { _id: "", name: "" }
   });
   const [editProject, setEditProject] = useState<Project | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [toast, setToast] = useState<ToastConfig | null>(null);
 
-  useEffect(() => {
-    if (!userId) return;
-    
-    const fetchProjects = async () => {
-      setLoading(true);
-      try {
-        const data = await getProjects();
-        setProjects(data);
-      } catch (err: any) {
-        let msg = "Lỗi không xác định";
-        if (err?.response?.data?.message) {
-          msg = err.response.data.message;
-        } else if (err.message) {
-          msg = err.message;
-        }
-        setError(msg);
-      } finally {
-        setLoading(false);
-      }
-    };    // TEMPORARILY DISABLED - Socket.IO to prevent 404 logs
-    // connectToSocket(userId);
-
-    // TEMPORARILY DISABLED - Socket.IO to prevent 404 logs  
-    // const handleProjectChanged = () => {
-    //   fetchProjects();
-    // };
-
-    // socket.on('project_changed', handleProjectChanged);
-
-    // Load dự án ban đầu
-    fetchProjects();    // TEMPORARILY DISABLED - Socket.IO cleanup to prevent 404 logs
-    // return () => {
-    //   socket.off('project_changed', handleProjectChanged);
-    //   if (userId) {
-    //     socket.emit('leave', userId);
-    //   }
-    // };
-  }, [userId]);
+  // TEMPORARILY DISABLED - Socket.IO integration
+  // useEffect(() => {
+  //   if (!userId) return;
+  //   connectToSocket(userId);
+  //   const handleProjectChanged = () => {
+  //     fetchProjects();
+  //   };
+  //   socket.on('project_changed', handleProjectChanged);
+  //   return () => {
+  //     socket.off('project_changed', handleProjectChanged);
+  //     if (userId) {
+  //       socket.emit('leave', userId);
+  //     }
+  //   };
+  // }, [userId]);
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (!userId) {
-        setToast({
-          message: "Bạn cần đăng nhập để tạo dự án",
-          type: 'error'
-        });
+        showToast("Bạn cần đăng nhập để tạo dự án", 'error');
         return;
       }
 
       if (!newProject.project_type_id?._id) {
-        setToast({
-          message: "Vui lòng chọn phân loại dự án",
-          type: 'error'
-        });
+        showToast("Vui lòng chọn phân loại dự án", 'error');
         return;
-      }      // Tạo đối tượng dự án mới với các trường bắt buộc      // Chuyển đổi định dạng ngày tháng để phù hợp với MongoDB      // Kiểm tra tất cả các trường bắt buộc trước khi gửi
+      }
+
+      // Kiểm tra tất cả các trường bắt buộc trước khi gửi
       if (!newProject.project_name || !newProject.start_date || !newProject.end_date || !newProject.project_type_id?._id) {
-        setToast({
-          message: "Vui lòng điền đầy đủ thông tin bắt buộc",
-          type: 'error'
-        });
+        showToast("Vui lòng điền đầy đủ thông tin bắt buộc", 'error');
         return;
       }
 
@@ -111,78 +87,61 @@ export default function ProjectPage() {
         status: newProject.status || 'Planning',
         priority: newProject.priority || 'Medium',
         project_type_id: newProject.project_type_id._id
-      };const project = await createProject(projectToCreate);
-      setProjects([...projects, project.project]);      setNewProject({
-        project_name: "",
-        description: "",
-        start_date: "",
-        end_date: "",
-        status: "Planning",  // Đổi từ "Active" thành "Planning"
-        priority: "Medium",
-        project_type: "",
-        project_type_id: { _id: "", name: "" } // Thêm trường này vào object reset
-      });
-      setShowCreateModal(false);
-      setToast({
-        message: "Dự án đã được tạo thành công",
-        type: 'success'
-      });
+      };
+
+      // Use optimistic update
+      const result = await createProject(projectToCreate);
+      
+      if (result.success) {
+        // Reset form and close modal
+        setNewProject({
+          project_name: "",
+          description: "",
+          start_date: "",
+          end_date: "",
+          status: "Planning",
+          priority: "Medium",
+          project_type: "",
+          project_type_id: { _id: "", name: "" }
+        });
+        setShowCreateModal(false);
+        showToast(result.message, 'success');
+      } else {
+        showToast(result.message, 'error');
+      }
     } catch (err: any) {
-      setToast({
-        message: "Lỗi khi tạo dự án: " + (err.response?.data?.message || err.message),
-        type: 'error'
-      });
+      showToast("Lỗi khi tạo dự án: " + (err.response?.data?.message || err.message), 'error');
     }
   };
 
   const handleSoftDelete = async (id: string) => {
-    try {
-      await softDeleteProject(id);
-      setProjects(projects.map((p) => (p._id === id ? { ...p, is_deleted: true, deleted_at: new Date().toISOString() } : p)));
-      setToast({
-        message: "Dự án đã được xóa thành công",
-        type: 'success'
-      });
-    } catch (err: any) {
-      setToast({
-        message: "Lỗi khi xóa dự án: " + (err.response?.data?.message || err.message),
-        type: 'error'
-      });
+    const result = await deleteProject(id);
+    if (result.success) {
+      showToast(result.message, 'success');
+    } else {
+      showToast(result.message, 'error');
     }
   };
 
   const handleRestore = async (id: string) => {
-    try {
-      await restoreProject(id);
-      setProjects(projects.map((p) => (p._id === id ? { ...p, is_deleted: false, deleted_at: null } : p)));
-      setToast({
-        message: "Dự án đã được khôi phục thành công",
-        type: 'success'
-      });
-    } catch (err: any) {
-      setToast({
-        message: "Lỗi khi khôi phục dự án: " + (err.response?.data?.message || err.message),
-        type: 'error'
-      });
+    const result = await restoreProject(id);
+    if (result.success) {
+      showToast(result.message, 'success');
+    } else {
+      showToast(result.message, 'error');
     }
   };
 
   const handleEditProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editProject) return;
-    try {
-      const updated = await updateProject(editProject._id, editProject);
-      setProjects(projects.map((p) => (p._id === editProject._id ? updated.project : p)));
+    
+    const result = await updateProject(editProject._id, editProject);
+    if (result.success) {
       setEditProject(null);
-      setToast({
-        message: "Dự án đã được cập nhật thành công",
-        type: 'success'
-      });
-    } catch (err: any) {
-      setToast({
-        message: "Lỗi khi cập nhật dự án: " + (err.response?.data?.message || err.message),
-        type: 'error'
-      });
+      showToast(result.message, 'success');
+    } else {
+      showToast(result.message, 'error');
     }
   };
 
@@ -196,13 +155,6 @@ export default function ProjectPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <Breadcrumb items={["Dashboard", "Dự án"]} />
-        {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
-        )}
         <main className="flex-1 overflow-y-auto p-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">

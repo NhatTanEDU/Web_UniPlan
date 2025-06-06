@@ -4,17 +4,21 @@
  * - Hiển thị bảng danh sách các team
  * - Cho phép Tạo, Chỉnh sửa, Xóa team
  * - Sử dụng hook useTeams để gọi API và quản lý state
+ * - Hiển thị thông báo success/error với Toast
+ * - Cập nhật UI tức thì với optimistic updates
  */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../hooks/useTeams"; // Hook này sử dụng teamApi đã được sửa
+import { useToast } from "../../../../context/ToastContext"; // Import useToast hook
 import TeamModal from "../components/TeamModal"; // TeamModal đã được sửa để dùng type: "Public" | "Private"
 import ConfirmModal from "../components/ConfirmModal";
 import LoadingSpinner from "./LoadingSpinner"; // Assuming you have this or similar
-import { Team } from "../../../../../services/teamApi"; // Quan trọng: Import kiểu Team từ teamApi.ts của bạn
+
 
 export default function TeamList() {
   const { teams, loading, error, createTeam, updateTeam, deleteTeam } = useTeams();
+  const { showToast } = useToast(); // Thêm hook để hiển thị thông báo
   const navigate = useNavigate();
 
   // state điều khiển hiển thị modal Tạo/Sửa
@@ -35,39 +39,64 @@ export default function TeamList() {
   const handleTeamClick = (teamId: string) => {
     navigate(`/teams/${teamId}`);
   };
-
   /**
    * handleSubmit(data, id?)
    * - Nếu có id: update, ngược lại create mới
-   */  const handleSubmit = async (data: { name: string; description?: string; type: "Public" | "Private" }, id?: string) => {
+   * - Hiển thị thông báo success/error với Toast
+   * - UI được cập nhật tức thì nhờ optimistic updates
+   */
+  const handleSubmit = async (data: { name: string; description?: string; type: "Public" | "Private" }, id?: string) => {
     try {
       console.log("🔄 Starting team submission:", { data, id });
+      
+      let result;
       if (id) {
         console.log("📝 Updating team...");
-        await updateTeam(id, data);
-        console.log("✅ Team updated successfully, data should refresh");
+        result = await updateTeam(id, data);
       } else {
         console.log("➕ Creating new team...");
-        await createTeam(data);
-        console.log("✅ Team created successfully, data should refresh");
+        result = await createTeam(data);
       }
-      setShowModal(false);
-      setEditData(null); // Reset edit data
-    } catch (err) {
-      console.error("❌ Failed to submit team:", err);
+      
+      // Hiển thị thông báo dựa trên kết quả
+      if (result.success) {
+        showToast(result.message, 'success');
+        console.log("✅ Operation successful, UI updated automatically");
+        setShowModal(false);
+        setEditData(null); // Reset edit data
+      } else {
+        showToast(result.message, 'error');
+        console.log("❌ Operation failed:", result.message);
+      }
+    } catch (err: any) {
+      console.error("❌ Unexpected error in handleSubmit:", err);
+      showToast("Có lỗi xảy ra, vui lòng thử lại", 'error');
     }
   };
-
   /**
    * handleDelete()
    * - Xóa team đã chọn
+   * - Hiển thị thông báo success/error với Toast
+   * - UI được cập nhật tức thì nhờ optimistic updates
    */
   const handleDelete = async () => {
     if (confirm.id) {
       try {
-        await deleteTeam(confirm.id);
-      } catch (err) {
-        console.error("Failed to delete team:", err);
+        console.log("🗑️ Starting team deletion:", confirm.id);
+        
+        const result = await deleteTeam(confirm.id);
+        
+        // Hiển thị thông báo dựa trên kết quả
+        if (result.success) {
+          showToast(result.message, 'success');
+          console.log("✅ Team deleted successfully, UI updated automatically");
+        } else {
+          showToast(result.message, 'error');
+          console.log("❌ Delete operation failed:", result.message);
+        }
+      } catch (err: any) {
+        console.error("❌ Unexpected error in handleDelete:", err);
+        showToast("Có lỗi xảy ra khi xóa nhóm, vui lòng thử lại", 'error');
       } finally {
         setConfirm({ visible: false, id: undefined });
       }
@@ -96,8 +125,7 @@ export default function TeamList() {
       {/* Table hiển thị teams */}
       {teams.length === 0 && !loading ? (
         <p>Không có nhóm nào để hiển thị.</p>
-      ) : (
-        <div className="overflow-x-auto shadow-md sm:rounded-lg">
+      ) : (        <div className="overflow-x-auto shadow-md sm:rounded-lg">
           <table className="w-full table-auto border-collapse text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
@@ -107,7 +135,8 @@ export default function TeamList() {
                 <th scope="col" className="p-3 border dark:border-gray-600 text-center">Thao tác</th>
               </tr>
             </thead>
-            <tbody>              {teams.map(t => (
+            <tbody>
+              {teams.map(t => (
                 <tr key={t._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                   <td className="p-3 border dark:border-gray-600 font-medium text-gray-900 dark:text-white whitespace-nowrap">
                     <button
