@@ -450,6 +450,9 @@ exports.searchUsersToAdd = async (req, res) => {
         const ownerId = req.user.id;
         const { query, page = 1, limit = 10 } = req.query;
 
+        console.log('🔍 DEBUG searchUsersToAdd - ownerId:', ownerId);
+        console.log('🔍 DEBUG searchUsersToAdd - query:', query);
+
         if (!query || query.trim().length < 2) {
             return res.status(400).json({
                 success: false,
@@ -466,32 +469,51 @@ exports.searchUsersToAdd = async (req, res) => {
         const existingMemberIds = await PersonalMemberList.find({
             owner_user_id: ownerId,
             is_active: true
-        }).distinct('member_user_id');        // Thêm chính owner vào danh sách loại trừ
+        }).distinct('member_user_id');
+        
+        console.log('🔍 DEBUG searchUsersToAdd - existingMemberIds:', existingMemberIds);
+        
+        // Thêm chính owner vào danh sách loại trừ
         existingMemberIds.push(new mongoose.Types.ObjectId(ownerId));
+        
+        // Xây dựng điều kiện tìm kiếm - thử cả isActive và is_active
+        const searchConditions = {
+            _id: { $nin: existingMemberIds },
+            $and: [
+                {
+                    $or: [
+                        { isActive: true },
+                        { is_active: true },
+                        { isActive: { $ne: false } },
+                        { is_active: { $ne: false } }
+                    ]
+                }
+            ],
+            $or: [
+                { full_name: searchRegex },
+                { name: searchRegex },
+                { email: searchRegex }
+            ]
+        };
+
+        console.log('🔍 DEBUG searchUsersToAdd - searchConditions:', JSON.stringify(searchConditions, null, 2));
 
         // Tìm kiếm users
-        const users = await User.find({
-            _id: { $nin: existingMemberIds },
-            isActive: true,
-            $or: [
-                { name: searchRegex },
-                { email: searchRegex }
-            ]
-        })
-        .select('name email avatar_url online_status role')
-        .skip(skip)
-        .limit(parseInt(limit))
-        .sort({ name: 1 });
+        const users = await User.find(searchConditions)
+            .select('full_name name email avatar_url online_status role isActive is_active')
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ full_name: 1 });
+
+        console.log('🔍 DEBUG searchUsersToAdd - found users:', users.length);
+        if (users.length > 0) {
+            console.log('🔍 DEBUG searchUsersToAdd - first user:', users[0]);
+        }
 
         // Đếm tổng số kết quả
-        const total = await User.countDocuments({
-            _id: { $nin: existingMemberIds },
-            isActive: true,
-            $or: [
-                { name: searchRegex },
-                { email: searchRegex }
-            ]
-        });
+        const total = await User.countDocuments(searchConditions);
+
+        console.log('🔍 DEBUG searchUsersToAdd - total count:', total);
 
         res.status(200).json({
             success: true,
