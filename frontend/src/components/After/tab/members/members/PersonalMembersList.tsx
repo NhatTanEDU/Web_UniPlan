@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { UserPlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast'; // Import toast
 import AddMemberModal from './AddMemberModal';
 import EditMemberModal from './EditMemberModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
@@ -79,106 +80,123 @@ export default function PersonalMembersList() {
   useEffect(() => {
     fetchMembers(currentPage, itemsPerPage);
   }, [fetchMembers, currentPage, itemsPerPage]);
+  const handleAddMember = async (memberUserId: string, customRole?: string) => {
+    const toastId = toast.loading('Đang thêm thành viên...'); // Hiển thị thông báo loading
+    
+    try {
+      const token = localStorage.getItem('token');
+     
+      const response = await fetch('http://localhost:5000/api/personal-members', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          member_user_id: memberUserId,
+          custom_role: customRole || '',
+          notes: `Được thêm bởi script test - ${new Date().toLocaleString()}`
+        })
+      });
 
-  const handleAddMember = async (memberUserId: string, customRole?: string) => {
-    try {
-      const token = localStorage.getItem('token');
-     
-      const response = await fetch('http://localhost:5000/api/personal-members', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          member_user_id: memberUserId,
-          custom_role: customRole || '',
-          notes: `Được thêm bởi script test - ${new Date().toLocaleString()}`
-        })
-      });
+      const result = await response.json();
 
-      if (response.ok) {
-        await fetchMembers(currentPage, itemsPerPage); // Refresh the list
-        setShowAddModal(false);
-        alert('Đã thêm nhân viên vào danh sách thành công!');
-      } else {
-        const errorData = await response.json();
-        alert(`Lỗi: ${errorData.message || 'Không thể thêm nhân viên'}`);
-      }
-    } catch (error) {
-      console.error('Error adding member:', error);
-      alert('Có lỗi xảy ra khi thêm nhân viên');
-    }
-  };
+      if (response.ok) {
+        await fetchMembers(currentPage, itemsPerPage); // Refresh the list
+        setShowAddModal(false);
+        
+        // Lấy tên thành viên từ response
+        const memberName = result.data?.member_user_id?.full_name || 
+                          result.data?.member_user_id?.name || 
+                          'Thành viên';
+        
+        toast.success(`Đã thêm '${memberName}' vào danh sách của bạn!`, { id: toastId });
+      } else {
+        toast.error(result.message || 'Không thể thêm thành viên', { id: toastId });
+      }
+    } catch (error: any) {
+      console.error('Error adding member:', error);
+      toast.error(error.message || 'Có lỗi xảy ra khi thêm thành viên', { id: toastId });
+    }
+  };
 
   const handleEditMember = (member: PersonalMember) => {
     setSelectedMember(member);
     setShowEditModal(true);
   };
+  const handleUpdateMember = async (memberId: string, customRole: string) => {
+    const toastId = toast.loading('Đang cập nhật vai trò...');
+    
+    try {
+      const token = localStorage.getItem('token');
+     
+      const response = await fetch(`http://localhost:5000/api/personal-members/${memberId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          custom_role: customRole
+        })
+      });
 
-  const handleUpdateMember = async (memberId: string, customRole: string) => {
-    try {
-      const token = localStorage.getItem('token');
-     
-      const response = await fetch(`http://localhost:5000/api/personal-members/${memberId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          custom_role: customRole
-        })
-      });
+      const result = await response.json();
 
-      if (response.ok) {
-        await fetchMembers(currentPage, itemsPerPage); // Refresh the list
-        setShowEditModal(false);
-        setSelectedMember(null);
-        alert('Đã cập nhật vai trò thành công!');
-      } else {
-        const errorData = await response.json();
-        alert(`Lỗi: ${errorData.message || 'Không thể cập nhật vai trò'}`);
-      }
-    } catch (error) {
-      console.error('Error updating member:', error);
-      alert('Có lỗi xảy ra khi cập nhật vai trò');
-    }
-  };
+      if (response.ok) {
+        await fetchMembers(currentPage, itemsPerPage); // Refresh the list
+        setShowEditModal(false);
+        setSelectedMember(null);
+        toast.success('Đã cập nhật vai trò thành công!', { id: toastId });
+      } else {
+        toast.error(result.message || 'Không thể cập nhật vai trò', { id: toastId });
+      }
+    } catch (error: any) {
+      console.error('Error updating member:', error);
+      toast.error(error.message || 'Có lỗi xảy ra khi cập nhật vai trò', { id: toastId });
+    }
+  };
 
   const handleDeleteMember = (member: PersonalMember) => {
     setSelectedMember(member);
     setShowDeleteModal(true);
   };
+  const handleConfirmDelete = async () => {
+    if (!selectedMember) return;
 
-  const handleConfirmDelete = async () => {
-    if (!selectedMember) return;
+    const toastId = toast.loading('Đang xóa thành viên...');
 
-    try {
-      const token = localStorage.getItem('token');
-      // Gọi API xóa cứng (permanent delete)
-      const response = await fetch(`http://localhost:5000/api/personal-members/${selectedMember._id}/permanent`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+    try {
+      const token = localStorage.getItem('token');
+      // Gọi API xóa cứng (permanent delete)
+      const response = await fetch(`http://localhost:5000/api/personal-members/${selectedMember._id}/permanent`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if (response.ok) {
-        await fetchMembers(currentPage, itemsPerPage); // Refresh the list
-        setShowDeleteModal(false);
-        setSelectedMember(null);
-        alert('Đã xóa nhân viên khỏi danh sách!');
-      } else {
-        const errorData = await response.json();
-        alert(`Lỗi: ${errorData.message || 'Không thể xóa nhân viên'}`);
-      }
-    } catch (error) {
-      console.error('Error deleting member:', error);
-      alert('Có lỗi xảy ra khi xóa nhân viên');
-    }
-  };
+      const result = await response.json();
+
+      if (response.ok) {
+        await fetchMembers(currentPage, itemsPerPage); // Refresh the list
+        setShowDeleteModal(false);
+        setSelectedMember(null);
+        
+        const memberName = selectedMember.member_user_id?.full_name || 
+                          selectedMember.member_user_id?.name || 
+                          'Thành viên';
+        
+        toast.success(`Đã xóa '${memberName}' khỏi danh sách!`, { id: toastId });
+      } else {
+        toast.error(result.message || 'Không thể xóa thành viên', { id: toastId });
+      }
+    } catch (error: any) {
+      console.error('Error deleting member:', error);
+      toast.error(error.message || 'Có lỗi xảy ra khi xóa thành viên', { id: toastId });
+    }
+  };
 
   const handleSortChange = (field: 'name' | 'added_at') => {
     if (sortField === field) {

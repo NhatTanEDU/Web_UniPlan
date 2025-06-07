@@ -1,8 +1,9 @@
 export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  avatar?: string;
+  _id: string;
+  name: string;
+  full_name?: string; // Thêm trường full_name
+  email: string;
+  avatar?: string;
 }
 
 export interface PersonalMember {
@@ -17,10 +18,11 @@ export interface PersonalMember {
 }
 
 export interface SearchUser {
-  _id: string;
-  name: string;
-  email: string;
-  avatar?: string;
+  _id: string;
+  name: string;
+  full_name?: string; // Thêm trường full_name cho consistency
+  email: string;
+  avatar?: string;
 }
 
 export interface ApiResponse<T> {

@@ -10,6 +10,8 @@ import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask, ProjectMember } from "../../../../services/kanbanApi";
 import { teamMemberApi } from "../../../../services/teamMemberApi";
+import DocumentUpload from "../../../common/DocumentUpload";
+import { Document, getDocumentsByTaskId } from "../../../../services/documentApi";
 
 const STATUS = ["Cần làm", "Đang làm", "Hoàn thành"];
 
@@ -24,8 +26,7 @@ const Kanban = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
-  const [form, setForm] = useState({
+  const [success, setSuccess] = useState<string>('');  const [form, setForm] = useState({
     title: "",
     description: "",
     start_date: "",
@@ -41,12 +42,38 @@ const Kanban = () => {
   // Debug useEffect to monitor currentProject state changes
   useEffect(() => {
     console.log("🔍 DEBUG: currentProject state changed to:", currentProject);
-  }, [currentProject]);
+  }, [currentProject]);  // Handle document changes
+  const handleDocumentChange = async (documents: Document[], taskId?: string) => {
+    // Update document count for the specific task if taskId is provided
+    if (taskId) {
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task._id === taskId 
+            ? { ...task, documentCount: documents.length }
+            : task
+        )
+      );
+    }
+  };
 
-  // Debug useEffect to monitor currentKanban state changes
-  useEffect(() => {
-    console.log("🔍 DEBUG: currentKanban state changed to:", currentKanban);
-  }, [currentKanban]);
+  // Load document count for tasks
+  const loadDocumentCounts = async (tasks: KanbanTask[]) => {
+    const tasksWithCounts = await Promise.all(
+      tasks.map(async (task) => {
+        try {
+          if (task._id) {
+            const documents = await getDocumentsByTaskId(task._id);
+            return { ...task, documentCount: documents.length };
+          }
+          return task;
+        } catch (error) {
+          console.error(`Failed to load documents for task ${task._id}:`, error);
+          return task;
+        }
+      })
+    );
+    return tasksWithCounts;
+  };
 
   // Debug useEffect to monitor loading state changes
   useEffect(() => {
@@ -155,14 +182,16 @@ const Kanban = () => {
               console.log("🔍 DEBUG: New kanban created after error:", newKanban);
               setCurrentKanban(newKanban);
             }
-          }
-            // Load tasks for this kanban
+          }          // Load tasks for this kanban
           if (kanbanId) {
             try {
               console.log("🔍 DEBUG: Loading tasks for kanbanId:", kanbanId);
               const tasks = await kanbanApi.getTasks(kanbanId);
               console.log("🔍 DEBUG: Tasks loaded:", tasks);
-              setTasks(tasks);
+              
+              // Load document counts for each task
+              const tasksWithDocumentCounts = await loadDocumentCounts(tasks);
+              setTasks(tasksWithDocumentCounts);
             } catch (taskError) {
               console.warn('Could not load tasks:', taskError);
               setTasks([]);
@@ -768,9 +797,7 @@ const Kanban = () => {
                       </option>
                     ))}
                   </select>
-                </div>
-
-                {/* Color */}
+                </div>                {/* Color */}
                 <div>
                   <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Màu sắc
@@ -781,6 +808,18 @@ const Kanban = () => {
                     value={form.color}
                     onChange={handleChange}
                     className="w-full h-10 border rounded dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>                {/* Document Upload Section */}
+                <div className="md:col-span-2">
+                  <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Tài liệu đính kèm
+                  </label>
+                  <DocumentUpload
+                    taskId={editingTask?._id}
+                    projectId={currentProject?._id}
+                    teamId={currentProject?.team_id}
+                    onDocumentsUpdate={(docs: Document[]) => handleDocumentChange(docs, editingTask?._id)}
+                    className="mt-2"
                   />
                 </div>
               </div>
@@ -949,17 +988,25 @@ const Kanban = () => {
                                         </div>
                                       )}
                                     </div>
-                                    
-                                    {/* Footer */}
+                                      {/* Footer */}
                                     <div className="flex justify-between items-center">
-                                      {/* Priority Badge */}
-                                      <span className={`text-xs px-2 py-1 rounded ${
-                                        task.priority === 'Cao' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                                        task.priority === 'Trung bình' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                      }`}>
-                                        {task.priority}
-                                      </span>
+                                      <div className="flex items-center space-x-2">
+                                        {/* Priority Badge */}
+                                        <span className={`text-xs px-2 py-1 rounded ${
+                                          task.priority === 'Cao' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                          task.priority === 'Trung bình' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                                          'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                        }`}>
+                                          {task.priority}
+                                        </span>
+                                        
+                                        {/* Document Count */}
+                                        {task.documentCount && task.documentCount > 0 && (
+                                          <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 flex items-center">
+                                            📎 {task.documentCount}
+                                          </span>
+                                        )}
+                                      </div>
                                       
                                       {/* Assigned Member */}
                                       {assignedMember && (

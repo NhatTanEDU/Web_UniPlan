@@ -4,7 +4,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Folder,
-  FileText,
   Users,
   List,
   Settings,
@@ -129,11 +128,9 @@ const Sidebar: React.FC = () => {
 
   const handleChangeRole = (newRole: "admin" | "paid" | "free") => {
     setRole(newRole);
-  };
-  const mainMenu: MenuItem[] = [
+  };  const mainMenu: MenuItem[] = [
     { icon: <LayoutDashboard size={20} />, label: "Dashboard", path: `/dashboard/${userId || ":userId"}` },
     { icon: <Folder size={20} />, label: "Dự án", path: "/projects" },
-    { icon: <FileText size={20} />, label: "Tài liệu", path: "/documents" },
     { icon: <List size={20} />, label: "Nhân viên", path: "/employees" },
     { icon: <Users size={20} />, label: "Nhóm", path: "/teams" },
     { icon: <Settings size={20} />, label: "Cài đặt", path: "/settings" },

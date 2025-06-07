@@ -17,6 +17,7 @@ export interface KanbanTask {
   order?: number;
   created_by?: string;
   tags?: string[];
+  documentCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }

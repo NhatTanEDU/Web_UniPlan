@@ -252,9 +252,8 @@ exports.addPersonalMember = async (req, res) => {
                 existingMember.added_at = new Date();
                 
                 await existingMember.save();
-                
-                const populatedMember = await PersonalMemberList.findById(existingMember._id)
-                    .populate('member_user_id', 'name email avatar_url online_status role');
+                  const populatedMember = await PersonalMemberList.findById(existingMember._id)
+                    .populate('member_user_id', 'name full_name email avatar_url online_status role');
 
                 return res.status(200).json({
                     success: true,
@@ -272,11 +271,9 @@ exports.addPersonalMember = async (req, res) => {
             notes
         });
 
-        await newMember.save();
-
-        // Populate để trả về thông tin đầy đủ
+        await newMember.save();        // Populate để trả về thông tin đầy đủ
         const populatedMember = await PersonalMemberList.findById(newMember._id)
-            .populate('member_user_id', 'name email avatar_url online_status role');
+            .populate('member_user_id', 'name full_name email avatar_url online_status role');
 
         res.status(201).json({
             success: true,

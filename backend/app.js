@@ -20,6 +20,7 @@ require('./models/personalMemberList.model');
 require('./models/teamActivity.model');
 require('./models/userWidget.model');
 require('./models/widget.model');
+require('./models/document.model');
 
 // Feature toggles for safe operation
 const { isFeatureEnabled, featureToggleMiddleware, getEnabledFeatures, getDisabledFeatures } = require('./config/featureToggles');
@@ -118,6 +119,9 @@ app.get('/api/system/status', (req, res) => {
 // Routes - Only include routes for enabled features
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/password", require("./routes/password.routes"));
+
+// Document upload routes - Always enabled (essential feature)
+app.use('/api/documents', require('./routes/document.routes'));
 
 // IMPORTANT: Place specific routes BEFORE generic/dynamic routes
 app.use('/api/admin', adminRoutes);
