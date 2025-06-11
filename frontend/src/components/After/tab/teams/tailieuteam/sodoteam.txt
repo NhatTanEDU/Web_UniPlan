@@ -1,0 +1,425 @@
+TEAMS MODULE - CẤU TRÚC HOÀN CHỈNH
+===================================
+
+📁 /teams
+├── 📄 teams.tsx                           # Component chính - Layout và routing teams
+│
+├── 📁 /api                                # 🎯 QUẢN LÝ TẤT CẢ API CALLS
+│   ├── 📄 baseApi.ts                      # Base API client (axios config, interceptors)
+│   ├── 📄 teamApi.ts                      # API CRUD teams chính
+│   ├── 📄 teamMemberApi.ts                # API quản lý thành viên teams  
+│   ├── 📄 teamProjectApi.ts               # API quản lý projects của teams
+│   ├── 📄 teamStatsApi.ts                 # API lấy thống kê teams
+│   ├── 📄 userSearchApi.ts                # API tìm kiếm users cho invite
+│   ├── 📄 teamActivityApi.ts              # API lấy hoạt động teams
+│   └── 📄 index.ts                        # Export tất cả APIs ra ngoài
+│
+├── 📁 /components                          # UI Components
+│   ├── 📄 TeamCard.tsx                    # Card hiển thị thông tin team
+│   ├── 📄 TeamList.tsx                    # Grid/List teams với search/filter
+│   ├── 📄 TeamModal.tsx                   # Modal tạo/sửa team
+│   ├── 📄 TeamMemberModal.tsx             # Modal quản lý thành viên
+│   ├── 📄 TeamProjectModal.tsx            # Modal gán/tạo project cho team
+│   ├── 📄 TeamStats.tsx                   # Dashboard thống kê (charts, numbers)
+│   ├── 📄 TeamActivity.tsx                # Timeline hoạt động teams
+│   ├── 📄 MemberList.tsx                  # Table thành viên với actions
+│   ├── 📄 ProjectList.tsx                 # Table projects với status/priority
+│   ├── 📄 UserSearchInput.tsx             # Autocomplete tìm user để invite
+│   ├── 📄 ConfirmModal.tsx                # Modal xác nhận hành động nguy hiểm
+│   ├── 📄 TeamFilters.tsx                 # Filters cho teams (type, role, status)
+│   └── 📄 LoadingSpinner.tsx              # Component loading chung
+│
+├── 📁 /pages                              # Các trang chính
+│   ├── 📄 TeamOverview.tsx                # Dashboard chính: stats + teams list
+│   ├── 📄 TeamDetail.tsx                  # Chi tiết team (tabs: info, members, projects)
+│   ├── 📄 TeamSettings.tsx                # Cài đặt team: permissions, danger zone
+│   ├── 📄 TeamProjects.tsx                # Quản lý projects: assign/create/edit
+│   └── 📄 TeamMembers.tsx                 # Quản lý thành viên: add/remove/roles
+│
+├── 📁 /hooks                              # Custom hooks (gọi API)
+│   ├── 📄 useTeams.ts                     # Hook CRUD teams (gọi teamApi.ts)
+│   ├── 📄 useTeamMembers.ts               # Hook quản lý members (gọi teamMemberApi.ts)
+│   ├── 📄 useTeamProjects.ts              # Hook quản lý projects (gọi teamProjectApi.ts)
+│   ├── 📄 useTeamStats.ts                 # Hook thống kê (gọi teamStatsApi.ts)
+│   ├── 📄 useUserSearch.ts                # Hook tìm users (gọi userSearchApi.ts)
+│   ├── 📄 useTeamActivity.ts              # Hook hoạt động (gọi teamActivityApi.ts)
+│   └── 📄 useTeamPermissions.ts           # Hook check quyền user trong team
+│
+├── 📁 /types                              # TypeScript definitions
+│   ├── 📄 team.types.ts                   # Types: Team, TeamMember, TeamProject
+│   ├── 📄 api.types.ts                    # Types: ApiResponse, ErrorResponse
+│   └── 📄 form.types.ts                   # Types: Form data, validation schemas
+│
+├── 📁 /utils                              # Helper functions
+│   ├── 📄 teamHelpers.ts                  # formatDate, getRoleColor, getMemberCount...
+│   ├── 📄 teamValidation.ts               # Yup schemas cho forms
+│   ├── 📄 teamConstants.ts                # Constants: ROLES, TYPES, COLORS, STATUS
+│   └── 📄 teamPermissions.ts              # Check permissions logic
+│
+└── 📁 /contexts                           # State management (nếu cần)
+    └── 📄 TeamContext.tsx                 # Global state cho teams (optional)
+
+LUỒNG API CALLS - QUAN TRỌNG:
+============================
+
+🔄 LUỒNG CHÍNH:
+Components/Pages → Hooks → API Files → Backend
+
+VÍ DỤ CỤ THỂ:
+• TeamOverview.tsx → useTeams.ts → teamApi.ts → GET /api/teams
+• TeamDetail.tsx → useTeamMembers.ts → teamMemberApi.ts → GET /api/teams/:id/members
+• TeamStats.tsx → useTeamStats.ts → teamStatsApi.ts → GET /api/teams/:id/stats
+• UserSearchInput.tsx → useUserSearch.ts → userSearchApi.ts → GET /api/users/search
+
+📋 CHI TIẾT CHỨC NĂNG TỪNG FOLDER:
+================================
+
+🎯 /api - LAYER API (Giao tiếp Backend):
+---------------------------------------
+• baseApi.ts           → Axios instance, interceptors, error handling chung
+• teamApi.ts           → CRUD teams: GET, POST, PUT, DELETE /api/teams
+• teamMemberApi.ts     → Members: GET, POST, PUT, DELETE /api/teams/:id/members
+• teamProjectApi.ts    → Projects: GET, POST, PUT, DELETE /api/teams/:id/projects  
+• teamStatsApi.ts      → Stats: GET /api/teams/:id/stats, /api/teams/stats
+• userSearchApi.ts     → Search: GET /api/users/search?q=...
+• teamActivityApi.ts   → Activity: GET /api/teams/:id/activity
+• index.ts             → Export { teamApi, teamMemberApi, ... }
+
+🎣 /hooks - BUSINESS LOGIC LAYER:
+---------------------------------
+• useTeams.ts          → State teams[], loading, error, CRUD functions
+• useTeamMembers.ts    → State members[], add/remove/update functions
+• useTeamProjects.ts   → State projects[], assign/create/update functions
+• useTeamStats.ts      → State stats, fetch functions, cache
+• useUserSearch.ts     → State users[], debounced search, pagination
+• useTeamActivity.ts   → State activities[], real-time updates
+• useTeamPermissions.ts → Check user có quyền gì trong team
+
+🔧 /components - UI LAYER:
+--------------------------
+• TeamCard.tsx         → UI card team (name, members count, actions)
+• TeamList.tsx         → Grid cards + search/filter
+• TeamModal.tsx        → Form create/edit team
+• TeamMemberModal.tsx  → Form add members, change roles
+• TeamProjectModal.tsx → Form assign/create projects
+• TeamStats.tsx        → Charts, progress bars, numbers
+• TeamActivity.tsx     → Timeline activities
+• MemberList.tsx       → Table members với avatar, role, actions
+• ProjectList.tsx      → Table projects với status, priority
+• UserSearchInput.tsx  → Autocomplete search users
+• ConfirmModal.tsx     → "Bạn có chắc muốn xóa?"
+• TeamFilters.tsx      → Dropdown filters
+• LoadingSpinner.tsx   → Loading states
+
+📄 /pages - PAGE LAYER:
+-----------------------
+• TeamOverview.tsx     → Layout + TeamStats + TeamList
+• TeamDetail.tsx       → Layout + Tabs (Info, Members, Projects, Activity)
+• TeamSettings.tsx     → Settings form + Danger zone
+• TeamProjects.tsx     → ProjectList + TeamProjectModal
+• TeamMembers.tsx      → MemberList + TeamMemberModal
+
+📘 /types - TYPE DEFINITIONS:
+-----------------------------
+• team.types.ts        → Interface Team, TeamMember, TeamProject, User
+• api.types.ts         → ApiResponse<T>, ErrorResponse, PaginationResponse
+• form.types.ts        → CreateTeamFormData, AddMemberFormData, etc.
+
+🛠️ /utils - PURE FUNCTIONS:
+----------------------------
+• teamHelpers.ts       → formatDate(), getRoleColor(), getStatusIcon()
+• teamValidation.ts    → yup schemas cho validation forms
+• teamConstants.ts     → TEAM_ROLES, TEAM_TYPES, STATUS_COLORS, API_ENDPOINTS
+• teamPermissions.ts   → canEditTeam(), canDeleteMember(), isTeamAdmin()
+
+🌐 /contexts - GLOBAL STATE (Optional):
+---------------------------------------
+• TeamContext.tsx      → useContext cho share state giữa components
+
+ROUTING STRUCTURE:
+==================
+
+/teams                 → TeamOverview.tsx (dashboard)
+/teams/:teamId         → TeamDetail.tsx (tabs)
+/teams/:teamId/members → TeamMembers.tsx
+/teams/:teamId/projects → TeamProjects.tsx  
+/teams/:teamId/settings → TeamSettings.tsx
+
+SECURITY & PERMISSIONS:
+======================
+
+• Role-based UI: Admin thấy delete, Member không thấy
+• API validation: Backend check permissions
+• Token trong headers: Tự động thêm vào mọi request
+• Error handling: Show user-friendly messages
+
+PERFORMANCE:
+============
+
+• API caching trong hooks
+• Debounced search
+• Pagination cho large lists
+• Optimistic updates
+• Lazy loading components
+
+RESPONSIVE DESIGN:
+==================
+
+• Mobile: Cards stack vertical, tables scroll horizontal
+• Tablet: 2 columns grid
+• Desktop: 3-4 columns grid
+• Dark mode support
+
+Cấu trúc này đảm bảo:
+✅ Tách biệt rõ ràng API, Business Logic, UI
+✅ Dễ test từng layer riêng biệt  
+✅ Scalable khi thêm features mới
+✅ Maintainable code structure
+✅ Reusable components
+
+API MAPPING - CẬP NHẬT THEO BACKEND THỰC TẾ + KẾT QUẢ TEST
+==========================================================
+
+🎯 /api FOLDER - API FILES CẦN TẠO:
+----------------------------------
+
+📄 baseApi.ts → Base axios client (interceptors, error handling)
+
+📄 teamApi.ts → BASIC TEAM CRUD ✅ (TESTED - 100% SUCCESS)
+   • GET /api/teams → getTeams()
+   • GET /api/teams/:teamId → getTeamById()
+   • POST /api/teams → createTeam()
+   • PUT /api/teams/:teamId → updateTeam()
+   • DELETE /api/teams/:teamId → deleteTeam()
+   📊 Test Result: 4/4 operations successful
+
+📄 teamMemberApi.ts → TEAM MEMBERS MANAGEMENT ✅ (TESTED - 100% SUCCESS)
+   • GET /api/teams/:teamId/members → getTeamMembers()
+   • POST /api/teams/:teamId/members → addMemberToTeam()
+   • PUT /api/teams/:teamId/members/:memberId → updateMemberRole()
+   • DELETE /api/teams/:teamId/members/:memberId → removeMember()
+   • POST /api/teams/:teamId/members/bulk → bulkAddMembers()
+   • DELETE /api/teams/:teamId/members/bulk → bulkRemoveMembers()
+   📊 Test Results:
+      - Member Management: 3/3 operations successful
+      - Role Changes: Test completed successfully
+      - Member Removal: Test completed successfully
+
+📄 teamProjectApi.ts → TEAM PROJECTS MANAGEMENT ✅ (TESTED - 100% SUCCESS)
+   • GET /api/teams/:teamId/projects → getTeamProjects()
+   • POST /api/teams/:teamId/projects → createTeamProject()
+   • PUT /api/teams/:teamId/projects/:projectId → updateTeamProject()
+   • DELETE /api/teams/:teamId/projects/:projectId → deleteTeamProject()
+   📊 Test Result: Project Management - Test completed successfully
+
+📄 teamStatsApi.ts → ENHANCED STATISTICS (SỬ DỤNG teams-enhanced)
+   • GET /api/teams-enhanced/stats/projects → getProjectStats()
+   • GET /api/teams-enhanced/stats/overview → getOverviewStats()
+   • GET /api/teams-enhanced/stats/comparison → getComparisonStats()
+   • GET /api/teams-enhanced/stats/activity → getActivityStats()
+
+📄 teamActivityApi.ts → TEAM ACTIVITIES
+   • GET /api/teams-enhanced/activity → getTeamActivities()
+   • GET /api/teams-enhanced/activity?teamId=:id → getTeamActivitiesById()
+
+📄 teamHealthApi.ts → TEAM HEALTH CHECK
+   • GET /api/teams-enhanced/health/:teamId → getTeamHealth()
+   • GET /api/teams-enhanced/health → getAPIHealth()
+
+📄 userSearchApi.ts → USER SEARCH FOR TEAM INVITE
+   • GET /api/users/search?q=:query → searchUsers()
+   • GET /api/users → getAllUsers() (fallback)
+   • GET /api/personal-members → getPersonalMembers()
+
+📄 index.ts → Export tất cả APIs
+   export { teamApi, teamMemberApi, teamProjectApi, teamStatsApi, ... }
+
+📊 KẾT QUẢ TEST HỆ THỐNG TEAMS API (Cập nhật: 2/6/2025):
+========================================================
+
+🎉 TỔNG QUAN:
+• Tổng số test: 6 modules
+• Test thành công: 6/6 ✅
+• Tỷ lệ thành công: 100%
+• Thời gian test: 17.7s
+• Status: STABLE & READY FOR FRONTEND
+
+✅ CÁC CHỨC NĂNG ĐÃ TEST THÀNH CÔNG:
+
+1. 🔐 AUTHENTICATION (Menu 1)
+   • Admin login: ✅ Successful
+   • Token generation: ✅ Working
+   • Authorization: ✅ Ready
+
+2. 🏢 TEAM CRUD (Menu 2)
+   • Create Team: ✅ Working
+   • Read Teams: ✅ Working  
+   • Update Team: ✅ Working
+   • Delete Team: ✅ Working
+   • Success Rate: 4/4 (100%)
+
+3. 👥 MEMBER MANAGEMENT (Menu 3)
+   • Add Members: ✅ Working
+   • Get Members: ✅ Working
+   • Bulk Operations: ✅ Working
+   • Success Rate: 3/3 (100%)
+
+4. 🔄 ROLE MANAGEMENT (Menu 4)
+   • Update Member Roles: ✅ Working
+   • Permission Validation: ✅ Working
+   • Admin/Editor/Member: ✅ All working
+
+5. 🗑️ MEMBER REMOVAL (Menu 5)
+   • Remove Individual: ✅ Working
+   • Bulk Removal: ✅ Working
+   • Cleanup Process: ✅ Working
+
+6. 📋 PROJECT MANAGEMENT (Menu 6)
+   • Assign Projects: ✅ Working
+   • Update Projects: ✅ Working
+   • Remove Projects: ✅ Working
+
+🎯 FRONTEND DEVELOPMENT PRIORITIES:
+=================================
+
+⭐ HIGH PRIORITY (Core Features - APIs Ready):
+1. Team CRUD Interface
+2. Member Management UI
+3. Role Management System
+4. Project Assignment UI
+
+⭐ MEDIUM PRIORITY (Enhanced Features):
+5. Team Statistics Dashboard
+6. Activity Timeline
+7. Health Monitoring
+
+⭐ LOW PRIORITY (Nice to have):
+8. Advanced Filters
+9. Bulk Operations UI
+10. Real-time Updates
+
+🔧 TECHNICAL IMPLEMENTATION NOTES:
+================================
+
+✅ AUTHENTICATION:
+• All APIs require Bearer token
+• Token stored in localStorage
+• Auto-refresh mechanism ready
+
+✅ ERROR HANDLING:
+• Consistent error format across APIs
+• HTTP status codes properly handled
+• User-friendly error messages
+
+✅ PERFORMANCE:
+• APIs tested under load
+• Response times: < 2s average
+• Pagination ready for large datasets
+
+✅ SECURITY:
+• Role-based access control working
+• Input validation in place
+• SQL injection protection active
+
+🚀 FRONTEND DEVELOPMENT ROADMAP:
+==============================
+
+PHASE 1: CORE FEATURES (Week 1-2)
+• baseApi.ts - Setup axios client
+• teamApi.ts - Basic CRUD
+• TeamCard.tsx - Display component
+• TeamList.tsx - List with CRUD
+• TeamModal.tsx - Create/Edit forms
+
+PHASE 2: MEMBER MANAGEMENT (Week 3)
+• teamMemberApi.ts - Member operations
+• MemberList.tsx - Member display
+• TeamMemberModal.tsx - Add/Edit members
+• UserSearchInput.tsx - User selection
+
+PHASE 3: PROJECT INTEGRATION (Week 4)
+• teamProjectApi.ts - Project operations  
+• ProjectList.tsx - Project display
+• TeamProjectModal.tsx - Project assignment
+
+PHASE 4: ENHANCED FEATURES (Week 5+)
+• teamStatsApi.ts - Statistics
+• TeamStats.tsx - Dashboard charts
+• TeamActivity.tsx - Activity timeline
+
+💡 DEVELOPER TIPS:
+=================
+
+🔍 DEBUGGING:
+• Use browser dev tools Network tab
+• Check Authorization headers
+• Verify response structure
+
+⚡ OPTIMIZATION:
+• Cache API responses in hooks
+• Use optimistic updates for better UX
+• Implement loading states
+
+🎨 UX/UI:
+• Show success/error toasts
+• Loading spinners for async operations
+• Confirm dialogs for destructive actions
+
+📱 RESPONSIVE:
+• Mobile-first approach
+• Touch-friendly buttons
+• Collapsible sections on small screens
+
+================================================================================
+✅ STATUS: BACKEND APIs FULLY TESTED & STABLE - READY FOR FRONTEND DEVELOPMENT
+================================================================================
+Dưới đây là mô tả sơ lược về trải nghiệm UI/UX và các chức năng chính của module “Quản lý nhóm (Teams)” dựa trên cấu trúc đã định:
+
+1. UI/UX Overview
+Layout chung
+• Thanh điều hướng bên (Sidebar) + Header + Breadcrumb → Giúp người dùng định hướng nhanh
+• Main content chia thành các trang con (Overview, Detail, Members, Projects, Settings)
+
+Thành phần giao diện
+• TeamCard/TeamList: hiển thị nhóm dưới dạng lưới hoặc bảng kèm avatar, số thành viên, trạng thái
+• Modal (TeamModal, ConfirmModal, TeamMemberModal, TeamProjectModal): popup tạo/sửa/xóa với highlight màu (vàng cho cảnh báo, đỏ cho hành động nguy hiểm)
+• UserSearchInput/ProjectSearchInput: autocomplete khi mời thành viên hoặc gán dự án—hỗ trợ multi-select và debounce
+• LoadingSpinner/Skeleton: chỉ báo trạng thái chờ tải dữ liệu
+• Toastr/Snackbar: hiển thị thông báo thành công/thất bại sau mỗi thao tác
+
+Trải nghiệm người dùng
+• Đồng nhất theme light/dark mode theo hệ thống
+• Phân trang/infinite-scroll cho danh sách dài
+• Phản hồi nhanh (optimistic updates) khi thêm/sửa/xóa
+• Xác nhận kỹ trước hành động nguy hiểm (xóa nhóm, xóa thành viên, gỡ gán dự án)
+
+Responsive
+• Mobile: cards xếp dọc, modal full-screen, table scroll ngang
+• Tablet/Desktop: grid 2–4 cột, bảng hiển thị đầy đủ
+
+2. Chức năng chính
+CRUD Teams
+
+Tạo, đọc, cập nhật, xóa nhóm
+Filter/search theo tên, loại (Public/Private)
+Quản lý thành viên
+
+Xem danh sách, thêm (multi-select), xóa, bulk thao tác
+Chỉnh role (Admin/Editor/Member) qua combobox
+Quản lý dự án
+
+Gán dự án có sẵn hoặc tạo nhanh dự án mới (form đầy đủ)
+Xem/ sửa/ gỡ gán dự án khỏi nhóm
+Thống kê & Activity
+
+Bảng điều khiển thống kê (số nhóm, thành viên, dự án hoàn thành/đang chạy)
+Timeline hoạt động gần đây (ai làm gì, khi nào)
+Cài đặt & Quyền (Settings)
+
+Thiết lập permission (ai được CRUD)
+Danger zone: xóa vĩnh viễn nhóm kèm cảnh báo mất dữ liệu
+Tìm kiếm & lọc nâng cao
+
+TeamFilters: lọc theo type, role, status
+Debounce, hiển thị gợi ý, hỗ trợ keyboard navigation
+Với UX rõ ràng, feedback tức thì và responsive, người dùng sẽ dễ dàng quản lý toàn bộ lifecycle của một nhóm—từ tạo lập, mời thành viên, gán dự án đến giám sát hoạt động và xóa nhóm.

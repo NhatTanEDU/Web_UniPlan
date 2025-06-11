@@ -1,0 +1,211 @@
+// src/services/documentApi.ts
+import axios from 'axios';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/documents';
+
+// Hàm để lấy token từ localStorage
+const getAuthToken = (): string | null => {
+    return localStorage.getItem('token');
+};
+
+// Interface cho Document
+export interface Document {
+    _id: string;
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize: number;
+    storagePath: string;
+    taskId?: string;
+    projectId?: string;
+    teamId?: string;
+    uploadedBy: {
+        _id: string;
+        full_name: string;
+        email: string;
+    } | string; // Union type để hỗ trợ cả trường hợp populated và chưa populated
+    createdAt: string;
+    updatedAt: string;
+}
+
+// Interface cho response
+export interface DocumentResponse {
+    success: boolean;
+    message: string;
+    data: Document;
+}
+
+export interface DocumentListResponse {
+    success: boolean;
+    message: string;
+    data: Document[];
+    pagination?: {
+        current_page: number;
+        total_pages: number;
+        total_items: number;
+        items_per_page: number;
+    };
+}
+
+/**
+ * Tải một file lên, liên kết với một task cụ thể.
+ * @param file - File người dùng chọn
+ * @param taskId - ID của task liên quan
+ * @param projectId - ID của project (optional)
+ * @param teamId - ID của team (optional)
+ * @returns Promise<DocumentResponse>
+ */
+export const uploadDocumentForTask = async (
+    file: File, 
+    taskId?: string, 
+    projectId?: string, 
+    teamId?: string
+): Promise<DocumentResponse> => {
+    const formData = new FormData();
+    formData.append('fileDinhKem', file); // 'fileDinhKem' phải khớp với key ở backend
+    
+    if (taskId) formData.append('taskId', taskId);
+    if (projectId) formData.append('projectId', projectId);
+    if (teamId) formData.append('teamId', teamId);
+
+    const token = getAuthToken();
+
+    try {
+        const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Lỗi khi upload file:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Upload file thất bại');
+    }
+};
+
+/**
+ * Lấy tất cả các tài liệu được đính kèm cho một task.
+ * @param taskId - ID của task
+ * @returns Promise<Document[]>
+ */
+export const getDocumentsByTaskId = async (taskId: string): Promise<Document[]> => {
+    const token = getAuthToken();
+    try {
+        const response = await axios.get(`${API_BASE_URL}?taskId=${taskId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response.data.data;
+    } catch (error: any) {
+        console.error("Lỗi khi lấy tài liệu:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Không thể lấy danh sách tài liệu');
+    }
+};
+
+/**
+ * Lấy tài liệu theo project ID
+ * @param projectId - ID của project
+ * @returns Promise<Document[]>
+ */
+export const getDocumentsByProjectId = async (projectId: string): Promise<Document[]> => {
+    const token = getAuthToken();
+    try {
+        const response = await axios.get(`${API_BASE_URL}?projectId=${projectId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response.data.data;
+    } catch (error: any) {
+        console.error("Lỗi khi lấy tài liệu project:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Không thể lấy danh sách tài liệu project');
+    }
+};
+
+/**
+ * Lấy tài liệu theo team ID
+ * @param teamId - ID của team
+ * @returns Promise<Document[]>
+ */
+export const getDocumentsByTeamId = async (teamId: string): Promise<Document[]> => {
+    const token = getAuthToken();
+    try {
+        const response = await axios.get(`${API_BASE_URL}?teamId=${teamId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response.data.data;
+    } catch (error: any) {
+        console.error("Lỗi khi lấy tài liệu team:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Không thể lấy danh sách tài liệu team');
+    }
+};
+
+/**
+ * Xóa một tài liệu.
+ * @param documentId - ID của tài liệu cần xóa
+ * @returns Promise<any>
+ */
+export const deleteDocumentById = async (documentId: string): Promise<any> => {
+    const token = getAuthToken();
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/${documentId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Lỗi khi xóa tài liệu:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Xóa tài liệu thất bại');
+    }
+};
+
+/**
+ * Lấy tất cả tài liệu của user hiện tại
+ * @param page - Số trang (default: 1)
+ * @param limit - Số items per page (default: 10)
+ * @returns Promise<DocumentListResponse>
+ */
+export const getAllDocuments = async (page: number = 1, limit: number = 10): Promise<DocumentListResponse> => {
+    const token = getAuthToken();
+    try {
+        const response = await axios.get(`${API_BASE_URL}?page=${page}&limit=${limit}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error("Lỗi khi lấy tất cả tài liệu:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Không thể lấy danh sách tài liệu');
+    }
+};
+
+/**
+ * Utility function để format file size
+ */
+export const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+/**
+ * Utility function để lấy file extension
+ */
+export const getFileExtension = (fileName: string): string => {
+    return fileName.split('.').pop()?.toLowerCase() || '';
+};
+
+/**
+ * Utility function để kiểm tra file type
+ */
+export const isImageFile = (fileType: string): boolean => {
+    return fileType.startsWith('image/');
+};
+
+export const isPdfFile = (fileType: string): boolean => {
+    return fileType === 'application/pdf';
+};
+
+export const isDocumentFile = (fileType: string): boolean => {
+    return fileType.includes('document') || fileType.includes('word') || fileType.includes('text');
+};

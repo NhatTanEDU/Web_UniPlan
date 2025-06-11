@@ -1,0 +1,59 @@
+từ các thư mục trên bạn hãy làm lại giúp tôi về phần test cho team
+kịch bản đầu tiên
+MMenu 1 (đăng nhập tài khoản có icon vào nhé)
+1 đăng nhập tài khoản mặc định này gán vào code luôn
+// Tài khoản Admin cố định
+const ADMIN_ACCOUNT = {
+email: 'Admin1@gmail.com',
+password: '123456',
+name: 'Admin1'
+};
+hiển thị nhanh thông báo đăng nhập thành công cùa tài khoản nào (có name và email của tài khoản đó). Và nếu đăng nhập ko thành công thì hiển thị theo lỗi của lỗi đó.
+MMenu 2
+(tiêu đề là Team có icon vào nhénhé)
+CRUD của team
+tạo team, tìm kiếm team, xóa team, sửa team(cho phép sửa hết về phần của team(chỉ có Admin mới được thêm)). Ở phần này random giúp tôi nhé. tôi sẽ nói quy trình họat động như sau:
+1 tạo team (3 team) thông báo thành công vaf thất bại hiển thị lỗi của nó
+2 tìm kiếm (1 team bất kì) thông báo thành công và hiển thị tên của team đó, lỗi in ra thông báo lỗi thất bại và tên lỗi của nó.
+3 Sửa team bất kì của tìm kiếm (quy trình tận dụng lại bước 2 sau khi tìm kiếm thành công thì làm bước 3 là sửa team, sửa bất kì nội dung của team)
+4 xóa team(trân trọng ko được tự động làm như 3 cái kia, phải có xác nhận người dùng. khi xóa sẽ bị mất team và data trong team như thành viên trong team đã thêm và dự án đã gán)
+Menu 3
+(tiêu đề thành viên)
+quy trình họat động
+b1 xem danh sách thành viên từ (danh sách nhân viên). Mục đích để xem để có thêm thêm nhân viên vào team(hiển thị số lượng thành viên) hiển thị thông báo thành công (hiển thị số lượng danh sách) Nếu lỗi in ra lỗi và tên lỗi của nó.
+b2 thêm thành viên(tối đã là 3 thành viên) bất kì vào nhóm (hiển thị thị số lượng thành viên đã được thêm, vai trò của thành viên đó, trạng thái hoạt đông của thành viên (offline hay online)) và hiển thị cả tên của thành viên đó nữa nhé. Hiển thị thành công đã thêm thành viên có tên [x] vào team [y]. Nếu có lỗi thì hiển thị thông báo lỗi và tên lỗi của nó.
+b2 tìm kiếm thành viên trong nhóm (tìm kiếm bất kì trong nhóm có thành viên) hiển thị thông báo thành công tìm kiếm thành viên [x] trong nhóm [y]. Nếu lỗi in ra thông báo lỗi và tên lỗi của nó.
+Menu 4
+thay đổi vai trò của thành viên (editor, member. Mặc định khi thêm thành viên vào nhóm là member giúp tôi nhé).
+quy trình hoạt động
+b1: Kiểm tra vai trò thành viên trong nhóm
+tận dụng bước 2 tìm kiếm thành viên trong nhóm thành công thì làm b1 này , kiểm tra vai trò nếu là edit thì hạ cấp xún là member, nếu là member nâng cấp lên là editor. Hiển thị thông báo thành công thành viên [x] đã nâng cấp/hạ cấp xuống menber/editor.
+Menu 5
+tiêu đề Xóa thành viên khỏi nhóm có icon cho mỗi menu nhé.
+Xóa thành viên trong nhóm. Tận dụng ở bước 2 tìm kiếm thành viên thành công trong nhóm thì làm b4 là xóa thành viên bất kì.
+Nếu thành công hiển thị xóa thành công thành viên [x] khỏi team [y] và kiểm tra lại số lượng thành viên trong nhóm nếu xóa hết thành viên số lượng thành viên trong nhóm =0 thì hiển thị thông báo không còn thành viên nào trong nhóm. Nếu có lỗi in ra lỗi và hiển thị lỗi của nó.
+Menu 6
+gán dự án và tạo dự án nhanh
+quy trình hoạt động:
+b1 lấy sách sách dự án sẵn có (tổng số lương dự án) và hiển thị thêm số lượng dự án chưa có nhóm và số lượng dự án đã có nhóm(bộ lọc). Hiển thị thông báo thành công nếu ko có lỗi, nếu có lỗi in ra lỗi và tên chi tiết của lỗi.Hãy làm thêm nữa là tạo dự án bất kì tối đã là 2 dự án (Kiểm tra danh sách dự án nếu ko có dự án nào thì hãy làm thêm dự án mà tôi nói ở trên(lưu ý khi tạo dự án phải nhập đầy đủ tránh bị lỗi not null)).
+b2 Tìm kiếm dự án có sẵn trong danh sách dự án ở bước 1. Nếu thành công hiển thị thông báo thành công, lỗi thì in lỗi và tên lỗi
+b3 Gán dự án vào team (tối đa 2 dự án vào team có thể gán nhiều dự án vào 1 nhóm và nhiều nhóm vào 1 dự ánán).
+tận dụng ở bước 2 tìm kiếm dự án sẵn có thành công. và ở tận dụng ở bước 2 menu 2 tìm kiếm team thành công dán vào dự án bất kì vừa tìm kiếm được vào team bất kì vừa tìm kiếm được. Hiển thị thông báo thành công dự án [x] gán thành công vào team[y]. Nếu có lỗi hiển lỗi và tên lỗi chi tiết của nó.
+B4 tạo dự án nhanh (2 dự án)
+mô tả : khi ngươì dùng không muốn gán dự án có sẵn muốn có dự án mới nhanh thì sẽ làm b4
+quy trình của tạo dự án nhanhnhanh:
+b1: tạo dự án lưu ý (nhập đầy đủ thông tin dự án tránh bị lỗi not null )
+b2: tiến hành gán dự án mới tạo vào team phần này giống b3 nhưng nó khác là dùng dự án mới tạo đề gán cho team bất kì. Hiển thị thông báo dự án [x] tạo thành công và gán thành công vào team [y]. Nếu có lỗi hãy in ra lỗi chi tiết để dễ debug sau này.
+Tiếp theo của Menu 6
+phần này sẽ gỡ dự án khỏi team
+mô tả: nếu người dùng ko muốn dự án hoặc đã xóa dự án ở danh sách dự án.
+quy trình hoạt động:
+b1: gỡ dự án mà ko xóa dự án.
+tìm kiếm team bất kì có dự án sẵn (ở phần này tôi sẽ thêm hãy tìm kiếm theo bộ lọc ở menu 1 cho nó dễ tìm kiếm và tránh tìm kiếm lâu ở phần bộ lọc menu 1 sẽ có lấy danh sách của team có dự án và team ko có dự án ) thì mình chỉ cần tìm kiếm ở danh sách menu có dự án là đươcj, tiến hành gỡ dự án khỏi team. Hiển thị thông như nhưng thông báo tôi đã nói tên, đặc biệt hiển thị lỗi chi tiết nhé.
+b2: Xóa dự án ở phần danh sách dự án.
+khi xóa dự án ở danh sách dự án thì ở phần team cập nhập lại thành team chưa có dự án nhé.
+ở trên là nhưngx quy trình và menu của kịch bản mà tôi muốn test cho chức năng team.
+bạn hãy giúp tôi tạo phần này gộp lại các menu nhỏ mà tôi nói thành 1 menu lớn để chạy, và trong menu lớn có 1 chức năng là chạy nhanh tất cả menu trong 1 lần nhấn hoặc chọn và 1 cái nữa làm thêm 1 tùy chọn nữa là thông kê kết quả chạy từ các menu và quy trình của menu. Và tôi sẽ nói sơ về thư mục ở trên bạn hãy dựa thư mục ở trên để xem và tạo test giúp tôi. Lưu ý ko dc sửa đổi các thư mục, nếu thiếu chức năng trong test mà tôi nó ở trên thì hãy thêm theo formatch sẵn có của code cũ tôi làm, tôi ko muốn code cũ vì code cũ đang hoạt động tốt,
+khi banj taoj file test , tôi muốn bạn bạo trong thư mục test_teams này để dễ quản lý file và bạn ko nên để 1 đống code trong 1 file sẽ rất khó bảo trì và nhiều code trong file nên chia ra nhiều file để dễ quản lý và bảo trì update sau này, tránh đụng với code đã hoạt động đúng. Bạn hãy xem nội dung tôi đã ổn chưa.
+chưcs năng thông kê bạn hãy làm thêm nữa là tạo 1 file.txt và lưu lại kết quả mỗi khi chạy, ví dụ tôi chậy auto-run xong tôi chạy thông kế thì nó sẽ luu kết quả của vào .txt giúp tôi nhé về file .txt sẽ lưu vào thư mục ketquathongke ở thư mục test. bạn hãy cập nhâp lại giúp tôi nhé.
+à tôi quên dặn mỗi khi chạy thông kê thì hãy chỉ 3 file .txt mỗi lần chạy, tránh bị chạy quá nhiều lần và sinh ra quá nhiều file .txt nếu quá nhiêu file.txt thì hãy xóa bớt đi chỉ để lại 3 file.txt chạy gần nhất giúp tôi nhé

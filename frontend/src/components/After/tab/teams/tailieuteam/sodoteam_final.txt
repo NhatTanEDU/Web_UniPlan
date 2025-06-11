@@ -1,0 +1,37 @@
+TEAMS MODULE – CẤU TRÚC HIỆN TẠI
+=================================
+
+📁 /tabs/teams
+├── 📄 teams.tsx                           # Component chính – Layout và routing
+│
+├── 📁 /components                         # UI Components
+│   ├── 📄 TeamCard.tsx                    # Card hiển thị thông tin team
+│   ├── 📄 TeamList.tsx                    # Grid/List teams với search/filter
+│   ├── 📄 TeamModal.tsx                   # Modal tạo/sửa team
+│   ├── 📄 TeamMemberModal.tsx             # Modal quản lý thành viên
+│   ├── 📄 TeamProjectModal.tsx            # Modal gán/tạo project cho team
+│   ├── 📄 TeamStats.tsx                   # Dashboard thống kê (charts, numbers)
+│   ├── 📄 TeamActivity.tsx                # Timeline hoạt động teams
+│   ├── 📄 MemberList.tsx                  # Table thành viên với actions
+│   ├── 📄 ProjectList.tsx                 # Table projects với status/priority
+│   ├── 📄 UserSearchInput.tsx             # Autocomplete tìm user để invite
+│   ├── 📄 ConfirmModal.tsx                # Modal xác nhận hành động nguy hiểm
+│   ├── 📄 TeamFilters.tsx                 # Filters teams (type, role, status)
+│   └── 📄 LoadingSpinner.tsx              # Component loading chung
+│
+├── 📁 /hooks                              # Business Logic Layer
+│   ├── 📄 useTeams.ts                     # CRUD teams
+│   ├── 📄 useTeam.ts                      # Lấy detail 1 team
+│   ├── 📄 useTeamMembers.ts               # Quản lý members
+│   ├── 📄 useTeamProjects.ts              # Quản lý projects
+│   ├── 📄 useTeamStats.ts                 # Lấy thống kê
+│   ├── 📄 useUserSearch.ts                # Tìm kiếm users
+│   ├── 📄 useTeamActivity.ts              # Lấy hoạt động
+│   └── 📄 useTeamPermissions.ts           # Check quyền user
+│
+├── 📁 /pages                              # Page Layer (routing)
+│   ├── 📄 TeamOverview.tsx                # /teams
+│   ├── 📄 TeamDetail.tsx                  # /teams/:teamId/*
+│   ├── 📄 TeamMembers.tsx                 # /teams/:teamId/members
+│   ├── 📄 TeamProjects.tsx                # /teams/:teamId/projects
+│   └── 📄 TeamSettings.tsx                # /teams/:teamId/settings

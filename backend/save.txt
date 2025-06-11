@@ -1,0 +1,25 @@
+backend/
+├── middlewares/
+│   ├── checkOwnerRole.js      // File vừa tạo
+│   ├── checkProjectRole.js    // File đã tạo trước đó
+│   ├── verifyToken.js
+│   └── ...
+├── models/
+│   ├── Project.js
+│   ├── ProjectMember.js
+│   ├── Notification.js
+│   └── ...
+├── routes/
+│   ├── project.routes.js
+│   ├── projectMember.routes.js
+│   └── ...
+├── controllers/
+│   ├── project.controller.js
+│   ├── projectMember.controller.js
+│   └── ...
+├── utils/
+│   ├── validation.js
+│   └── ...
+├── app.js
+├── server.js
+└── ...

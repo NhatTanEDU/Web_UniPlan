@@ -1,0 +1,356 @@
+{
+	"info": {
+		"_postman_id": "personal-member-lists-api",
+		"name": "Personal Member Lists API - UniPlan",
+		"description": "API Collection cho quản lý danh sách thành viên cá nhân trong UniPlan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"token\", jsonData.token);",
+									"    console.log(\"Token saved:\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"12345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "👥 Personal Members",
+			"item": [
+				{
+					"name": "Search Users to Add",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/personal-members/search?query=user&page=1&limit=5",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "user"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Personal Members List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/personal-members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add Personal Member",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.environment.set(\"member_id\", jsonData.data._id);",
+									"    console.log(\"Member ID saved:\", jsonData.data._id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"member_user_id\": \"PUT_USER_ID_HERE\",\n  \"custom_role\": \"Nhân viên IT\",\n  \"notes\": \"Chuyên gia phát triển frontend\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/personal-members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Member Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/personal-members/{{member_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members",
+								"{{member_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Personal Member",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"custom_role\": \"Trưởng nhóm UI/UX\",\n  \"notes\": \"Cập nhật: Đã thăng chức\",\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/personal-members/{{member_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members",
+								"{{member_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Remove Personal Member (Soft Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/personal-members/{{member_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members",
+								"{{member_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Permanent Delete Personal Member",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/personal-members/{{member_id}}/permanent",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members",
+								"{{member_id}}",
+								"permanent"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🧪 Error Testing",
+			"item": [
+				{
+					"name": "Add Self to List (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"member_user_id\": \"YOUR_OWN_USER_ID\",\n  \"custom_role\": \"Test Role\",\n  \"notes\": \"This should fail\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/personal-members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members"
+							]
+						}
+					}
+				},
+				{
+					"name": "Invalid Member ID (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"member_user_id\": \"invalid_id\",\n  \"custom_role\": \"Test Role\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/personal-members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members"
+							]
+						}
+					}
+				},
+				{
+					"name": "No Token (Should Fail)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/personal-members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"personal-members"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}

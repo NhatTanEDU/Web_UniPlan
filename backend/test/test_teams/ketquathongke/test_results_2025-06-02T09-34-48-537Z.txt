@@ -1,0 +1,78 @@
+================================================================================
+📊 BÁO CÁO THỐNG KÊ HỆ THỐNG TEST TEAMS - UNIPLAN
+================================================================================
+📅 Thời gian chạy: 16:34:48 2/6/2025
+⏱️ Thời gian thực thi: 17.7s
+🆔 Test ID: TEST_1748856888538_BDAQW373K
+
+📈 TỔNG QUAN KẾT QUẢ:
+--------------------------------------------------
+• Tổng số test: 6
+• Test thành công: 6 ✅
+• Test thất bại: 0 ❌
+• Tỷ lệ thành công: 100%
+• Số menu đã test: 6
+
+📋 KẾT QUẢ THEO MENU:
+--------------------------------------------------
+1. Menu 1 - Đăng nhập Admin
+   • Tổng thao tác: 1
+   • Thành công: 1 ✅
+   • Thất bại: 0 ❌
+   • Tỷ lệ: 100%
+   • Chi tiết:
+     1. ✅ Menu 1 - Đăng nhập Admin: ✅ Đăng nhập thành công!
+
+2. Menu 2 - CRUD Teams
+   • Tổng thao tác: 1
+   • Thành công: 1 ✅
+   • Thất bại: 0 ❌
+   • Tỷ lệ: 100%
+   • Chi tiết:
+     1. ✅ Menu 2 - CRUD Teams: Team CRUD: 4/4 operations successful
+
+3. Menu 3 - Quản lý thành viên
+   • Tổng thao tác: 1
+   • Thành công: 1 ✅
+   • Thất bại: 0 ❌
+   • Tỷ lệ: 100%
+   • Chi tiết:
+     1. ✅ Menu 3 - Quản lý thành viên: Member Management: 3/3 operations successful
+
+4. Menu 4 - Thay đổi vai trò
+   • Tổng thao tác: 1
+   • Thành công: 1 ✅
+   • Thất bại: 0 ❌
+   • Tỷ lệ: 100%
+   • Chi tiết:
+     1. ✅ Menu 4 - Thay đổi vai trò: Test completed
+
+5. Menu 5 - Xóa thành viên
+   • Tổng thao tác: 1
+   • Thành công: 1 ✅
+   • Thất bại: 0 ❌
+   • Tỷ lệ: 100%
+   • Chi tiết:
+     1. ✅ Menu 5 - Xóa thành viên: Test completed
+
+6. Menu 6 - Quản lý dự án
+   • Tổng thao tác: 1
+   • Thành công: 1 ✅
+   • Thất bại: 0 ❌
+   • Tỷ lệ: 100%
+   • Chi tiết:
+     1. ✅ Menu 6 - Quản lý dự án: Test completed
+
+💡 KHUYẾN NGHỊ:
+--------------------------------------------------
+🎉 Hệ thống hoạt động rất tốt! Tỷ lệ thành công cao.
+
+📌 Lưu ý:
+• Kiểm tra log chi tiết để tìm nguyên nhân lỗi
+• Đảm bảo API server đang hoạt động
+• Kiểm tra kết nối mạng
+• Xem xét việc tối ưu thời gian chờ
+
+================================================================================
+🎯 KẾT THÚC BÁO CÁO
+================================================================================

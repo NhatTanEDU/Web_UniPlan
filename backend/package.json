@@ -1,0 +1,47 @@
+{
+  "author": "TanMa",
+  "description": "",
+  "license": "ISC",
+  "main": "server.js",
+  "name": "backend",
+  "type": "commonjs",
+  "version": "1.0.0",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "connect-timeout": "^1.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "firebase": "^11.9.0",
+    "firebase-admin": "^13.4.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.2",
+    "nodemailer": "^6.9.9",
+    "socket.io": "^4.6.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "socket.io-client": "^4.8.1"
+  },
+  "keywords": [],
+  "scripts": {
+    "migrate": "node migrations/migrateUsers.js",
+    "start": "nodemon server.js",
+    "start:safe": "node safe-start.js",
+    "start:production": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:safe": "node test-safe-mode.js",
+    "test:simple": "node test_simple_search.js",
+    "test:teams": "node test/test_teams.js"
+  }
+}

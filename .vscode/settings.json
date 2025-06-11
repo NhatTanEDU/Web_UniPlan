@@ -1,0 +1,7 @@
+{
+    "files.autoSave": "onFocusChange",
+    "files.autoSaveWhenNoErrors": true,
+    "files.autoSaveWorkspaceFilesOnly": true,
+    "workbench.background": "#000000",
+    "background.enabled": false
+  }
