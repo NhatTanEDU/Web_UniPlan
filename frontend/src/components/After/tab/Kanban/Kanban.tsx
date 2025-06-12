@@ -10,6 +10,7 @@ import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask, ProjectMember } from "../../../../services/kanbanApi";
 import { teamMemberApi } from "../../../../services/teamMemberApi";
+import { userPermissionsApi } from "../../../../services/userPermissionsApi";
 import DocumentUpload from "../../../common/DocumentUpload";
 import { Document, getDocumentsByTaskId } from "../../../../services/documentApi";
 import { socket, joinKanbanRoom, leaveKanbanRoom } from "../../../../services/socket";
@@ -27,7 +28,14 @@ const Kanban = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');  const [form, setForm] = useState({
+  const [success, setSuccess] = useState<string>('');
+    // Permission state
+  const [currentUserRole, setCurrentUserRole] = useState<string>('');
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
+  const [isLoadingPermissions, setIsLoadingPermissions] = useState(true);
+  const [permissionsError, setPermissionsError] = useState<string>('');
+
+  const [form, setForm] = useState({
     title: "",
     description: "",
     start_date: "",
@@ -626,7 +634,45 @@ const Kanban = () => {
         console.log("🔍 DEBUG: Found droppable elements:", Array.from(droppables).map(el => el.getAttribute('data-rbd-droppable-id')));
       }, 100);
     }
-  }, [loading, currentKanban, tasks.length]);
+  }, [loading, currentKanban, tasks.length]);  // Load user permissions from server
+  useEffect(() => {
+    const loadUserPermissions = async () => {
+      if (!projectId) return;
+      
+      try {
+        setIsLoadingPermissions(true);
+        setPermissionsError('');
+        
+        const permissions = await userPermissionsApi.getUserPermissions(projectId);
+        
+        setCurrentUserRole(permissions.userRole);
+        setUserPermissions(permissions.permissions);
+        
+        console.log('🔐 Permissions loaded from server:', {
+          role: permissions.userRole,
+          permissions: permissions.permissions,
+          isOwner: permissions.isOwner
+        });
+        
+      } catch (error: any) {
+        console.error('Failed to load user permissions:', error);
+        setPermissionsError('Không thể tải quyền người dùng');
+        
+        // Fallback to viewer permissions on error
+        setCurrentUserRole('Người xem');
+        setUserPermissions(['move']);
+      } finally {
+        setIsLoadingPermissions(false);
+      }
+    };
+
+    loadUserPermissions();
+  }, [projectId]);
+
+  // Permission helper functions
+  const canPerformAction = (action: string): boolean => {
+    return userPermissions.includes(action);
+  };
 
   if (loading) {
     return (
@@ -656,32 +702,53 @@ const Kanban = () => {
         <main className="flex-1 overflow-y-auto p-4">          <div className="mb-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
               Bảng Kanban {currentProject?.project_name && `- ${currentProject.project_name}`}
-            </h1>            <div className="flex items-center gap-4">
-              {loading && (
+            </h1>            <div className="flex items-center gap-4">              {loading && (
                 <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
                   Đang tải dữ liệu...
                 </div>
               )}
+
+              {isLoadingPermissions && (
+                <div className="flex items-center text-gray-600 dark:text-gray-300">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500 mr-2"></div>
+                  Đang tải quyền...
+                </div>
+              )}
+
               {!loading && (!currentProject || !currentKanban) && (
                 <div className="text-sm text-yellow-600 dark:text-yellow-400">
                   Dữ liệu chưa sẵn sàng
                 </div>
+              )}              {/* Permission Status Indicator */}
+              {currentUserRole && !isLoadingPermissions && (
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Vai trò: <span className="font-semibold">{currentUserRole}</span>
+                </div>
               )}
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                onClick={() => {
-                  console.log("🔍 DEBUG: + Tạo Task button clicked");
-                  console.log("🔍 DEBUG: saving state:", saving);
-                  console.log("🔍 DEBUG: currentProject exists:", !!currentProject);
-                  console.log("🔍 DEBUG: currentKanban exists:", !!currentKanban);
-                  handleCreateNewTask();
-                }}
-                disabled={saving || !currentProject || !currentKanban}
-                title={(!currentProject || !currentKanban) ? "Dữ liệu dự án chưa sẵn sàng" : ""}
-              >
-                + Tạo Task
-              </button>
+              {/* Create Task Button - Only show for Admin and Editor */}
+              {canPerformAction('create') && (
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                  onClick={() => {
+                    console.log("🔍 DEBUG: + Tạo Task button clicked");
+                    console.log("🔍 DEBUG: saving state:", saving);
+                    console.log("🔍 DEBUG: currentProject exists:", !!currentProject);
+                    console.log("🔍 DEBUG: currentKanban exists:", !!currentKanban);
+                    handleCreateNewTask();
+                  }}
+                  disabled={saving || !currentProject || !currentKanban}
+                  title={(!currentProject || !currentKanban) ? "Dữ liệu dự án chưa sẵn sàng" : ""}
+                >
+                  + Tạo Task
+                </button>
+              )}
+              {/* Permission denied message for viewers */}
+              {!canPerformAction('create') && currentUserRole === 'Người xem' && (
+                <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                  Chỉ có thể xem và di chuyển tasks
+                </div>
+              )}
             </div>
           </div>
 
@@ -696,9 +763,7 @@ const Kanban = () => {
                 ×
               </button>
             </div>
-          )}
-
-          {error && (
+          )}          {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-center">
               <AlertCircle size={20} className="mr-2" />
               {error}
@@ -709,6 +774,19 @@ const Kanban = () => {
                 ×
               </button>
             </div>          )}
+
+          {permissionsError && (
+            <div className="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded mb-4 flex items-center">
+              <AlertCircle size={20} className="mr-2" />
+              {permissionsError}
+              <button
+                className="ml-auto text-orange-500 hover:text-orange-700"
+                onClick={() => setPermissionsError('')}
+              >
+                ×
+              </button>
+            </div>
+          )}
             {/* DEBUG LOG FOR FORM RENDERING */}
           {(() => {
             console.log("🔍 DEBUG: Render check - showForm:", showForm);
@@ -945,13 +1023,12 @@ const Kanban = () => {
                           .map((task, index) => {
                             const assignableMembers = getAssignableMembers();
                             const assignedMember = assignableMembers.find(m => m._id === task.assigned_to);
-                            const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'Hoàn thành';
-                              return (
+                            const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'Hoàn thành';                            return (
                               <Draggable
                                 key={`task-${task._id}`}
                                 draggableId={task._id!}
                                 index={index}
-                                isDragDisabled={task.is_pinned} // Disable drag for pinned tasks
+                                isDragDisabled={task.is_pinned || !canPerformAction('move')} // Disable drag for pinned tasks or users without move permission
                               >
                                 {(provided, snapshot) => (
                                   <div
@@ -963,7 +1040,7 @@ const Kanban = () => {
                                     } ${
                                       snapshot.isDragging ? 'rotate-2 shadow-lg scale-105' : ''
                                     } ${
-                                      task.is_pinned ? 'opacity-75 cursor-not-allowed' : ''
+                                      task.is_pinned || !canPerformAction('move') ? 'opacity-75 cursor-not-allowed' : ''
                                     }`}
                                     style={{ 
                                       backgroundColor: task.color !== '#ffffff' ? task.color : undefined,
@@ -971,6 +1048,7 @@ const Kanban = () => {
                                                       task.priority === 'Trung bình' ? '#f59e0b' : '#10b981',
                                       ...provided.draggableProps.style
                                     }}
+                                    title={!canPerformAction('move') ? 'Bạn không có quyền di chuyển task này' : ''}
                                   >
                                     {/* Task Header */}
                                     <div className="flex justify-between items-start mb-2">
@@ -982,41 +1060,55 @@ const Kanban = () => {
                                           {task.title}
                                         </span>
                                       </div>
-                                      
-                                      {/* Action Buttons */}
+                                        {/* Action Buttons */}
                                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleTogglePin(task._id || '');
-                                          }}
-                                          className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 ${
-                                            task.is_pinned ? 'text-blue-500' : 'text-gray-400'
-                                          }`}
-                                          title={task.is_pinned ? 'Bỏ ghim' : 'Ghim'}
-                                        >
-                                          <Pin size={14} />
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleEditTask(task);
-                                          }}
-                                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-blue-500"
-                                          title="Chỉnh sửa"
-                                        >
-                                          <Edit size={14} />
-                                        </button>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteTask(task._id || '');
-                                          }}
-                                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-red-500"
-                                          title="Xóa"
-                                        >
-                                          <Trash size={14} />
-                                        </button>
+                                        {/* Pin Button - Only for Admin and Editor */}
+                                        {canPerformAction('pin') && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleTogglePin(task._id || '');
+                                            }}
+                                            className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 ${
+                                              task.is_pinned ? 'text-blue-500' : 'text-gray-400'
+                                            }`}
+                                            title={task.is_pinned ? 'Bỏ ghim' : 'Ghim'}
+                                          >
+                                            <Pin size={14} />
+                                          </button>
+                                        )}
+                                        {/* Edit Button - Only for Admin and Editor */}
+                                        {canPerformAction('edit') && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleEditTask(task);
+                                            }}
+                                            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-blue-500"
+                                            title="Chỉnh sửa"
+                                          >
+                                            <Edit size={14} />
+                                          </button>
+                                        )}
+                                        {/* Delete Button - Only for Admin and Editor */}
+                                        {canPerformAction('delete') && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDeleteTask(task._id || '');
+                                            }}
+                                            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-400 hover:text-red-500"
+                                            title="Xóa"
+                                          >
+                                            <Trash size={14} />
+                                          </button>
+                                        )}
+                                        {/* Permission indicator for viewers */}
+                                        {!canPerformAction('edit') && currentUserRole === 'Người xem' && (
+                                          <span className="text-xs text-gray-400 px-2 py-1 rounded bg-gray-100 dark:bg-gray-600" title="Chỉ có thể xem">
+                                            👁️
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                     

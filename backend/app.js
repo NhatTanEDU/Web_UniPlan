@@ -52,6 +52,9 @@ if (isFeatureEnabled('ADVANCED_SEARCH')) {
   userRoleRoutes = require('./routes/userRole.routes');
 }
 
+// Load user permissions routes (for role-based access control)
+const userPermissionsRoutes = require('./routes/userPermissions.routes');
+
 // Load biến môi trường từ .env
 dotenv.config();
 
@@ -321,5 +324,8 @@ if (isFeatureEnabled('ADVANCED_SEARCH')) {
   if (kanbanTaskRoutes) app.use('/api/kanban-tasks', featureToggleMiddleware('ADVANCED_SEARCH'), kanbanTaskRoutes);
   if (userRoleRoutes) app.use('/api/user-roles', featureToggleMiddleware('ADVANCED_SEARCH'), userRoleRoutes);
 }
+
+// User permissions routes (for role-based access control)
+app.use('/api/user-permissions', userPermissionsRoutes);
 
 module.exports = app;

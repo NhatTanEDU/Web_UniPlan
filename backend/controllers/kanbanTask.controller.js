@@ -4,6 +4,59 @@ const ProjectMember = require('../models/projectMember.model');
 const Project = require('../models/project.model');
 const Counter = require('../models/counter.model');
 
+// Helper function to check user permissions for kanban tasks
+const canModifyTask = async (userId, kanbanId, requiredPermission = 'edit') => {
+  try {
+    const kanban = await Kanban.findById(kanbanId);
+    if (!kanban) {
+      return { hasPermission: false, error: 'Không tìm thấy bảng Kanban' };
+    }
+
+    const project = await Project.findById(kanban.project_id);
+    if (!project) {
+      return { hasPermission: false, error: 'Không tìm thấy dự án' };
+    }
+
+    // Check if user is project owner - full permissions
+    if (project.created_by.toString() === userId.toString()) {
+      return { hasPermission: true, role: 'Quản trị viên', project };
+    }
+
+    // Check project member role
+    const projectMember = await ProjectMember.findOne({
+      project_id: kanban.project_id,
+      user_id: userId,
+      is_active: true
+    });
+
+    if (!projectMember) {
+      return { hasPermission: false, error: 'Không có quyền truy cập dự án' };
+    }
+
+    const userRole = projectMember.role_in_project;
+
+    // Define permissions based on role and required action
+    const permissions = {
+      'Quản trị viên': ['create', 'edit', 'delete', 'pin', 'move'],
+      'Biên tập viên': ['edit', 'delete', 'pin', 'move'],
+      'Người xem': ['move'] // Only can move tasks (change status)
+    };
+
+    const userPermissions = permissions[userRole] || [];
+    const hasPermission = userPermissions.includes(requiredPermission);
+
+    return { 
+      hasPermission, 
+      role: userRole, 
+      project,
+      availablePermissions: userPermissions 
+    };
+  } catch (error) {
+    console.error('Error checking task permissions:', error);
+    return { hasPermission: false, error: 'Lỗi kiểm tra quyền truy cập' };
+  }
+};
+
 // Toggle pin/unpin task
 exports.toggleTaskPin = async (req, res) => {
   try {
@@ -22,31 +75,13 @@ exports.toggleTaskPin = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy task' });
     }
 
-    // Kiểm tra quyền truy cập
-    const kanban = await Kanban.findById(task.kanban_id);
-    if (!kanban) {
-      return res.status(404).json({ message: 'Không tìm thấy bảng Kanban' });
-    }
-
-    const project = await Project.findById(kanban.project_id);
-    if (!project) {
-      return res.status(404).json({ message: 'Không tìm thấy dự án' });
-    }
-
-    // Kiểm tra quyền (chủ dự án hoặc thành viên dự án)
-    let hasAccess = project.created_by.toString() === userId.toString();
-
-    if (!hasAccess) {
-      const projectMember = await ProjectMember.findOne({
-        project_id: kanban.project_id,
-        user_id: userId,
-        is_active: true
+    // Check pin permission
+    const permissionCheck = await canModifyTask(userId, task.kanban_id, 'pin');
+    if (!permissionCheck.hasPermission) {
+      return res.status(403).json({ 
+        message: permissionCheck.error || 'Không có quyền ghim/bỏ ghim task',
+        userRole: permissionCheck.role 
       });
-      hasAccess = !!projectMember;
-    }
-
-    if (!hasAccess) {
-      return res.status(403).json({ message: 'Không có quyền truy cập' });
     }
 
     // Toggle pin status
@@ -88,17 +123,16 @@ exports.createTask = async (req, res) => {
       return res.status(401).json({ message: 'Không thể xác định người dùng' });
     }
 
-    // Kiểm tra kanban có tồn tại
-    const kanban = await Kanban.findById(kanban_id);
-    if (!kanban) {
-      return res.status(404).json({ message: 'Không tìm thấy bảng Kanban' });
+    // Check create permission
+    const permissionCheck = await canModifyTask(userId, kanban_id, 'create');
+    if (!permissionCheck.hasPermission) {
+      return res.status(403).json({ 
+        message: permissionCheck.error || 'Không có quyền tạo task mới. Chỉ Admin và Editor mới có thể tạo task.',
+        userRole: permissionCheck.role 
+      });
     }
 
-    // Kiểm tra quyền truy cập
-    const project = await Project.findById(kanban.project_id);
-    if (!project) {
-      return res.status(404).json({ message: 'Không tìm thấy dự án' });
-    }
+    const project = permissionCheck.project;
 
     // Validation ngày tháng
     if (start_date && due_date) {
@@ -337,16 +371,16 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy task' });
     }
 
-    // Kiểm tra quyền truy cập
-    const kanban = await Kanban.findById(task.kanban_id);
-    if (!kanban) {
-      return res.status(404).json({ message: 'Không tìm thấy bảng Kanban' });
+    // Check edit permission
+    const permissionCheck = await canModifyTask(userId, task.kanban_id, 'edit');
+    if (!permissionCheck.hasPermission) {
+      return res.status(403).json({ 
+        message: permissionCheck.error || 'Không có quyền chỉnh sửa task. Chỉ Admin và Editor mới có thể chỉnh sửa task.',
+        userRole: permissionCheck.role 
+      });
     }
 
-    const project = await Project.findById(kanban.project_id);
-    if (!project) {
-      return res.status(404).json({ message: 'Không tìm thấy dự án' });
-    }
+    const project = permissionCheck.project;
 
     // Validation ngày tháng
     const newStartDate = start_date || task.start_date;
@@ -479,67 +513,6 @@ exports.updateTask = async (req, res) => {
       }
     }
 
-    // Nếu là người tạo dự án thì cho phép
-    if (project.created_by && userId && project.created_by.toString() === userId.toString()) {
-      // Cập nhật task - chỉ cập nhật các trường được gửi lên (khác undefined)
-      if (title !== undefined) task.title = title;
-      if (description !== undefined) task.description = description;
-      if (status !== undefined) task.status = status;
-      if (start_date !== undefined) task.start_date = start_date;
-      if (due_date !== undefined) task.due_date = due_date;
-      if (priority !== undefined) task.priority = priority;
-      if (color !== undefined) task.color = color;
-      if (is_pinned !== undefined) task.is_pinned = is_pinned;
-      
-      // Xử lý assigned_to đặc biệt
-      if (assigned_to !== undefined) {
-        task.assigned_to = assignedToId; // sử dụng assignedToId đã được xử lý ở trên
-      }
-
-      await task.save();
-      console.log('Updated task:', task);
-
-      // Populate thông tin assigned_to và created_by
-      const populatedTask = await KanbanTask.findById(task._id)
-        .populate('assigned_to', 'name email avatar')
-        .populate('created_by', 'name email avatar');
-
-      // Emit socket event với toàn bộ danh sách task
-      if (req.io) {
-        const allTasksInKanban = await KanbanTask.find({ kanban_id: task.kanban_id })
-          .populate('assigned_to', 'name email avatar')
-          .populate('created_by', 'name email avatar')
-          .sort({ is_pinned: -1, order: 1 });
-
-        req.io.to(task.kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
-      }
-
-      return res.json(populatedTask);
-    }
-
-    // --- LOGIC PHÂN QUYỀN MỚI ---
-    const isProjectOwner = project.created_by.toString() === userId.toString();
-    const isTaskCreator = task.created_by.toString() === userId.toString();
-    const isAssignedTo = task.assigned_to ? task.assigned_to.toString() === userId.toString() : false;
-
-    let hasPermission = isProjectOwner || isTaskCreator || isAssignedTo;
-
-    // Nếu các điều kiện trên không thỏa, kiểm tra vai trò trong dự án
-    if (!hasPermission) {
-        const projectMember = await ProjectMember.findOne({ project_id: kanban.project_id, user_id: userId, is_active: true });
-        if (projectMember) {
-            const allowedRoles = ['Quản trị viên', 'Biên tập viên'];
-            if (allowedRoles.includes(projectMember.role_in_project)) {
-                hasPermission = true;
-            }
-        }
-    }
-
-    if (!hasPermission) {
-        return res.status(403).json({ message: 'Bạn không có đủ quyền để chỉnh sửa công việc này.' });
-    }
-    // --- KẾT THÚC LOGIC PHÂN QUYỀN ---
-
     // Cập nhật task - chỉ cập nhật các trường được gửi lên (khác undefined)
     if (title !== undefined) task.title = title;
     if (description !== undefined) task.description = description;
@@ -554,11 +527,14 @@ exports.updateTask = async (req, res) => {
     if (assigned_to !== undefined) {
       task.assigned_to = assignedToId; // sử dụng assignedToId đã được xử lý ở trên
     }
-    task.color = color || task.color;
-    if (is_pinned !== undefined) task.is_pinned = is_pinned;
 
     await task.save();
     console.log('Updated task:', task);
+
+    // Populate thông tin assigned_to và created_by
+    const populatedTask = await KanbanTask.findById(task._id)
+      .populate('assigned_to', 'name email avatar')
+      .populate('created_by', 'name email avatar');
 
     // Emit socket event với toàn bộ danh sách task
     if (req.io) {
@@ -570,7 +546,7 @@ exports.updateTask = async (req, res) => {
       req.io.to(task.kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
     }
 
-    res.json(task);
+    res.json(populatedTask);
   } catch (error) {
     console.error('Error updating task:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });
@@ -595,51 +571,13 @@ exports.deleteTask = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy task' });
     }
 
-    // Kiểm tra quyền truy cập
-    const kanban = await Kanban.findById(task.kanban_id);
-    if (!kanban) {
-      return res.status(404).json({ message: 'Không tìm thấy bảng Kanban' });
-    }
-
-    const project = await Project.findById(kanban.project_id);
-    if (!project) {
-      return res.status(404).json({ message: 'Không tìm thấy dự án' });
-    }
-
-    // Nếu là người tạo dự án thì cho phép
-    if (project.created_by.toString() === userId.toString()) {
-      const kanbanId = task.kanban_id; // Lưu lại trước khi xóa
-      await KanbanTask.findByIdAndDelete(id);
-      console.log('Deleted task:', id);
-
-      // Emit socket event với toàn bộ danh sách task còn lại
-      if (req.io) {
-        const allTasksInKanban = await KanbanTask.find({ kanban_id: kanbanId })
-          .populate('assigned_to', 'name email avatar')
-          .populate('created_by', 'name email avatar')
-          .sort({ is_pinned: -1, order: 1 });
-
-        req.io.to(kanbanId.toString()).emit('kanban:updated', allTasksInKanban);
-      }
-
-      return res.json({ message: 'Xóa task thành công' });
-    }
-
-    // Kiểm tra quyền thành viên
-    const projectMember = await ProjectMember.findOne({
-      project_id: kanban.project_id,
-      user_id: userId,
-      is_active: true
-    });
-
-    if (!projectMember) {
-      return res.status(403).json({ message: 'Không có quyền truy cập' });
-    }
-
-    // Cho phép Quản trị viên và Biên tập viên có quyền xóa
-    const allowedRoles = ['Quản trị viên', 'Biên tập viên'];
-    if (!allowedRoles.includes(projectMember.role_in_project)) {
-      return res.status(403).json({ message: 'Bạn không có đủ quyền để xóa task này' });
+    // Check delete permission
+    const permissionCheck = await canModifyTask(userId, task.kanban_id, 'delete');
+    if (!permissionCheck.hasPermission) {
+      return res.status(403).json({ 
+        message: permissionCheck.error || 'Không có quyền xóa task. Chỉ Admin và Editor mới có thể xóa task.',
+        userRole: permissionCheck.role 
+      });
     }
 
     const kanbanId = task.kanban_id; // Lưu lại trước khi xóa
@@ -685,30 +623,13 @@ exports.updateTaskOrder = async (req, res) => {
         return res.status(404).json({ message: 'Task không tồn tại để kiểm tra quyền' });
       }
 
-      const kanban = await Kanban.findById(sampleTask.kanban_id);
-      if (!kanban) {
-        return res.status(404).json({ message: 'Không tìm thấy bảng Kanban' });
-      }
-
-      const project = await Project.findById(kanban.project_id);
-      if (!project) {
-        return res.status(404).json({ message: 'Không tìm thấy dự án' });
-      }
-
-      // Kiểm tra quyền truy cập
-      let hasAccess = project.created_by && project.created_by.toString() === userId.toString();
-
-      if (!hasAccess) {
-        const projectMember = await ProjectMember.findOne({
-          project_id: kanban.project_id,
-          user_id: userId,
-          is_active: true
+      // Check move permission (all users including viewers can move tasks to change status)
+      const permissionCheck = await canModifyTask(userId, sampleTask.kanban_id, 'move');
+      if (!permissionCheck.hasPermission) {
+        return res.status(403).json({ 
+          message: permissionCheck.error || 'Không có quyền di chuyển task.',
+          userRole: permissionCheck.role 
         });
-
-        if (!projectMember) {
-          return res.status(403).json({ message: 'Không có quyền truy cập' });
-        }
-        hasAccess = true;
       }
 
       // Thực hiện bulk update
