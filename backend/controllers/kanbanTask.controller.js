@@ -280,13 +280,15 @@ exports.createTask = async (req, res) => {
       // Populate thông tin assigned_to và created_by
       const populatedTask = await KanbanTask.findById(task._id)
         .populate('assigned_to', 'name email')
-        .populate('created_by', 'name email');
+        .populate('created_by', 'name email')
+        .populate('documents'); // THÊM DÒNG NÀY
 
       // Emit socket event với toàn bộ danh sách task
       if (req.io) {
         const allTasksInKanban = await KanbanTask.find({ kanban_id })
           .populate('assigned_to', 'name email avatar')
           .populate('created_by', 'name email avatar')
+          .populate('documents') // THÊM DÒNG NÀY
           .sort({ is_pinned: -1, order: 1 });
 
         req.io.to(kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
@@ -534,13 +536,15 @@ exports.updateTask = async (req, res) => {
     // Populate thông tin assigned_to và created_by
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
-      .populate('created_by', 'name email avatar');
+      .populate('created_by', 'name email avatar')
+      .populate('documents'); // THÊM DÒNG NÀY
 
     // Emit socket event với toàn bộ danh sách task
     if (req.io) {
       const allTasksInKanban = await KanbanTask.find({ kanban_id: task.kanban_id })
         .populate('assigned_to', 'name email avatar')
         .populate('created_by', 'name email avatar')
+        .populate('documents') // THÊM DÒNG NÀY
         .sort({ is_pinned: -1, order: 1 });
 
       req.io.to(task.kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
@@ -786,6 +790,7 @@ exports.getTasks = async (req, res) => {
     const tasks = await KanbanTask.find({ kanban_id })
       .populate('assigned_to', 'name email avatar')
       .populate('created_by', 'name email avatar')
+      .populate('documents') // THÊM DÒNG NÀY
       .sort({ 
         is_pinned: -1,  // pinned tasks trước (true = 1, false = 0, descending = true trước)
         order: 1,       // sau đó sắp xếp theo order tăng dần
@@ -885,6 +890,75 @@ exports.getProjectMembers = async (req, res) => {
   }
 };
 
+// Lấy danh sách tài liệu của một task
+exports.getTaskDocuments = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const userId = req.user.userId || req.user._id || req.user.id;
+
+    const task = await KanbanTask.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Không tìm thấy công việc.' });
+    }
+
+    // Kiểm tra quyền truy cập - chỉ cần quyền move (tối thiểu)
+    const permissionCheck = await canModifyTask(userId, task.kanban_id, 'move');
+    if (!permissionCheck.hasPermission) {
+      return res.status(403).json({ message: 'Bạn không có quyền xem tài liệu này.' });
+    }
+
+    const Document = require('../models/document.model');
+    const documents = await Document.find({ taskId })
+      .populate('uploadedBy', 'name email'); // Lấy thông tin người upload
+
+    res.json(documents || []);
+  } catch (error) {
+    console.error('Error getting task documents:', error);
+    res.status(500).json({ message: 'Lỗi server khi lấy tài liệu.' });
+  }
+};
+
+// Xóa một tài liệu khỏi task
+exports.deleteTaskDocument = async (req, res) => {
+  try {
+    const { taskId, documentId } = req.params;
+    const userId = req.user.userId || req.user._id || req.user.id;
+
+    const task = await KanbanTask.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Không tìm thấy công việc.' });
+    }
+
+    // Kiểm tra quyền edit để xóa tài liệu
+    const permissionCheck = await canModifyTask(userId, task.kanban_id, 'edit');
+    if (!permissionCheck.hasPermission) {
+      return res.status(403).json({ message: 'Bạn không có quyền xóa tài liệu này.' });
+    }
+
+    const Document = require('../models/document.model');
+    const document = await Document.findById(documentId);
+
+    if (!document) {
+      return res.status(404).json({ message: 'Không tìm thấy tài liệu.' });
+    }
+
+    // TODO: Thêm logic xóa file trên Cloud Storage (Supabase) ở đây nếu cần
+    // Ví dụ: await supabase.storage.from('documents').remove([document.storagePath]);
+
+    // Xóa khỏi CSDL
+    await Document.findByIdAndDelete(documentId);
+
+    // Cập nhật lại task, xóa documentId khỏi mảng
+    await KanbanTask.findByIdAndUpdate(taskId, { $pull: { documents: documentId } });
+
+    res.json({ message: 'Xóa tài liệu thành công.' });
+
+  } catch (error) {
+    console.error('Error deleting task document:', error);
+    res.status(500).json({ message: 'Lỗi server khi xóa tài liệu.' });
+  }
+};
+
 // Cập nhật trạng thái pin của task
 exports.toggleTaskPin = async (req, res) => {
   try {
@@ -939,7 +1013,8 @@ exports.toggleTaskPin = async (req, res) => {
     // Populate thông tin
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
-      .populate('created_by', 'name email avatar');
+      .populate('created_by', 'name email avatar')
+      .populate('documents'); // THÊM DÒNG NÀY
 
     // Emit socket event
     if (req.io) {

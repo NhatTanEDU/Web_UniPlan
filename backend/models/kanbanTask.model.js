@@ -53,7 +53,12 @@ const kanbanTaskSchema = new mongoose.Schema({
   is_pinned: { // Task có được ghim lên đầu cột không
     type: Boolean,
     default: false
-  }
+  },
+  // THÊM TRƯỜNG MỚI: Danh sách tài liệu đính kèm
+  documents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Document'
+  }]
 }, {
   timestamps: true
 });

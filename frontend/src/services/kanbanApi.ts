@@ -1,6 +1,23 @@
 import { baseApi } from './baseApi';
 
 // Interfaces for Kanban
+export interface Document {
+  _id: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  taskId?: string;
+  projectId?: string;
+  teamId?: string;
+  uploadedAt: string;
+}
+
 export interface KanbanTask {
   _id?: string;
   kanban_id: string;
@@ -17,6 +34,7 @@ export interface KanbanTask {
   order?: number;
   created_by?: string;
   tags?: string[];
+  documents?: Document[]; // THÊM TRƯỜNG NÀY
   documentCount?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -249,6 +267,17 @@ export const kanbanApi = {
     }
     
     return null;
+  },
+
+  // Lấy tài liệu cho một task
+  getTaskDocuments: async (taskId: string): Promise<Document[]> => {
+    const response = await baseApi.get(`/kanban-tasks/${taskId}/documents`);
+    return response.data;
+  },
+
+  // Xóa một tài liệu khỏi task
+  deleteTaskDocument: async (taskId: string, documentId: string): Promise<void> => {
+    await baseApi.delete(`/kanban-tasks/${taskId}/documents/${documentId}`);
   }
 };
 

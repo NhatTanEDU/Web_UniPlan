@@ -6,13 +6,12 @@ import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
 import TopButton from "../../../TopButton";
 import Breadcrumb from "../../Breadcrumb";
-import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle } from "lucide-react";
+import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle, Paperclip, FileText, Trash2 } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
-import { kanbanApi, KanbanTask, ProjectMember } from "../../../../services/kanbanApi";
+import { kanbanApi, KanbanTask, ProjectMember, Document as KanbanDocument } from "../../../../services/kanbanApi";
 import { teamMemberApi } from "../../../../services/teamMemberApi";
 import { userPermissionsApi } from "../../../../services/userPermissionsApi";
 import DocumentUpload from "../../../common/DocumentUpload";
-import { Document, getDocumentsByTaskId } from "../../../../services/documentApi";
 import { socket, joinKanbanRoom, leaveKanbanRoom } from "../../../../services/socket";
 
 const STATUS = ["Cần làm", "Đang làm", "Hoàn thành"];
@@ -29,11 +28,14 @@ const Kanban = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
-    // Permission state
+  // Permission state
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
   const [isLoadingPermissions, setIsLoadingPermissions] = useState(true);
   const [permissionsError, setPermissionsError] = useState<string>('');
+  // Document management state
+  const [taskDocuments, setTaskDocuments] = useState<KanbanDocument[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -50,39 +52,9 @@ const Kanban = () => {
 
   // Debug useEffect to monitor currentProject state changes
   useEffect(() => {
-    console.log("🔍 DEBUG: currentProject state changed to:", currentProject);
-  }, [currentProject]);  // Handle document changes
-  const handleDocumentChange = async (documents: Document[], taskId?: string) => {
-    // Update document count for the specific task if taskId is provided
-    if (taskId) {
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task._id === taskId 
-            ? { ...task, documentCount: documents.length }
-            : task
-        )
-      );
-    }
-  };
+    console.log("🔍 DEBUG: currentProject state changed to:", currentProject);  }, [currentProject]);
 
-  // Load document count for tasks
-  const loadDocumentCounts = async (tasks: KanbanTask[]) => {
-    const tasksWithCounts = await Promise.all(
-      tasks.map(async (task) => {
-        try {
-          if (task._id) {
-            const documents = await getDocumentsByTaskId(task._id);
-            return { ...task, documentCount: documents.length };
-          }
-          return task;
-        } catch (error) {
-          console.error(`Failed to load documents for task ${task._id}:`, error);
-          return task;
-        }
-      })
-    );
-    return tasksWithCounts;
-  };
+  // ...existing code...
 
   // Debug useEffect to monitor loading state changes
   useEffect(() => {
@@ -212,12 +184,10 @@ const Kanban = () => {
           // Nếu đã có tasks từ findKanbanByProject, sử dụng luôn
           // Nếu không có (Kanban mới tạo), tasks đã được set = []
           console.log("🔍 DEBUG: [STEP 2] Xử lý tasks, số lượng hiện tại:", tasks.length);
-          
-          if (tasks.length > 0) {
+            if (tasks.length > 0) {
             console.log("✅ DEBUG: Sử dụng tasks có sẵn từ API findKanbanByProject");
-            // Load document counts cho các task có sẵn
-            const tasksWithDocumentCounts = await loadDocumentCounts(tasks);
-            setTasks(tasksWithDocumentCounts);
+            // Tasks already have documents populated from backend
+            setTasks(tasks);
           } else {
             console.log("📝 DEBUG: Không có tasks, set tasks = []");
             setTasks([]);
@@ -267,8 +237,7 @@ const Kanban = () => {
   const resetForm = () => {
     console.log("🔍 DEBUG: resetForm called");
     console.log("🔍 DEBUG: Current form state before reset:", form);
-    
-    setForm({
+      setForm({
       title: "",
       description: "",
       start_date: "",
@@ -279,6 +248,8 @@ const Kanban = () => {
       color: "#ffffff",
     });
     setEditingTask(null);
+    setTaskDocuments([]); // Reset documents state
+    setLoadingDocs(false); // Reset loading state
     
     console.log("🔍 DEBUG: Form reset completed, editingTask set to null");
   };
@@ -421,10 +392,10 @@ const Kanban = () => {
       }
     } finally {
       setSaving(false);
-    }
-  };
+    }  };
+  
   // Task management functions
-  const handleEditTask = (task: KanbanTask) => {
+  const handleEditTask = async (task: KanbanTask) => {
     setEditingTask(task);
     
     // Đảm bảo assigned_to được set đúng định dạng (string ID)
@@ -443,6 +414,20 @@ const Kanban = () => {
       color: task.color || "#ffffff",
     });
     setShowForm(true);
+
+    // Tải danh sách tài liệu cho task này
+    if (task._id) {
+      setLoadingDocs(true);
+      try {
+        const documents = await kanbanApi.getTaskDocuments(task._id);
+        setTaskDocuments(documents);
+      } catch (error) {
+        console.error("Lỗi khi tải tài liệu của task:", error);
+        setTaskDocuments([]); // Reset nếu có lỗi
+      } finally {
+        setLoadingDocs(false);
+      }
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -471,8 +456,30 @@ const Kanban = () => {
     } catch (error: any) {
       console.error('Error toggling pin:', error);
       showErrorMessage(error.message || 'Có lỗi xảy ra khi ghim/bỏ ghim công việc');
+    }  };
+  
+  const handleDeleteDocument = async (documentId: string) => {
+    if (!editingTask?._id || !window.confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
+      return;
+    }
+
+    try {
+      await kanbanApi.deleteTaskDocument(editingTask._id, documentId);
+      // Cập nhật lại UI
+      setTaskDocuments(prev => prev.filter(doc => doc._id !== documentId));
+      // Cập nhật lại số lượng document trên task card
+      setTasks(prevTasks => prevTasks.map(t => 
+          t._id === editingTask._id 
+            ? { ...t, documents: t.documents?.filter((doc: any) => doc._id !== documentId) } 
+            : t
+      ));
+      showSuccessMessage('Đã xóa tài liệu.');
+    } catch (error: any) {
+      console.error('Lỗi khi xóa tài liệu:', error);
+      showErrorMessage('Không thể xóa tài liệu.');
     }
   };
+  
   // Drag and Drop Handler
   const handleOnDragEnd = async (result: DropResult) => {
     console.log("🔍 DEBUG: handleOnDragEnd called with result:", result);
@@ -601,7 +608,9 @@ const Kanban = () => {
       console.error('Error updating status:', error);
       showErrorMessage(error.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
     }
-  };const handleCreateNewTask = () => {
+  };
+  
+  const handleCreateNewTask = () => {
     console.log("🔍 DEBUG: handleCreateNewTask called");
     console.log("🔍 DEBUG: showForm before reset:", showForm);
     console.log("🔍 DEBUG: currentProject:", currentProject);
@@ -949,11 +958,45 @@ const Kanban = () => {
                   <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Tài liệu đính kèm
                   </label>
+                  
+                  {/* HIỂN THỊ DANH SÁCH FILE ĐÃ UPLOAD */}
+                  {editingTask && (
+                    <div className="mb-4 space-y-2">
+                      {loadingDocs && <p>Đang tải danh sách tài liệu...</p>}
+                      {!loadingDocs && taskDocuments.map(doc => (
+                        <div key={doc._id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                          <div className="flex items-center gap-2">
+                            <FileText size={16} />
+                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                              {doc.fileName}
+                            </a>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-500">{(doc.fileSize / 1024).toFixed(1)} KB</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteDocument(doc._id)}
+                              className="p-1 text-red-500 hover:bg-red-100 rounded"
+                              title="Xóa tài liệu"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <DocumentUpload
                     taskId={editingTask?._id}
                     projectId={currentProject?._id}
                     teamId={currentProject?.team_id}
-                    onDocumentsUpdate={(docs: Document[]) => handleDocumentChange(docs, editingTask?._id)}
+                    onDocumentsUpdate={async () => {
+                      if (editingTask?._id) {
+                        const documents = await kanbanApi.getTaskDocuments(editingTask._id);
+                        setTaskDocuments(documents);
+                      }
+                    }}
                     className="mt-2"
                   />
                 </div>
@@ -1148,11 +1191,11 @@ const Kanban = () => {
                                         }`}>
                                           {task.priority}
                                         </span>
-                                        
-                                        {/* Document Count */}
-                                        {task.documentCount && task.documentCount > 0 && (
-                                          <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 flex items-center">
-                                            📎 {task.documentCount}
+                                          {/* Document Count - THÊM ĐOẠN NÀY */}
+                                        {task.documents && task.documents.length > 0 && (
+                                          <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                            <Paperclip size={12} />
+                                            {task.documents.length}
                                           </span>
                                         )}
                                       </div>

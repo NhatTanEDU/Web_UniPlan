@@ -20,6 +20,12 @@ router.put('/reorder', auth, kanbanTaskController.updateTaskOrder);
 // Toggle pin/unpin task
 router.put('/:id/pin', auth, kanbanTaskController.toggleTaskPin);
 
+// Lấy danh sách tài liệu của một task
+router.get('/:taskId/documents', auth, kanbanTaskController.getTaskDocuments);
+
+// Xóa tài liệu khỏi task
+router.delete('/:taskId/documents/:documentId', auth, kanbanTaskController.deleteTaskDocument);
+
 // Cập nhật vị trí task đơn lẻ
 router.put('/:id/order', auth, kanbanTaskController.updateTaskOrder);
 
