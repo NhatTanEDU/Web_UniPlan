@@ -91,13 +91,15 @@ exports.toggleTaskPin = async (req, res) => {
     // Populate task info
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
-      .populate('created_by', 'name email avatar');
+      .populate('created_by', 'name email avatar')
+      .populate('documents');
 
     // Emit socket event với toàn bộ danh sách task
     if (req.io) {
       const allTasksInKanban = await KanbanTask.find({ kanban_id: task.kanban_id })
         .populate('assigned_to', 'name email avatar')
         .populate('created_by', 'name email avatar')
+        .populate('documents') // <-- **THÊM DÒNG NÀY**
         .sort({ is_pinned: -1, order: 1 });
 
       req.io.to(task.kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
@@ -335,13 +337,15 @@ exports.createTask = async (req, res) => {
     // Populate thông tin assigned_to và created_by
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
-      .populate('created_by', 'name email avatar');
+      .populate('created_by', 'name email avatar')
+      .populate('documents'); // THÊM DÒNG NÀY
 
     // Emit socket event với toàn bộ danh sách task
     if (req.io) {
       const allTasksInKanban = await KanbanTask.find({ kanban_id })
         .populate('assigned_to', 'name email avatar')
         .populate('created_by', 'name email avatar')
+        .populate('documents') // <-- **THÊM DÒNG NÀY**
         .sort({ is_pinned: -1, order: 1 });
 
       req.io.to(kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
@@ -593,6 +597,7 @@ exports.deleteTask = async (req, res) => {
       const allTasksInKanban = await KanbanTask.find({ kanban_id: kanbanId })
         .populate('assigned_to', 'name email avatar')
         .populate('created_by', 'name email avatar')
+        .populate('documents') // <-- **THÊM DÒNG NÀY**
         .sort({ is_pinned: -1, order: 1 });
 
       req.io.to(kanbanId.toString()).emit('kanban:updated', allTasksInKanban);
@@ -660,6 +665,7 @@ exports.updateTaskOrder = async (req, res) => {
         const allTasksInKanban = await KanbanTask.find({ kanban_id: kanbanId })
           .populate('assigned_to', 'name email avatar')
           .populate('created_by', 'name email avatar')
+          .populate('documents') // <-- **THÊM DÒNG NÀY**
           .sort({ is_pinned: -1, order: 1 });
 
         // Phát sự kiện đi với dữ liệu đầy đủ
@@ -722,6 +728,7 @@ exports.updateTaskOrder = async (req, res) => {
       const allTasksInKanban = await KanbanTask.find({ kanban_id: task.kanban_id })
         .populate('assigned_to', 'name email avatar')
         .populate('created_by', 'name email avatar')
+        .populate('documents') // <-- **THÊM DÒNG NÀY**
         .sort({ is_pinned: -1, order: 1 });
 
       req.io.to(task.kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
@@ -730,7 +737,8 @@ exports.updateTaskOrder = async (req, res) => {
     // Populate thông tin cho response
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
-      .populate('created_by', 'name email avatar');
+      .populate('created_by', 'name email avatar')
+      .populate('documents'); // THÊM DÒNG NÀY
 
     res.json(populatedTask);
   } catch (error) {

@@ -131,6 +131,7 @@ exports.getKanban = async (req, res) => {
       .populate('created_by', 'name email')
       .populate('assigned_to', 'name email')
       .populate('tags', 'name color')
+      .populate('documents')
       .sort('order');
 
     console.log('Found tasks:', tasks);
@@ -347,7 +348,8 @@ exports.findKanbanByProject = async (req, res) => {
       .populate('created_by', 'name email')
       .populate('assigned_to', 'name email')
       .populate('tags', 'name color')
-      .sort('order');
+      .populate('documents') // <-- **THÊM DÒNG NÀY**
+      .sort({ is_pinned: -1, order: 1 }); // Dùng cách sort mới cho nhất quán
 
     console.log(`${reqId} [SUCCESS] Tìm thấy Kanban với ID: ${kanban._id}, có ${tasks.length} tasks`);
     
@@ -422,6 +424,7 @@ exports.getKanbanByProjectId = async (req, res) => {
       .populate('created_by', 'name email')
       .populate('assigned_to', 'name email')
       .populate('tags', 'name color')
+      .populate('documents')
       .sort('order');
 
     console.log(`${reqId} [FINAL] Đã tìm thấy Kanban với ${tasks.length} tasks`);
