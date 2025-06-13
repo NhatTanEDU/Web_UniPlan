@@ -1,6 +1,22 @@
 const TeamMember = require('../models/teamMember.model');
 const Team = require('../models/team.model');
 const User = require('../models/user.model');
+const Project = require('../models/project.model');
+const ProjectMember = require('../models/projectMember.model');
+
+// Helper function để map vai trò (nên đặt ở đầu file hoặc file helper riêng)
+function mapTeamRoleToProjectRole(teamRole) {
+    switch (teamRole) {
+        case 'Admin':
+            return 'Quản trị viên';
+        case 'Editor':
+            return 'Biên tập viên';
+        case 'Member':
+            return 'Người xem';
+        default:
+            return 'Người xem';
+    }
+}
 
 // Thêm thành viên vào nhóm
 exports.addMember = async (req, res) => {
@@ -118,7 +134,48 @@ exports.updateMemberRole = async (req, res) => {
     }
 
     member.role = role;
-    await member.save();    const updatedMember = await TeamMember.findById(member._id)
+    await member.save();
+
+    // =================================================================
+    // ===== BẮT ĐẦU ĐOẠN CODE ĐỒNG BỘ HÓA VAI TRÒ (THÊM VÀO ĐÂY) =====
+    // =================================================================
+    try {
+        console.log(`[SYNC] Bắt đầu đồng bộ vai trò cho user: ${member.user_id} trong team: ${member.team_id}`);
+        
+        // 1. Tìm tất cả các dự án thuộc về team này
+        const projectsInTeam = await Project.find({ team_id: member.team_id, is_deleted: false });
+
+        if (projectsInTeam.length > 0) {
+            const projectIds = projectsInTeam.map(p => p._id);
+            const newProjectRole = mapTeamRoleToProjectRole(member.role);
+
+            console.log(`[SYNC] Team có ${projectsInTeam.length} dự án. Đang cập nhật vai trò thành "${newProjectRole}".`);
+
+            // 2. Cập nhật vai trò của user này trong tất cả các ProjectMember tương ứng
+            const updateResult = await ProjectMember.updateMany(
+                { 
+                    project_id: { $in: projectIds }, 
+                    user_id: member.user_id 
+                },
+                { 
+                    $set: { role_in_project: newProjectRole } 
+                }
+            );
+
+            console.log(`[SYNC] Đã cập nhật ${updateResult.modifiedCount} bản ghi ProjectMember.`);
+        } else {
+            console.log(`[SYNC] Team không có dự án nào để đồng bộ.`);
+        }
+
+    } catch (syncError) {
+        // Ghi lại lỗi đồng bộ nhưng không làm request chính thất bại
+        console.error('LỖI ĐỒNG BỘ VAI TRÒ:', syncError);
+    }
+    // =================================================================
+    // ===== KẾT THÚC ĐOẠN CODE ĐỒNG BỘ HÓA VAI TRÒ                  =====
+    // =================================================================
+
+    const updatedMember = await TeamMember.findById(member._id)
       .populate('user_id', 'full_name email avatar_url');
 
     res.json({
@@ -530,7 +587,48 @@ exports.updateTeamMemberRole = async (req, res) => {
 
     // Cập nhật vai trò
     member.role = role;
-    await member.save();    const updatedMember = await TeamMember.findById(member._id)
+    await member.save();
+
+    // =================================================================
+    // ===== BẮT ĐẦU ĐOẠN CODE ĐỒNG BỘ HÓA VAI TRÒ (THÊM VÀO ĐÂY) =====
+    // =================================================================
+    try {
+        console.log(`[SYNC] Bắt đầu đồng bộ vai trò cho user: ${member.user_id._id} trong team: ${member.team_id}`);
+        
+        // 1. Tìm tất cả các dự án thuộc về team này
+        const projectsInTeam = await Project.find({ team_id: member.team_id, is_deleted: false });
+
+        if (projectsInTeam.length > 0) {
+            const projectIds = projectsInTeam.map(p => p._id);
+            const newProjectRole = mapTeamRoleToProjectRole(member.role);
+
+            console.log(`[SYNC] Team có ${projectsInTeam.length} dự án. Đang cập nhật vai trò thành "${newProjectRole}".`);
+
+            // 2. Cập nhật vai trò của user này trong tất cả các ProjectMember tương ứng
+            const updateResult = await ProjectMember.updateMany(
+                { 
+                    project_id: { $in: projectIds }, 
+                    user_id: member.user_id._id 
+                },
+                { 
+                    $set: { role_in_project: newProjectRole } 
+                }
+            );
+
+            console.log(`[SYNC] Đã cập nhật ${updateResult.modifiedCount} bản ghi ProjectMember.`);
+        } else {
+            console.log(`[SYNC] Team không có dự án nào để đồng bộ.`);
+        }
+
+    } catch (syncError) {
+        // Ghi lại lỗi đồng bộ nhưng không làm request chính thất bại
+        console.error('LỖI ĐỒNG BỘ VAI TRÒ:', syncError);
+    }
+    // =================================================================
+    // ===== KẾT THÚC ĐOẠN CODE ĐỒNG BỘ HÓA VAI TRÒ                  =====
+    // =================================================================
+
+    const updatedMember = await TeamMember.findById(member._id)
       .populate('user_id', 'full_name email avatar_url');    console.log('✅ [DEBUG] Member role updated successfully:', {
       memberId,
       oldRole: member.role,
