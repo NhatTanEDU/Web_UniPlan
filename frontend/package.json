@@ -35,6 +35,7 @@
         "chart.js": "^4.4.8",
         "cors": "^2.8.5",
         "date-fns": "^4.1.0",
+        "dhtmlx-gantt": "^9.0.11",
         "dotenv": "^16.4.7",
         "express": "^5.1.0",
         "framer-motion": "^12.9.4",

@@ -27,6 +27,24 @@ router.put('/projects/:projectId', auth, projectController.updateProject);
 // API: Đồng bộ hóa team members sang project members thủ công
 router.post('/projects/:projectId/sync-team-members', auth, projectController.manualSyncTeamMembers);
 
+// API: Lấy dữ liệu tasks cho Gantt Chart của một dự án
+router.get('/projects/:projectId/gantt-tasks', auth, projectController.getGanttTasksForProject);
+
+// API: Cập nhật task từ Gantt Chart
+router.put('/projects/:projectId/gantt-tasks/:taskId', auth, projectController.updateGanttTask);
+
+// API: Lấy dependencies cho Gantt Chart
+router.get('/projects/:projectId/gantt-dependencies', auth, projectController.getGanttDependencies);
+
+// API: Tạo dependency mới
+router.post('/projects/:projectId/gantt-dependencies', auth, projectController.createGanttDependency);
+
+// API: Xóa dependency
+router.delete('/projects/:projectId/gantt-dependencies/:dependencyId', auth, projectController.deleteGanttDependency);
+
+// API: Tự động sắp xếp lịch trình dựa trên dependencies
+router.post('/projects/:projectId/gantt-auto-schedule', auth, projectController.autoScheduleGanttTasks);
+
 // Xóa mềm dự án
 router.delete('/projects/:id', auth, projectController.softDeleteProject);
 

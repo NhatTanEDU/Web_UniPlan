@@ -8,7 +8,8 @@ import Breadcrumb from "../components/After/Breadcrumb";
 import WidgetIntroduce from "../components/widget/introduce";
 import WidgetSchedule from "../components/widget/schedule";
 import WidgetCustomize from "../components/widget/customize";
-import { useParams, useNavigate } from 'react-router-dom'; // Import useParams và useNavigate
+import GanttTab from "../components/After/tab/gantt/GanttTab";
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'; // Import useSearchParams
 
 // Định nghĩa kiểu cho các widget có sẵn
 type AvailableWidgets = {
@@ -81,8 +82,16 @@ interface User {
 const DashboardAfter: React.FC = () => {
     const [widgets, setWidgets] = useState<WidgetItem[]>([]);
     const { userId } = useParams<{ userId: string }>(); // Lấy userId từ URL
+    const [searchParams] = useSearchParams(); // Lấy search params
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const navigate = useNavigate();
+
+    // Lấy thông tin breadcrumb từ URL params
+    const currentView = searchParams.get('view'); // gantt, projects, documents, etc.
+    const projectId = searchParams.get('projectId');
+
+    console.log('📊 [Dashboard_After] Current view:', currentView);
+    console.log('📊 [Dashboard_After] Project ID:', projectId);
 
     useEffect(() => {
         // Kiểm tra xem có userId trên URL hay không
@@ -165,34 +174,45 @@ const DashboardAfter: React.FC = () => {
                 {/* Content chính co giãn responsive */}
                 <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                     {/* Breadcrumb dưới header */}
-                    <Breadcrumb items={["Dashboard"]} />
+                    <Breadcrumb items={
+                        currentView === 'gantt' ? 
+                        ["Dashboard", "Dự án", "Biểu đồ Gantt"] : 
+                        ["Dashboard"]
+                    } />
                     
                     {/* Nội dung chính co giãn */}
                     <main className="flex-1 overflow-y-auto p-4">
-                        <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                            Chào mừng đến Dashboard
-                        </h1>
-                        <DragDropContext onDragEnd={handleDragEnd}>
-                            {/* Grid responsive tự điều chỉnh */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 auto-rows-max">
-                                {widgets.map((widget) => (
-                                    <div
-                                        key={widget.id}
-                                        className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 h-fit"
-                                        data-drag-id={widget.id}
-                                    >
-                                        {widget.component}
-                                    </div>
-                                ))}
+                        {/* Conditional rendering based on view */}
+                        {currentView === 'gantt' ? (
+                            <GanttTab />
+                        ) : (
+                            <>
+                                <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                                    Chào mừng đến Dashboard
+                                </h1>
+                                <DragDropContext onDragEnd={handleDragEnd}>
+                                    {/* Grid responsive tự điều chỉnh */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 auto-rows-max">
+                                        {widgets.map((widget) => (
+                                            <div
+                                                key={widget.id}
+                                                className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 h-fit"
+                                                data-drag-id={widget.id}
+                                            >
+                                                {widget.component}
+                                            </div>
+                                        ))}
 
-                                {/* Placeholder cho widget mới */}
-                                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center min-h-[150px] h-fit">
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
-                                        Kéo widget vào đây hoặc thêm từ Widget Tùy chỉnh
-                                    </p>
-                                </div>
-                            </div>
-                        </DragDropContext>
+                                        {/* Placeholder cho widget mới */}
+                                        <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center min-h-[150px] h-fit">
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm text-center">
+                                                Kéo widget vào đây hoặc thêm từ Widget Tùy chỉnh
+                                            </p>
+                                        </div>
+                                    </div>
+                                </DragDropContext>
+                            </>
+                        )}
                     </main>
                 </div>
             </div>

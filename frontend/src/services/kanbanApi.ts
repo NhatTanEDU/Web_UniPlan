@@ -278,6 +278,17 @@ export const kanbanApi = {
   // Xóa một tài liệu khỏi task
   deleteTaskDocument: async (taskId: string, documentId: string): Promise<void> => {
     await baseApi.delete(`/kanban-tasks/${taskId}/documents/${documentId}`);
+  },
+
+  // Cập nhật task từ Gantt Chart (Phase 2 implementation)
+  updateTaskFromGantt: async (projectId: string, taskId: string, data: {
+    text?: string;
+    start_date?: string;
+    end_date?: string;
+    progress?: number;
+  }): Promise<KanbanTask> => {
+    const response = await baseApi.put(`/projects/${projectId}/gantt-tasks/${taskId}`, data);
+    return response.data.task;
   }
 };
 

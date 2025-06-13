@@ -1079,3 +1079,845 @@ exports.manualSyncTeamMembers = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };
+
+// ==== GANTT CHART METHODS ====
+
+// Lấy dữ liệu tasks cho Gantt Chart của một dự án cụ thể
+exports.getGanttTasksForProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user.userId || req.user._id || req.user.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Không thể xác định người dùng' });
+    }
+
+    // 1. Kiểm tra quyền truy cập dự án của người dùng
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án.' });
+    }
+
+    const isOwner = project.created_by.toString() === userId.toString();
+    const ProjectMember = require('../models/projectMember.model');
+    const member = await ProjectMember.findOne({ 
+      project_id: projectId, 
+      user_id: userId, 
+      is_active: true 
+    });
+
+    if (!isOwner && !member) {
+      // Kiểm tra quyền thông qua team nếu project thuộc về team
+      if (project.team_id) {
+        const TeamMember = require('../models/teamMember.model');
+        const teamMember = await TeamMember.findOne({
+          team_id: project.team_id,
+          user_id: userId,
+          is_active: true
+        });
+        
+        if (!teamMember) {
+          return res.status(403).json({ message: 'Bạn không có quyền xem dự án này.' });
+        }
+      } else {
+        return res.status(403).json({ message: 'Bạn không có quyền xem dự án này.' });
+      }
+    }
+
+    // 2. Tìm Kanban board của dự án này
+    const Kanban = require('../models/kanban.model');
+    const kanban = await Kanban.findOne({ project_id: projectId });
+    
+    if (!kanban) {
+      return res.json({ 
+        data: [], 
+        links: [],
+        project: {
+          _id: project._id,
+          project_name: project.project_name,
+          start_date: project.start_date,
+          end_date: project.end_date
+        }
+      });
+    }
+
+    // 3. Lấy tất cả các Task thuộc Kanban của dự án này
+    const KanbanTask = require('../models/kanbanTask.model');
+    const tasks = await KanbanTask.find({ kanban_id: kanban._id })
+                                   .populate('assigned_to', 'full_name name')
+                                   .populate('created_by', 'full_name name');
+
+    // 4. Chuyển đổi dữ liệu sang định dạng mà thư viện Gantt Chart yêu cầu
+    const ganttData = tasks.map(task => {
+      let progress = 0;
+      switch (task.status) {
+        case 'Đang làm':
+          progress = 0.5; // 50%
+          break;
+        case 'Hoàn thành':
+          progress = 1; // 100%
+          break;
+        case 'Cần làm':
+        default:
+          progress = 0; // 0%
+          break;
+      }
+
+      // Đảm bảo có ngày bắt đầu và kết thúc
+      const startDate = task.start_date || project.start_date || new Date();
+      const endDate = task.due_date || project.end_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 ngày
+
+      return {
+        id: task._id.toString(),
+        text: task.title,
+        start_date: startDate,
+        end_date: endDate,
+        progress: progress,
+        status: task.status,
+        priority: task.priority,
+        assignee: task.assigned_to ? (task.assigned_to.full_name || task.assigned_to.name) : 'Chưa giao',
+        created_by: task.created_by ? (task.created_by.full_name || task.created_by.name) : 'Unknown',
+        color: task.color || '#ffffff',
+        is_pinned: task.is_pinned || false,
+        description: task.description || ''
+      };
+    });
+
+    // 5. Lấy dependencies cho Gantt Chart
+    const TaskDependency = require('../models/taskDependency.model');
+    const dependencies = await TaskDependency.find({
+      project_id: projectId,
+      is_active: true
+    });
+
+    const ganttLinks = dependencies.map(dep => ({
+      id: dep._id.toString(),
+      source: dep.source_task_id.toString(),
+      target: dep.target_task_id.toString(),
+      type: getDependencyTypeNumber(dep.dependency_type),
+      lag: dep.lag_days || 0
+    }));
+
+    res.status(200).json({
+      data: ganttData,
+      links: ganttLinks, // Giai đoạn 3: Trả về dependencies
+      project: {
+        _id: project._id,
+        project_name: project.project_name,
+        start_date: project.start_date,
+        end_date: project.end_date
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching Gantt tasks:', error);
+    res.status(500).json({ 
+      message: 'Lỗi server khi lấy dữ liệu Gantt.',
+      error: error.message 
+    });
+  }
+};
+
+// API: Cập nhật task từ Gantt Chart
+exports.updateGanttTask = async (req, res) => {
+  try {
+    console.log('Update Gantt Task request:', req.params, req.body);
+    
+    const { projectId, taskId } = req.params;
+    const { 
+      text, 
+      start_date, 
+      end_date, 
+      progress, 
+      status,
+      priority,
+      assignee 
+    } = req.body;
+    
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Không thể xác định người dùng' });
+    }
+
+    // 1. Kiểm tra quyền truy cập project
+    const Project = require('../models/project.model');
+    const project = await Project.findById(projectId);
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+
+    // Kiểm tra quyền sửa đổi
+    const isOwner = project.created_by.toString() === userId.toString();
+    
+    let hasEditPermission = isOwner;
+    
+    if (!hasEditPermission) {
+      const ProjectMember = require('../models/projectMember.model');
+      const member = await ProjectMember.findOne({ 
+        project_id: projectId, 
+        user_id: userId, 
+        is_active: true 
+      });
+      
+      // Chỉ Admin và Editor mới có quyền chỉnh sửa từ Gantt
+      if (member && ['Quản trị viên', 'Biên tập viên'].includes(member.role_in_project)) {
+        hasEditPermission = true;
+      }
+      
+      // Kiểm tra quyền thông qua team nếu cần
+      if (!hasEditPermission && project.team_id) {
+        const TeamMember = require('../models/teamMember.model');
+        const teamMember = await TeamMember.findOne({
+          team_id: project.team_id,
+          user_id: userId,
+          is_active: true
+        });
+        
+        if (teamMember && ['admin', 'editor'].includes(teamMember.role.toLowerCase())) {
+          hasEditPermission = true;
+        }
+      }
+    }
+    
+    if (!hasEditPermission) {
+      return res.status(403).json({ 
+        message: 'Bạn không có quyền chỉnh sửa task này. Chỉ Admin và Editor mới có quyền chỉnh sửa từ Gantt Chart.' 
+      });
+    }
+
+    // 2. Tìm và cập nhật task
+    const KanbanTask = require('../models/kanbanTask.model');
+    const task = await KanbanTask.findById(taskId);
+    
+    if (!task) {
+      return res.status(404).json({ message: 'Không tìm thấy công việc' });
+    }
+
+    // 3. Validation dữ liệu
+    if (start_date && end_date) {
+      const startDate = new Date(start_date);
+      const endDate = new Date(end_date);
+      
+      if (startDate > endDate) {
+        return res.status(400).json({ 
+          message: 'Ngày bắt đầu không thể sau ngày kết thúc' 
+        });
+      }
+      
+      // Kiểm tra với ngày dự án
+      if (project.start_date && startDate < new Date(project.start_date)) {
+        return res.status(400).json({ 
+          message: 'Ngày bắt đầu công việc không thể trước ngày bắt đầu dự án' 
+        });
+      }
+      
+      if (project.end_date && endDate > new Date(project.end_date)) {
+        return res.status(400).json({ 
+          message: 'Ngày kết thúc công việc không thể sau ngày kết thúc dự án' 
+        });
+      }
+    }
+
+    // 4. Chuyển đổi progress thành status
+    let newStatus = task.status;
+    if (progress !== undefined) {
+      if (progress === 0) {
+        newStatus = 'Cần làm';
+      } else if (progress > 0 && progress < 1) {
+        newStatus = 'Đang làm';
+      } else if (progress === 1) {
+        newStatus = 'Hoàn thành';
+      }
+    }
+    
+    // Override status nếu được cung cấp trực tiếp
+    if (status) {
+      newStatus = status;
+    }
+
+    // 5. Cập nhật task
+    const updateData = {};
+    if (text) updateData.title = text;
+    if (start_date) updateData.start_date = new Date(start_date);
+    if (end_date) updateData.due_date = new Date(end_date);
+    if (newStatus) updateData.status = newStatus;
+    if (priority) updateData.priority = priority;
+    if (assignee) {
+      // Tìm user bằng tên để lấy ID
+      const User = require('../models/user.model');
+      const assignedUser = await User.findOne({
+        $or: [
+          { name: assignee },
+          { full_name: assignee }
+        ]
+      });
+      if (assignedUser) {
+        updateData.assigned_to = assignedUser._id;
+      }
+    }
+
+    Object.assign(task, updateData);
+    await task.save();
+
+    // 6. Populate task để trả về thông tin đầy đủ
+    const populatedTask = await KanbanTask.findById(task._id)
+      .populate('assigned_to', 'name email avatar')
+      .populate('created_by', 'name email avatar')
+      .populate('documents');
+
+    // 7. Emit socket event để đồng bộ với Kanban board
+    if (req.io) {
+      const Kanban = require('../models/kanban.model');
+      const kanban = await Kanban.findOne({ project_id: projectId });
+      
+      if (kanban) {
+        // Lấy tất cả tasks để emit
+        const allTasks = await KanbanTask.find({ kanban_id: kanban._id })
+          .populate('assigned_to', 'name email avatar')
+          .populate('created_by', 'name email avatar')
+          .populate('documents')
+          .sort({ is_pinned: -1, order: 1 });
+
+        req.io.to(kanban._id.toString()).emit('kanban:updated', allTasks);
+        req.io.to(projectId.toString()).emit('gantt:task_updated', populatedTask);
+      }
+    }
+
+    console.log('✅ Task updated from Gantt Chart:', populatedTask.title);
+    res.json({
+      message: 'Cập nhật công việc thành công từ Gantt Chart',
+      task: populatedTask
+    });
+
+  } catch (error) {
+    console.error('Error updating Gantt task:', error);
+    res.status(500).json({ 
+      message: 'Lỗi server khi cập nhật công việc', 
+      error: error.message 
+    });
+  }
+};
+
+// ==== GANTT DEPENDENCIES METHODS ====
+
+// Lấy danh sách dependencies cho một dự án
+exports.getGanttDependencies = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Không thể xác định người dùng' });
+    }
+
+    // Kiểm tra quyền truy cập project
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+
+    // Kiểm tra quyền (tương tự như getGanttTasksForProject)
+    const isOwner = project.created_by.toString() === userId.toString();
+    const ProjectMember = require('../models/projectMember.model');
+    const member = await ProjectMember.findOne({ 
+      project_id: projectId, 
+      user_id: userId, 
+      is_active: true 
+    });
+
+    if (!isOwner && !member) {
+      if (project.team_id) {
+        const TeamMember = require('../models/teamMember.model');
+        const teamMember = await TeamMember.findOne({
+          team_id: project.team_id,
+          user_id: userId,
+          is_active: true
+        });
+        
+        if (!teamMember) {
+          return res.status(403).json({ message: 'Bạn không có quyền xem dự án này.' });
+        }
+      } else {
+        return res.status(403).json({ message: 'Bạn không có quyền xem dự án này.' });
+      }
+    }
+
+    // Lấy dependencies
+    const TaskDependency = require('../models/taskDependency.model');
+    const dependencies = await TaskDependency.find({
+      project_id: projectId,
+      is_active: true
+    })
+    .populate('source_task_id', '_id title')
+    .populate('target_task_id', '_id title');
+
+    // Chuyển đổi sang format cho dhtmlx-gantt
+    const ganttLinks = dependencies.map(dep => ({
+      id: dep._id.toString(),
+      source: dep.source_task_id._id.toString(),
+      target: dep.target_task_id._id.toString(),
+      type: getDependencyTypeNumber(dep.dependency_type),
+      lag: dep.lag_days
+    }));
+
+    res.json({
+      links: ganttLinks,
+      total: ganttLinks.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching Gantt dependencies:', error);
+    res.status(500).json({ 
+      message: 'Lỗi server khi lấy dependencies', 
+      error: error.message 
+    });
+  }
+};
+
+// Tạo dependency mới
+exports.createGanttDependency = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { source, target, type, lag } = req.body;
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Không thể xác định người dùng' });
+    }
+
+    // Kiểm tra quyền sửa đổi (tương tự updateGanttTask)
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+
+    const isOwner = project.created_by.toString() === userId.toString();
+    let hasEditPermission = isOwner;
+    
+    if (!hasEditPermission) {
+      const ProjectMember = require('../models/projectMember.model');
+      const member = await ProjectMember.findOne({ 
+        project_id: projectId, 
+        user_id: userId, 
+        is_active: true 
+      });
+      
+      if (member && ['Quản trị viên', 'Biên tập viên'].includes(member.role_in_project)) {
+        hasEditPermission = true;
+      }
+      
+      if (!hasEditPermission && project.team_id) {
+        const TeamMember = require('../models/teamMember.model');
+        const teamMember = await TeamMember.findOne({
+          team_id: project.team_id,
+          user_id: userId,
+          is_active: true
+        });
+        
+        if (teamMember && ['admin', 'editor'].includes(teamMember.role.toLowerCase())) {
+          hasEditPermission = true;
+        }
+      }
+    }
+    
+    if (!hasEditPermission) {
+      return res.status(403).json({ 
+        message: 'Bạn không có quyền tạo dependency' 
+      });
+    }
+
+    // Validation
+    if (!source || !target) {
+      return res.status(400).json({ 
+        message: 'Source và target task là bắt buộc' 
+      });
+    }
+
+    if (source === target) {
+      return res.status(400).json({ 
+        message: 'Task không thể phụ thuộc vào chính nó' 
+      });
+    }
+
+    // Kiểm tra tasks tồn tại
+    const KanbanTask = require('../models/kanbanTask.model');
+    const sourceTask = await KanbanTask.findById(source);
+    const targetTask = await KanbanTask.findById(target);
+    
+    if (!sourceTask || !targetTask) {
+      return res.status(404).json({ 
+        message: 'Không tìm thấy task' 
+      });
+    }
+
+    // Kiểm tra circular dependency
+    const TaskDependency = require('../models/taskDependency.model');
+    const existingPath = await checkCircularDependency(source, target, projectId);
+    if (existingPath) {
+      return res.status(400).json({ 
+        message: 'Tạo dependency này sẽ gây ra vòng lặp phụ thuộc' 
+      });
+    }
+
+    // Tạo dependency
+    const dependency = new TaskDependency({
+      project_id: projectId,
+      source_task_id: source,
+      target_task_id: target,
+      dependency_type: getDependencyTypeString(type) || 'finish-to-start',
+      lag_days: lag || 0,
+      created_by: userId
+    });
+
+    await dependency.save();
+
+    // Populate để trả về
+    const populatedDep = await TaskDependency.findById(dependency._id)
+      .populate('source_task_id', '_id title')
+      .populate('target_task_id', '_id title');
+
+    // Emit socket event
+    if (req.io) {
+      req.io.to(projectId.toString()).emit('gantt:dependency_created', {
+        id: populatedDep._id.toString(),
+        source: populatedDep.source_task_id._id.toString(),
+        target: populatedDep.target_task_id._id.toString(),
+        type: getDependencyTypeNumber(populatedDep.dependency_type)
+      });
+    }
+
+    res.status(201).json({
+      message: 'Tạo dependency thành công',
+      dependency: {
+        id: populatedDep._id.toString(),
+        source: populatedDep.source_task_id._id.toString(),
+        target: populatedDep.target_task_id._id.toString(),
+        type: getDependencyTypeNumber(populatedDep.dependency_type),
+        lag: populatedDep.lag_days
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating Gantt dependency:', error);
+    res.status(500).json({ 
+      message: 'Lỗi server khi tạo dependency', 
+      error: error.message 
+    });
+  }
+};
+
+// Xóa dependency
+exports.deleteGanttDependency = async (req, res) => {
+  try {
+    const { projectId, dependencyId } = req.params;
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Không thể xác định người dùng' });
+    }
+
+    // Kiểm tra quyền (tương tự createGanttDependency)
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+
+    const isOwner = project.created_by.toString() === userId.toString();
+    let hasEditPermission = isOwner;
+    
+    if (!hasEditPermission) {
+      const ProjectMember = require('../models/projectMember.model');
+      const member = await ProjectMember.findOne({ 
+        project_id: projectId, 
+        user_id: userId, 
+        is_active: true 
+      });
+      
+      if (member && ['Quản trị viên', 'Biên tập viên'].includes(member.role_in_project)) {
+        hasEditPermission = true;
+      }
+      
+      if (!hasEditPermission && project.team_id) {
+        const TeamMember = require('../models/teamMember.model');
+        const teamMember = await TeamMember.findOne({
+          team_id: project.team_id,
+          user_id: userId,
+          is_active: true
+        });
+        
+        if (teamMember && ['admin', 'editor'].includes(teamMember.role.toLowerCase())) {
+          hasEditPermission = true;
+        }
+      }
+    }
+    
+    if (!hasEditPermission) {
+      return res.status(403).json({ 
+        message: 'Bạn không có quyền xóa dependency' 
+      });
+    }
+
+    // Tìm và xóa dependency
+    const TaskDependency = require('../models/taskDependency.model');
+    const dependency = await TaskDependency.findOne({
+      _id: dependencyId,
+      project_id: projectId,
+      is_active: true
+    });
+
+    if (!dependency) {
+      return res.status(404).json({ 
+        message: 'Không tìm thấy dependency' 
+      });
+    }
+
+    dependency.is_active = false;
+    await dependency.save();
+
+    // Emit socket event
+    if (req.io) {
+      req.io.to(projectId.toString()).emit('gantt:dependency_deleted', {
+        id: dependencyId
+      });
+    }
+
+    res.json({
+      message: 'Xóa dependency thành công'
+    });
+
+  } catch (error) {
+    console.error('Error deleting Gantt dependency:', error);
+    res.status(500).json({ 
+      message: 'Lỗi server khi xóa dependency', 
+      error: error.message 
+    });
+  }
+};
+
+// Helper functions
+function getDependencyTypeNumber(typeString) {
+  const typeMap = {
+    'finish-to-start': 0,
+    'start-to-start': 1,
+    'finish-to-finish': 2,
+    'start-to-finish': 3
+  };
+  return typeMap[typeString] || 0;
+}
+
+function getDependencyTypeString(typeNumber) {
+  const typeMap = {
+    0: 'finish-to-start',
+    1: 'start-to-start',
+    2: 'finish-to-finish',
+    3: 'start-to-finish'
+  };
+  return typeMap[typeNumber] || 'finish-to-start';
+}
+
+// Kiểm tra circular dependency
+async function checkCircularDependency(sourceId, targetId, projectId) {
+  const TaskDependency = require('../models/taskDependency.model');
+  
+  // BFS để tìm đường từ target về source
+  const visited = new Set();
+  const queue = [targetId];
+  
+  while (queue.length > 0) {
+    const currentId = queue.shift();
+    
+    if (visited.has(currentId)) continue;
+    visited.add(currentId);
+    
+    if (currentId === sourceId) {
+      return true; // Tìm thấy vòng lặp
+    }
+    
+    // Tìm tất cả dependencies có target là currentId
+    const dependencies = await TaskDependency.find({
+      project_id: projectId,
+      target_task_id: currentId,
+      is_active: true
+    });
+    
+    for (const dep of dependencies) {
+      if (!visited.has(dep.source_task_id.toString())) {
+        queue.push(dep.source_task_id.toString());
+      }
+    }
+  }
+  
+  return false;
+}
+
+// API: Tự động sắp xếp lại thời gian tasks dựa trên dependencies
+exports.autoScheduleGanttTasks = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: 'Không thể xác định người dùng' });
+    }
+
+    // Kiểm tra quyền sửa đổi (tương tự updateGanttTask)
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Không tìm thấy dự án' });
+    }
+
+    const isOwner = project.created_by.toString() === userId.toString();
+    let hasEditPermission = isOwner;
+    
+    if (!hasEditPermission) {
+      const ProjectMember = require('../models/projectMember.model');
+      const projectMember = await ProjectMember.findOne({
+        project_id: projectId,
+        user_id: userId,
+        is_active: true
+      });
+
+      if (projectMember && ['Quản trị viên', 'Biên tập viên'].includes(projectMember.role_in_project)) {
+        hasEditPermission = true;
+      } else if (project.team_id) {
+        const TeamMember = require('../models/teamMember.model');
+        const teamMember = await TeamMember.findOne({
+          team_id: project.team_id,
+          user_id: userId,
+          is_active: true
+        });
+        
+        if (teamMember && ['admin', 'editor'].includes(teamMember.role.toLowerCase())) {
+          hasEditPermission = true;
+        }
+      }
+    }
+    
+    if (!hasEditPermission) {
+      return res.status(403).json({ 
+        message: 'Bạn không có quyền tự động sắp xếp lịch trình' 
+      });
+    }
+
+    // Lấy tất cả tasks và dependencies
+    const KanbanTask = require('../models/kanbanTask.model');
+    const TaskDependency = require('../models/taskDependency.model');
+    
+    const tasks = await KanbanTask.find({
+      project_id: projectId,
+      is_active: true
+    }).sort({ created_at: 1 });
+
+    const dependencies = await TaskDependency.find({
+      project_id: projectId,
+      is_active: true
+    });
+
+    // Tạo graph và thực hiện topological sort
+    const graph = new Map();
+    const inDegree = new Map();
+    
+    // Khởi tạo graph
+    tasks.forEach(task => {
+      const taskId = task._id.toString();
+      graph.set(taskId, []);
+      inDegree.set(taskId, 0);
+    });
+    
+    // Xây dựng graph từ dependencies
+    dependencies.forEach(dep => {
+      const source = dep.source_task_id.toString();
+      const target = dep.target_task_id.toString();
+      
+      if (graph.has(source) && graph.has(target)) {
+        graph.get(source).push(target);
+        inDegree.set(target, inDegree.get(target) + 1);
+      }
+    });
+    
+    // Topological sort
+    const queue = [];
+    const sortedTasks = [];
+    
+    // Tìm các tasks không có dependency (in-degree = 0)
+    inDegree.forEach((degree, taskId) => {
+      if (degree === 0) {
+        queue.push(taskId);
+      }
+    });
+    
+    while (queue.length > 0) {
+      const currentTaskId = queue.shift();
+      sortedTasks.push(currentTaskId);
+      
+      // Xử lý các tasks phụ thuộc
+      const dependentTasks = graph.get(currentTaskId) || [];
+      dependentTasks.forEach(dependentTaskId => {
+        inDegree.set(dependentTaskId, inDegree.get(dependentTaskId) - 1);
+        if (inDegree.get(dependentTaskId) === 0) {
+          queue.push(dependentTaskId);
+        }
+      });
+    }
+    
+    // Tự động sắp xếp thời gian dựa trên thứ tự sorted
+    let currentDate = new Date();
+    const updatedTasks = [];
+    
+    for (const taskId of sortedTasks) {
+      const task = tasks.find(t => t._id.toString() === taskId);
+      if (!task) continue;
+      
+      // Tính toán thời gian mới
+      const taskDuration = task.due_date && task.start_date 
+        ? Math.ceil((new Date(task.due_date) - new Date(task.start_date)) / (1000 * 60 * 60 * 24)) 
+        : 1; // Default 1 ngày
+      
+      const newStartDate = new Date(currentDate);
+      const newEndDate = new Date(currentDate);
+      newEndDate.setDate(newEndDate.getDate() + Math.max(taskDuration, 1));
+      
+      // Cập nhật task
+      task.start_date = newStartDate;
+      task.due_date = newEndDate;
+      await task.save();
+      
+      updatedTasks.push({
+        id: task._id.toString(),
+        title: task.title,
+        start_date: newStartDate,
+        due_date: newEndDate
+      });
+      
+      // Chuẩn bị cho task tiếp theo
+      currentDate = new Date(newEndDate);
+      currentDate.setDate(currentDate.getDate() + 1); // 1 ngày buffer
+    }
+
+    console.log(`✅ Auto-scheduled ${updatedTasks.length} tasks for project ${projectId}`);
+    
+    // Emit socket event
+    if (req.io) {
+      req.io.to(projectId.toString()).emit('gantt:auto_scheduled', {
+        projectId,
+        updatedTasks: updatedTasks.length,
+        message: 'Lịch trình đã được tự động sắp xếp'
+      });
+    }
+
+    res.json({
+      message: `Tự động sắp xếp thành công ${updatedTasks.length} công việc`,
+      updatedTasks: updatedTasks.length,
+      tasks: updatedTasks
+    });
+
+  } catch (error) {
+    console.error('Error auto-scheduling Gantt tasks:', error);
+    res.status(500).json({ 
+      message: 'Lỗi server khi tự động sắp xếp lịch trình', 
+      error: error.message 
+    });
+  }
+};

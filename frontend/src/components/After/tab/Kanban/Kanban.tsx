@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import Header from "../../Header";
 import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
 import TopButton from "../../../TopButton";
 import Breadcrumb from "../../Breadcrumb";
-import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle, Paperclip, FileText, Trash2 } from "lucide-react";
+import { UserCircle, Clock, Pin, Edit, Trash, AlertCircle, Paperclip, FileText, Trash2, Calendar } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask, ProjectMember, Document as KanbanDocument } from "../../../../services/kanbanApi";
 import { teamMemberApi } from "../../../../services/teamMemberApi";
@@ -734,7 +734,37 @@ const Kanban = () => {
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   Vai trò: <span className="font-semibold">{currentUserRole}</span>
                 </div>
-              )}
+              )}              {/* Gantt Chart Button - Show for all users */}
+              {projectId && (() => {
+                // Get userId from localStorage
+                const user = localStorage.getItem('user');
+                const userId = user ? JSON.parse(user).id : null;
+                
+                if (userId) {
+                  return (
+                    <Link
+                      to={`/dashboard/${userId}?view=gantt&projectId=${projectId}`}
+                      className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 flex items-center gap-2"
+                      title="Xem dạng biểu đồ Gantt"
+                    >
+                      <Calendar size={16} />
+                      Xem dạng Gantt
+                    </Link>
+                  );
+                } else {
+                  return (
+                    <button
+                      className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed disabled:opacity-50 flex items-center gap-2"
+                      disabled
+                      title="Vui lòng đăng nhập để xem biểu đồ Gantt"
+                    >
+                      <Calendar size={16} />
+                      Xem dạng Gantt
+                    </button>
+                  );
+                }
+              })()}
+              
               {/* Create Task Button - Only show for Admin and Editor */}
               {canPerformAction('create') && (
                 <button
