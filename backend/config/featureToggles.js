@@ -12,8 +12,8 @@ const FEATURE_TOGGLES = {
   TEAM_ACTIVITY_FEED: false,         // Real-time activity tracking
   
   // ===== REAL-TIME FEATURES =====
-  WEBSOCKETS: false,                  // WebSocket connections
-  SOCKET_IO: false,                   // Socket.IO real-time updates
+  WEBSOCKETS: true,                   // WebSocket connections ✅ ENABLED FOR SOCKET.IO
+  SOCKET_IO: true,                    // Socket.IO real-time updates ✅ ENABLED FOR TEAM MEMBER UPDATES
   REAL_TIME_CHAT: false,             // Real-time chat functionality
   REAL_TIME_NOTIFICATIONS: false,    // Real-time notification system
   

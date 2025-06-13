@@ -288,47 +288,52 @@ exports.getProjectMembers = async (req, res) => {
   }
 };
 
-// Lấy danh sách thành viên dự án cho việc assignment task (dành cho Kanban)
+// Lấy danh sách thành viên dự án cho việc assignment task (dành cho Kanban) - OPTIMIZED
 exports.getProjectMembersForAssignment = async (req, res) => {
   try {
     const { projectId } = req.params;
     const userId = req.user.userId || req.user._id;
 
     console.log('Get Project Members for Assignment:', { projectId, userId });
+    const startTime = Date.now();
 
-    // Kiểm tra project có tồn tại
-    const project = await Project.findOne({ _id: projectId, is_deleted: false });
+    // OPTIMIZATION: Use Promise.all để thực hiện các query song song
+    const [project, userProjectMember] = await Promise.all([
+      // Query 1: Kiểm tra project tồn tại
+      Project.findOne({ _id: projectId, is_deleted: false }).lean(),
+      
+      // Query 2: Kiểm tra quyền truy cập của user hiện tại (song song với query 1)
+      ProjectMember.findOne({
+        project_id: projectId,
+        user_id: userId,
+        is_active: true
+      }).lean()
+    ]);
+
     if (!project) {
       return res.status(404).json({ message: 'Dự án không tồn tại' });
     }
 
     // Kiểm tra quyền truy cập - user phải là creator hoặc member của project
-    let hasAccess = project.created_by.toString() === userId.toString();
-
-    if (!hasAccess) {
-      const projectMember = await ProjectMember.findOne({
-        project_id: projectId,
-        user_id: userId,
-        is_active: true
-      });
-      hasAccess = !!projectMember;
-    }
+    const isCreator = project.created_by.toString() === userId.toString();
+    const hasAccess = isCreator || !!userProjectMember;
 
     if (!hasAccess) {
       return res.status(403).json({ message: 'Không có quyền truy cập dự án này' });
     }
 
-    // Lấy danh sách thành viên dự án
+    // OPTIMIZATION: Lấy tất cả dữ liệu cần thiết trong 1 query duy nhất
     const projectMembers = await ProjectMember.find({
       project_id: projectId,
       is_active: true
-    }).populate('user_id', 'name email avatar');
+    })
+    .populate('user_id', 'name email avatar') // Chỉ populate những field cần thiết
+    .lean(); // Sử dụng lean() để tăng tốc
 
-    // Thêm người tạo dự án vào danh sách nếu chưa có
-    const creatorMember = projectMembers.find(member => 
-      member.user_id._id.toString() === project.created_by.toString()
-    );
-
+    // OPTIMIZATION: Tạo Map để kiểm tra creator nhanh hơn
+    const creatorId = project.created_by.toString();
+    const memberUserIds = new Set(projectMembers.map(member => member.user_id._id.toString()));
+    
     let members = projectMembers.map(member => ({
       _id: member.user_id._id,
       name: member.user_id.name,
@@ -337,10 +342,10 @@ exports.getProjectMembersForAssignment = async (req, res) => {
       role: member.role_in_project
     }));
 
-    if (!creatorMember) {
-      // Lấy thông tin người tạo dự án
+    // OPTIMIZATION: Chỉ query creator nếu thực sự cần thiết
+    if (!memberUserIds.has(creatorId)) {
       const User = require('../models/user.model');
-      const creator = await User.findById(project.created_by);
+      const creator = await User.findById(creatorId).select('name email avatar').lean();
       if (creator) {
         members.unshift({
           _id: creator._id,
@@ -352,7 +357,9 @@ exports.getProjectMembersForAssignment = async (req, res) => {
       }
     }
 
-    console.log('Retrieved project members for assignment:', members.length);
+    const duration = Date.now() - startTime;
+    console.log(`✅ Retrieved ${members.length} project members for assignment in ${duration}ms`);
+    
     res.json(members);
   } catch (error) {
     console.error('Error getting project members for assignment:', error);

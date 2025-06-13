@@ -3,15 +3,21 @@
  * --------------------
  * - Quản lý state danh sách thành viên của 1 team
  * - Cung cấp các hàm: fetch, addMembers, updateRole, removeMember
+ * - Socket.IO real-time updates for team member role changes
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { teamMemberApi, TeamMember, AddMemberData, UpdateMemberRoleData } from "../../../../../services/teamMemberApi";
+import { socket, joinTeamRoom, leaveTeamRoom } from "../../../../../services/socket";
+import { AuthContext } from "../../../../context/AuthContext";
 
 export function useTeamMembers(teamId: string) {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [userRole, setUserRole] = useState<"Admin" | "Editor" | "Member" | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Lấy thông tin user hiện tại từ AuthContext
+  const { userId } = useContext(AuthContext);
   /**
    * fetchMembers()
    *  - Gọi API getTeamMembers(teamId)
@@ -79,11 +85,13 @@ export function useTeamMembers(teamId: string) {
 
   /**
    * updateMemberRole(memberId, data)
-   *  - Gọi API updateMemberRole, sau đó refetch
+   *  - Gọi API updateMemberRole
+   *  - Socket event sẽ tự động cập nhật state, không cần fetchMembers()
    */
   const updateRole = async (memberId: string, data: UpdateMemberRoleData) => {
+    // Chỉ cần gọi API, không cần fetch lại
+    // Server sẽ phát sự kiện socket và trình lắng nghe trong useEffect sẽ tự động cập nhật state
     await teamMemberApi.updateMemberRole(teamId, memberId, data);
-    await fetchMembers();
   };
 
   /**
@@ -99,8 +107,62 @@ export function useTeamMembers(teamId: string) {
     if (teamId) {
       fetchMembers();
       fetchUserRole();
+      
+      // Join team room for real-time updates
+      joinTeamRoom(teamId);
+      console.log(`🔔 Joined team room: ${teamId}`);
+      
+      // Listen for team member updates
+      const handleTeamMemberUpdate = (updatedMember: TeamMember) => {
+        console.log('🔔 [SOCKET] Received team member update:', updatedMember);
+        
+        // Update the specific member in the list
+        setMembers(prevMembers => 
+          prevMembers.map(member => 
+            member._id === updatedMember._id ? updatedMember : member
+          )
+        );
+
+        // =================================================================
+        // ===== BẮT ĐẦU LOGIC QUAN TRỌNG CẦN THÊM VÀO ======================
+        // =================================================================
+        
+        // Kiểm tra xem người dùng hiện tại có phải là người vừa bị thay đổi vai trò không
+        // Xử lý cả trường hợp user_id là object và string
+        const updatedUserId = typeof updatedMember.user_id === 'object' 
+          ? updatedMember.user_id._id 
+          : updatedMember.user_id;
+          
+        if (updatedUserId === userId) {
+          console.log('👑 [SOCKET] Your role has been changed! Reloading page to apply new permissions.');
+          console.log('🔍 [SOCKET] Details:', {
+            updatedMemberUserId: updatedUserId,
+            currentUserId: userId,
+            newRole: updatedMember.role,
+            memberName: updatedMember.user_id?.full_name || 'Unknown'
+          });
+          
+          // Thông báo cho người dùng (tùy chọn nhưng nên có)
+          alert(`Vai trò của bạn trong nhóm đã được thay đổi thành "${updatedMember.role}". Trang sẽ được tải lại để cập nhật quyền hạn.`);
+
+          // Tải lại trang để cập nhật toàn bộ context và quyền hạn
+          window.location.reload();
+        }
+        // =================================================================
+        // ===== KẾT THÚC LOGIC QUAN TRỌNG CẦN THÊM VÀO  ======================
+        // =================================================================
+      };
+
+      socket.on('team:member_updated', handleTeamMemberUpdate);
+
+      // Cleanup on unmount or teamId change
+      return () => {
+        socket.off('team:member_updated', handleTeamMemberUpdate);
+        leaveTeamRoom(teamId);
+        console.log(`🔌 Left team room: ${teamId}`);
+      };
     }
-  }, [fetchMembers, fetchUserRole, teamId]);
+  }, [fetchMembers, fetchUserRole, teamId, userId]); // << THÊM userId VÀO DEPENDENCY ARRAY
 
   return { members, userRole, loading, error, fetchMembers, addMembers, updateRole, removeMember };
 } 

@@ -178,6 +178,37 @@ exports.updateMemberRole = async (req, res) => {
     const updatedMember = await TeamMember.findById(member._id)
       .populate('user_id', 'full_name email avatar_url');
 
+    // =====================================================================
+    // ===== BẮT ĐẦU ĐOẠN CODE SOCKET.IO CẦN THÊM VÀO ========================
+    // =====================================================================
+    console.log('🔍 [SOCKET DEBUG - OLD FUNCTION] Checking req.io availability:', {
+      reqIoExists: !!req.io,
+      reqIoType: typeof req.io,
+      appSocketio: !!req.app.get('socketio'),
+      appSocketioType: typeof req.app.get('socketio')
+    });
+
+    if (req.io) {
+        // Lấy teamId từ chính bản ghi member vừa được cập nhật
+        const teamId = updatedMember.team_id.toString();
+
+        // Tên sự kiện để cho frontend lắng nghe
+        const eventName = 'team:member_updated';
+
+        console.log(`✅ [SOCKET - OLD FUNCTION] req.io is available! Emitting event '${eventName}' to room '${teamId}'`);
+
+        // Gửi sự kiện đến tất cả client trong room của team đó
+        // Payload là toàn bộ thông tin của member đã được cập nhật và populate
+        req.io.to(teamId).emit(eventName, updatedMember);
+        
+        console.log(`✅ [SOCKET - OLD FUNCTION] Event emitted successfully to room '${teamId}'`);
+    } else {
+        console.error('❌ [SOCKET - OLD FUNCTION] req.io is not available! Socket event will not be emitted.');
+    }
+    // =====================================================================
+    // ===== KẾT THÚC ĐOẠN CODE SOCKET.IO CẦN THÊM VÀO  ========================
+    // =====================================================================
+
     res.json({
       message: 'Cập nhật vai trò thành công',
       member: updatedMember
@@ -635,6 +666,45 @@ exports.updateTeamMemberRole = async (req, res) => {
       newRole: role,
       userName: member.user_id.full_name || 'Unknown User'
     });
+
+    // =====================================================================
+    // ===== BẮT ĐẦU ĐOẠN CODE SOCKET.IO CẦN THÊM VÀO ========================
+    // =====================================================================
+    console.log('🔍 [SOCKET DEBUG] Checking req.io availability:', {
+      reqIoExists: !!req.io,
+      reqIoType: typeof req.io,
+      appSocketio: !!req.app.get('socketio'),
+      appSocketioType: typeof req.app.get('socketio')
+    });
+
+    if (req.io) {
+        // Lấy teamId từ chính bản ghi member vừa được cập nhật
+        const teamId = updatedMember.team_id.toString();
+
+        // Tên sự kiện để cho frontend lắng nghe
+        const eventName = 'team:member_updated';
+
+        console.log(`✅ [SOCKET] req.io is available! Emitting event '${eventName}' to room '${teamId}'`);
+        console.log(`🔍 [SOCKET] Updated member data:`, {
+          memberId: updatedMember._id,
+          userId: updatedMember.user_id._id,
+          userName: updatedMember.user_id.full_name,
+          role: updatedMember.role,
+          teamId: updatedMember.team_id
+        });
+
+        // Gửi sự kiện đến tất cả client trong room của team đó
+        // Payload là toàn bộ thông tin của member đã được cập nhật và populate
+        req.io.to(teamId).emit(eventName, updatedMember);
+        
+        console.log(`✅ [SOCKET] Event emitted successfully to room '${teamId}'`);
+    } else {
+        console.error('❌ [SOCKET] req.io is not available! Socket event will not be emitted.');
+        console.error('🔍 [SOCKET] This means the Socket.IO middleware is not working properly.');
+    }
+    // =====================================================================
+    // ===== KẾT THÚC ĐOẠN CODE SOCKET.IO CẦN THÊM VÀO  ========================
+    // =====================================================================
 
     res.json({
       message: 'Cập nhật vai trò thành công',

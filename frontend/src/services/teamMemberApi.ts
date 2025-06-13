@@ -8,32 +8,36 @@ import baseApi from "./baseApi"; // axios instance đã cấu hình interceptors
 /**
  * TeamMember
  * - Một record thành viên trong team  
- * - Updated to match actual API response structure
+ * - Updated to match actual API response structure from MongoDB
  */
 export interface TeamMember {
+  _id: string; // MongoDB ObjectId as string
+  user_id: {
+    _id: string;
+    full_name: string;
+    email: string;
+    avatar_url?: string | null;
+  };
+  team_id: string;
+  role: "Admin" | "Editor" | "Member";
+  is_active: boolean;
+  joined_at?: string;
+}
+
+/**
+ * Legacy TeamMember interface for backward compatibility
+ * - Some components may still expect the id format
+ */
+export interface LegacyTeamMember {
   id: string;
   user: {
     id: string;
     full_name: string;
     email: string;
-    avatar: string | null;
+    avatar?: string | null;
   };
   role: "Admin" | "Editor" | "Member";
   is_active: boolean;
-}
-
-/**
- * Legacy TeamMember interface for backward compatibility
- * - Some components may still expect the nested structure
- */
-export interface LegacyTeamMember {
-  _id: string;
-  user: {
-    _id: string;
-    fullName: string;
-    email: string;
-  };
-  role: "Admin" | "Editor" | "Member";
 }
 
 /**

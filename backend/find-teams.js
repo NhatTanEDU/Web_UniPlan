@@ -8,8 +8,7 @@ async function findTeams() {
     console.log('Connected to MongoDB');
     
     const teams = await Team.find({ is_deleted: false }).populate('created_by', 'full_name email').limit(5);
-    
-    console.log('Available teams:');
+      console.log('Available teams:');
     teams.forEach((team, i) => {
       console.log(`${i + 1}. ${team.team_name} (ID: ${team._id}) - Created by: ${team.created_by?.full_name || 'Unknown'}`);
     });

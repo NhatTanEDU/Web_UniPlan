@@ -28,6 +28,14 @@ import LoadingSpinner from "./LoadingSpinner";
 // Support both current API structure and legacy structure  
 type FlexibleTeamMember = TeamMember | {
   _id: string;
+  user_id: {
+    _id: string;
+    full_name: string;
+    email: string;
+  };
+  role: "Admin" | "Editor" | "Member";
+} | {
+  _id: string;
   user: {
     _id: string;
     fullName: string;
@@ -131,12 +139,28 @@ export default function MemberList({
       case 'editor': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
-  };// Helper function to get member data correctly
+  };  // Helper function to get member data correctly
   const getMemberData = (member: FlexibleTeamMember) => {
     // Debug logging to see actual data structure
     console.log('🐛 MemberList - Processing member:', JSON.stringify(member, null, 2));
     
-    // Check if member has user object (both new and legacy format)
+    // Check if member has user_id object (new MongoDB format)
+    if ('user_id' in member && member.user_id) {
+      const user = member.user_id as any;
+      const memberId = (member as any)._id || '';
+      
+      console.log('🐛 MemberList - user_id object found:', JSON.stringify(user, null, 2));
+      console.log('🐛 MemberList - Member ID:', memberId);
+      
+      return {
+        id: memberId,
+        name: user.full_name || user.name || 'Không có tên',
+        email: user.email || 'Không có email', 
+        role: member.role
+      };
+    }
+    
+    // Check if member has user object (legacy format)
     if ('user' in member && member.user) {
       const user = member.user as any; // Safe casting since we know user exists
       const memberId = (member as any)._id || (member as any).id || '';

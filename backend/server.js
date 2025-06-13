@@ -20,14 +20,26 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('🔌 A user connected:', socket.id);
 
+  // Kanban room management
   socket.on('join-kanban-room', (kanbanId) => {
     socket.join(kanbanId);
-    console.log(`User ${socket.id} joined room ${kanbanId}`);
+    console.log(`User ${socket.id} joined kanban room ${kanbanId}`);
   });
 
   socket.on('leave-kanban-room', (kanbanId) => {
     socket.leave(kanbanId);
-    console.log(`User ${socket.id} left room ${kanbanId}`);
+    console.log(`User ${socket.id} left kanban room ${kanbanId}`);
+  });
+
+  // Team room management for real-time team member updates
+  socket.on('join_team', (teamId) => {
+    socket.join(teamId);
+    console.log(`User ${socket.id} joined team room ${teamId}`);
+  });
+
+  socket.on('leave_team', (teamId) => {
+    socket.leave(teamId);
+    console.log(`User ${socket.id} left team room ${teamId}`);
   });
 
   socket.on('disconnect', () => {
