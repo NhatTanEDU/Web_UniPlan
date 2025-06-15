@@ -171,6 +171,12 @@ exports.createTask = async (req, res) => {
       }
     }
 
+    // Lấy thông tin kanban
+    const kanban = await Kanban.findById(kanban_id);
+    if (!kanban) {
+      return res.status(404).json({ message: 'Không tìm thấy Kanban' });
+    }
+
     // Validation assigned_to phải là thành viên dự án hoặc team
     if (assigned_to) {
       // Kiểm tra null/undefined safety
