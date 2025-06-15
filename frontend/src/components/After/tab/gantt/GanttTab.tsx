@@ -68,23 +68,50 @@ export default function GanttTab() {
   useEffect(() => {
     if (!ganttContainer.current) return;
 
-    // Cấu hình ngôn ngữ và các cột (giữ nguyên)
-    gantt.i18n.setLocale({ /* ... */ });
+    // Cấu hình ngôn ngữ Tiếng Việt
+    const viLocale = {
+        date: {
+            month_full: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+            month_short: ["Thg 1", "Thg 2", "Thg 3", "Thg 4", "Thg 5", "Thg 6", "Thg 7", "Thg 8", "Thg 9", "Thg 10", "Thg 11", "Thg 12"],
+            day_full: ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"],
+            day_short: ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+        },
+        labels: {
+            column_text: "Tên công việc",
+            column_start_date: "Bắt đầu",
+            column_duration: "Thời lượng",
+            column_add: ""
+        }
+    };
+    gantt.i18n.setLocale(viLocale);
+
+    // Cập nhật độ rộng cột để tránh cắt chữ
     gantt.config.columns = [
       { name: "text",       label: "Tên công việc",   tree: true, width: '*', min_width: 200 },
-      { name: "assignee",   label: "Người thực hiện", align: "center", width: 150, template: (task) => task.assignee || "Chưa giao" },
+      { name: "assignee",   label: "Người thực hiện", align: "center", width: 120, template: (task) => task.assignee || "Chưa giao" }, // Tăng nhẹ width
       { name: "status",     label: "Trạng thái",      align: "center", width: 100 },
-      { name: "priority",   label: "Ưu tiên",         align: "center", width: 80 },
-      { name: "start_date", label: "Bắt đầu",         align: "center", width: 120 },
+      { name: "priority",   label: "Ưu tiên",         align: "center", width: 90 }, // Tăng nhẹ width
+      { name: "start_date", label: "Bắt đầu",         align: "center", width: 100 }, // Giảm nhẹ, vì format ngày là dd-mm-yyyy
       { name: "duration",   label: "Thời lượng",       align: "center", width: 90 },
     ];
     gantt.config.grid_resize = true;
     gantt.config.readonly = false;
-    gantt.config.date_grid = "%d-%m-%Y";
+    gantt.config.date_grid = "%d-%m-%Y"; // Format này ngắn gọn hơn
     gantt.config.date_format = "%Y-%m-%d %H:%i";
+    
+    // Thêm cấu hình responsive cho Gantt
+    gantt.config.fit_tasks = true; // Giúp các task vừa với chiều rộng hiện tại của biểu đồ
+
+    // THAY ĐỔI CÁCH ĐỊNH DẠNG THÁNG TRONG SCALES
     gantt.config.scales = [
-        { unit: "month", step: 1, format: "%F %Y" },
-        { unit: "day", step: 1, format: "%d" }
+        {
+            unit: "month",
+            step: 1,
+            format: function(date) {
+                return viLocale.date.month_full[date.getMonth()] + " " + date.getFullYear();
+            }
+        },
+        { unit: "day", step: 1, format: "%d" } // Giữ nguyên định dạng ngày
     ];
     gantt.config.scale_height = 50;
     gantt.templates.task_text = (start, end, task) => task.text;
