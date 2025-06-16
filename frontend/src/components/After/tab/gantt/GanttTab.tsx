@@ -461,7 +461,7 @@ export default function GanttTab() {
         </div>        <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
           💡 Tip: Mọi thay đổi sẽ được tự động lưu và đồng bộ với bảng Kanban. Di chuột qua thanh task để xem tooltip thông tin chi tiết!
         </div>        <div className="mt-1 text-xs text-green-600 dark:text-green-400">
-          ✅ Custom Tooltip đã hoạt động! Di chuột qua thanh task để xem.
+          ✅ Custom Tooltip với giao diện tối đẹp mắt! Di chuột qua thanh task để xem.
         </div>
       </div>
 
@@ -475,18 +475,55 @@ export default function GanttTab() {
             zIndex: 999999,
             pointerEvents: 'none',
           }}
-        >
-          <div className="bg-blue-600 text-white border-2 border-white rounded-lg p-4 shadow-2xl max-w-sm">
-            <div className="font-bold text-lg mb-3 border-b-2 border-white pb-2">
+        >          <div className="bg-gray-800 text-white border border-gray-600 rounded-xl p-4 shadow-2xl max-w-xs backdrop-blur-sm bg-opacity-95">
+            <div className="font-semibold text-base mb-3 border-b border-gray-600 pb-2 text-blue-300">
               {customTooltip.content.text}
             </div>
-            <div className="space-y-2 text-sm">
-              <div><strong>👤 Người thực hiện:</strong> {customTooltip.content.assignee || 'Chưa giao'}</div>
-              <div><strong>📅 Bắt đầu:</strong> {new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN')}</div>
-              <div><strong>📅 Kết thúc:</strong> {new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN')}</div>
-              <div><strong>📊 Trạng thái:</strong> {customTooltip.content.status}</div>
-              <div><strong>⚡ Ưu tiên:</strong> {customTooltip.content.priority || 'Thấp'}</div>
-              <div><strong>📈 Tiến độ:</strong> {Math.round(customTooltip.content.progress * 100)}%</div>
+            <div className="space-y-1.5 text-sm text-gray-200">
+              <div className="flex items-center gap-2">
+                <span className="text-blue-400">👤</span>
+                <span className="text-gray-300">Người thực hiện:</span> 
+                <span className="font-medium">{customTooltip.content.assignee || 'Chưa giao'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-400">📅</span>
+                <span className="text-gray-300">Bắt đầu:</span> 
+                <span className="font-medium">{new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-red-400">📅</span>
+                <span className="text-gray-300">Kết thúc:</span> 
+                <span className="font-medium">{new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-yellow-400">📊</span>
+                <span className="text-gray-300">Trạng thái:</span> 
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  customTooltip.content.status === 'Hoàn thành' ? 'bg-green-600 text-white' :
+                  customTooltip.content.status === 'Đang làm' ? 'bg-yellow-600 text-white' :
+                  'bg-gray-600 text-white'
+                }`}>
+                  {customTooltip.content.status}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-purple-400">⚡</span>
+                <span className="text-gray-300">Ưu tiên:</span> 
+                <span className="font-medium">{customTooltip.content.priority || 'Thấp'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-indigo-400">📈</span>
+                <span className="text-gray-300">Tiến độ:</span> 
+                <div className="flex items-center gap-2">
+                  <div className="w-16 bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.round(customTooltip.content.progress * 100)}%` }}
+                    ></div>
+                  </div>
+                  <span className="font-medium text-blue-300">{Math.round(customTooltip.content.progress * 100)}%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
