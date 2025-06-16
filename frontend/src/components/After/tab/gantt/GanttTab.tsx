@@ -65,6 +65,14 @@ export default function GanttTab() {
   const [allTasks, setAllTasks] = useState<KanbanTask[]>([]);
   const [formData, setFormData] = useState<Partial<KanbanTask>>({});
   const [isSaving, setIsSaving] = useState(false);
+  
+  // THÊM STATE CHO CUSTOM TOOLTIP
+  const [customTooltip, setCustomTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    content: any;
+  }>({ visible: false, x: 0, y: 0, content: null });
 
   // *** BẮT ĐẦU SỬA LỖI ***
 
@@ -93,24 +101,25 @@ export default function GanttTab() {
             column_add: ""
         }
     };
-    gantt.i18n.setLocale(viLocale);
-
-    // Cập nhật độ rộng cột để tránh cắt chữ
+    gantt.i18n.setLocale(viLocale);    // BƯỚC 1: Xóa cột "Người thực hiện" khỏi cấu hình columns
     gantt.config.columns = [
       { name: "text",       label: "Tên công việc",   tree: true, width: '*', min_width: 200 },
-      { name: "assignee",   label: "Người thực hiện", align: "center", width: 120, template: (task) => task.assignee || "Chưa giao" }, // Tăng nhẹ width
+      // Dòng "assignee" đã được xóa
       { name: "status",     label: "Trạng thái",      align: "center", width: 100 },
-      { name: "priority",   label: "Ưu tiên",         align: "center", width: 90 }, // Tăng nhẹ width
-      { name: "start_date", label: "Bắt đầu",         align: "center", width: 100 }, // Giảm nhẹ, vì format ngày là dd-mm-yyyy
-      { name: "duration",   label: "Thời lượng",       align: "center", width: 90 },
-    ];
+      { name: "priority",   label: "Ưu tiên",         align: "center", width: 90 },
+      { name: "start_date", label: "Bắt đầu",         align: "center", width: 100 },
+      { name: "duration",   label: "Thời lượng",       align: "center", width: 90 },    ];
     gantt.config.grid_resize = true;
     gantt.config.readonly = false;
-    gantt.config.date_grid = "%d-%m-%Y"; // Format này ngắn gọn hơn
-    gantt.config.date_format = "%Y-%m-%d %H:%i";
+    gantt.config.date_grid = "%d-%m-%Y";
+    gantt.config.date_format = "%Y-%m-%d %H:%i";    // ======================= THAY ĐỔI QUAN TRỌNG =======================
+    // TẮT TOOLTIP DHTMLX và tự tạo custom tooltip  
+    gantt.config.tooltip = false; // TẮT tooltip của dhtmlx
+    console.log('DHTMLX Tooltip disabled, using custom tooltip');
+    // ===================================================================
     
     // Thêm cấu hình responsive cho Gantt
-    gantt.config.fit_tasks = true; // Giúp các task vừa với chiều rộng hiện tại của biểu đồ
+    gantt.config.fit_tasks = true;
 
     // THAY ĐỔI CÁCH ĐỊNH DẠNG THÁNG TRONG SCALES
     gantt.config.scales = [
@@ -123,19 +132,44 @@ export default function GanttTab() {
         },
         { unit: "day", step: 1, format: "%d" } // Giữ nguyên định dạng ngày
     ];
-    gantt.config.scale_height = 50;
-    gantt.templates.task_text = (start, end, task) => task.text;
+    gantt.config.scale_height = 50;    gantt.templates.task_text = (start, end, task) => task.text;
     gantt.templates.task_class = (start, end, task) => {
       switch (task.status) {
         case 'Hoàn thành': return "gantt-task-completed";
         case 'Đang làm': return "gantt-task-in-progress";
         default: return "gantt-task-todo";
       }
-    };
+    };    // ======================= CUSTOM TOOLTIP THAY THẾ =======================
+    // Xóa tooltip template cũ và thay bằng event listener custom
+    // ===================================================================
 
     // Gắn các sự kiện (sử dụng logic cũ)
     gantt.attachEvent("onAfterTaskDrag", async (id, mode, e) => { /* ... */ });
-    gantt.attachEvent("onAfterTaskUpdate", async (id, task) => { /* ... */ });
+    gantt.attachEvent("onAfterTaskUpdate", async (id, task) => { /* ... */ });    // CUSTOM TOOLTIP EVENT - thay thế cho dhtmlx tooltip
+    let tooltipTimeout: NodeJS.Timeout;
+    
+    gantt.attachEvent("onMouseMove", (id, e) => {
+        // Clear timeout cũ
+        if (tooltipTimeout) clearTimeout(tooltipTimeout);
+        
+        if (id && gantt.getTask(id)) {
+            const task = gantt.getTask(id);
+            const mouseEvent = e as MouseEvent;
+            console.log('Custom tooltip triggered for:', task.text);
+            setCustomTooltip({
+                visible: true,
+                x: mouseEvent.clientX + 15,
+                y: mouseEvent.clientY - 10,
+                content: task
+            });
+        } else {
+            // Ẩn tooltip khi không hover vào task nào với delay nhỏ
+            tooltipTimeout = setTimeout(() => {
+                setCustomTooltip(prev => ({ ...prev, visible: false }));
+            }, 150);
+        }
+        return true;
+    });
     
     // Sự kiện nhấp đúp SỬ DỤNG REF để lấy danh sách task mới nhất
     gantt.attachEvent("onTaskDblClick", (id) => {
@@ -146,13 +180,11 @@ export default function GanttTab() {
             setIsModalOpen(true);
         }
         return false;
-    });
-
-    gantt.init(ganttContainer.current);
-    setIsGanttInitialized(true);
-
-    // Hàm cleanup này chỉ chạy khi component bị unmount
+    });    gantt.init(ganttContainer.current);
+    setIsGanttInitialized(true);    // Hàm cleanup này chỉ chạy khi component bị unmount
     return () => {
+      // Clear tooltip timeout khi cleanup
+      if (tooltipTimeout) clearTimeout(tooltipTimeout);
       gantt.clearAll();
     };
   }, []); // <-- THAY ĐỔI QUAN TRỌNG: Dependency rỗng để hook chỉ chạy 1 lần
@@ -418,8 +450,7 @@ export default function GanttTab() {
             </div>
           </div>
         </div>
-      )}
-        <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      )}        <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
           <AlertCircle size={16} />
           <span className="font-medium">Chế độ tương tác:</span>
@@ -427,16 +458,133 @@ export default function GanttTab() {
             Bây giờ bạn có thể chỉnh sửa trực tiếp! 
             Kéo thả để thay đổi thời gian, nhấp đúp vào tên để đổi tên, nhấp đúp vào task để xem chi tiết.
           </span>
-        </div>
-        <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-          💡 Tip: Mọi thay đổi sẽ được tự động lưu và đồng bộ với bảng Kanban
+        </div>        <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+          💡 Tip: Mọi thay đổi sẽ được tự động lưu và đồng bộ với bảng Kanban. Di chuột qua thanh task để xem tooltip thông tin chi tiết!
+        </div>        <div className="mt-1 text-xs text-green-600 dark:text-green-400">
+          ✅ Custom Tooltip đã hoạt động! Di chuột qua thanh task để xem.
         </div>
       </div>
 
+      {/* CUSTOM TOOLTIP COMPONENT */}
+      {customTooltip.visible && customTooltip.content && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${customTooltip.x}px`,
+            top: `${customTooltip.y}px`,
+            zIndex: 999999,
+            pointerEvents: 'none',
+          }}
+        >
+          <div className="bg-blue-600 text-white border-2 border-white rounded-lg p-4 shadow-2xl max-w-sm">
+            <div className="font-bold text-lg mb-3 border-b-2 border-white pb-2">
+              {customTooltip.content.text}
+            </div>
+            <div className="space-y-2 text-sm">
+              <div><strong>👤 Người thực hiện:</strong> {customTooltip.content.assignee || 'Chưa giao'}</div>
+              <div><strong>📅 Bắt đầu:</strong> {new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN')}</div>
+              <div><strong>📅 Kết thúc:</strong> {new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN')}</div>
+              <div><strong>📊 Trạng thái:</strong> {customTooltip.content.status}</div>
+              <div><strong>⚡ Ưu tiên:</strong> {customTooltip.content.priority || 'Thấp'}</div>
+              <div><strong>📈 Tiến độ:</strong> {Math.round(customTooltip.content.progress * 100)}%</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
-        /* Giữ nguyên các style của bạn */
-        .gantt-task-completed { background-color: #10b981 !important; border-color: #059669 !important; }
-        /* ... */
+        /* CSS cho các trạng thái task */
+        .gantt-task-completed { 
+          background-color: #10b981 !important; 
+          border-color: #059669 !important; 
+          transition: all 0.3s ease;
+        }
+        .gantt-task-in-progress { 
+          background-color: #f59e0b !important; 
+          border-color: #d97706 !important; 
+          transition: all 0.3s ease;
+        }
+        .gantt-task-todo { 
+          background-color: #6b7280 !important; 
+          border-color: #4b5563 !important; 
+          transition: all 0.3s ease;
+        }
+
+        /* Hiệu ứng hover cho các task */
+        .gantt-task-completed:hover { 
+          background-color: #059669 !important; 
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+        }
+        .gantt-task-in-progress:hover { 
+          background-color: #d97706 !important; 
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+        }
+        .gantt-task-todo:hover { 
+          background-color: #4b5563 !important; 
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
+        }
+
+        /* Cải thiện giao diện tổng thể */
+        .gantt_task_line {
+          border-radius: 4px !important;
+          transition: all 0.3s ease !important;
+        }
+        
+        .gantt_task_line:hover {
+          cursor: pointer !important;
+        }        /* FORCE TOOLTIP HIỂN THỊ */
+        .gantt_tooltip {
+          z-index: 999999 !important;
+          position: fixed !important;
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          pointer-events: none !important;
+          border: none !important;
+          padding: 0 !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          transform: none !important;
+        }
+
+        /* Đảm bảo tooltip container luôn hiển thị */
+        .gantt_tooltip > div {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+
+        /* Override mọi style có thể ẩn tooltip */
+        .gantt_tooltip * {
+          visibility: visible !important;
+        }
+
+        /* Cải thiện grid */
+        .gantt_grid_scale {
+          background: #f8fafc !important;
+          border-bottom: 2px solid #e2e8f0 !important;
+        }
+        
+        .gantt_task_scale {
+          background: #f8fafc !important;
+          border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        /* Dark mode support */
+        .dark .gantt_grid_scale {
+          background: #1f2937 !important;
+          border-bottom: 2px solid #374151 !important;
+          color: #f9fafb !important;
+        }
+        
+        .dark .gantt_task_scale {
+          background: #1f2937 !important;
+          border-bottom: 2px solid #374151 !important;
+          color: #f9fafb !important;
+        }
       `}</style>
     </div>
   );

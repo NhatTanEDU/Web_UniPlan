@@ -383,6 +383,12 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy task' });
     }
 
+    // Tìm thông tin kanban board liên quan đến task
+    const kanban = await Kanban.findById(task.kanban_id);
+    if (!kanban) {
+      return res.status(404).json({ message: 'Không tìm thấy bảng Kanban liên quan đến task này' });
+    }
+
     // Check edit permission
     const permissionCheck = await canModifyTask(userId, task.kanban_id, 'edit');
     if (!permissionCheck.hasPermission) {
