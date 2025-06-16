@@ -7,7 +7,14 @@ import { AlertCircle, Calendar, ArrowLeft, Kanban } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask } from "../../../../services/kanbanApi";
 
-// Hàm chuyển đổi không thay đổi
+// Định nghĩa cấu trúc của assigned_to sau khi được populate
+interface PopulatedAssignedToUser {
+  _id: string;
+  name: string;
+  // email?: string; // Thêm nếu bạn cũng dùng email
+}
+
+// Hàm chuyển đổi Kanban tasks thành format cho Gantt
 const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
   return tasks.map((task, index) => {
     const startDate = task.start_date ? new Date(task.start_date) : new Date();
@@ -25,6 +32,9 @@ const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
       default: progress = 0; break;
     }
 
+    // Ép kiểu task.assigned_to sang cấu trúc đã populate
+    const assignedToData = task.assigned_to as unknown as (PopulatedAssignedToUser | null | undefined);
+
     return {
       id: task._id || `task_${index}`,
       text: task.title,
@@ -33,8 +43,8 @@ const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
       progress,
       status: task.status,
       priority: task.priority,
-      assignee: task.assigned_to_name || 'Chưa giao',
-      assigned_to: task.assigned_to,
+      assignee: assignedToData?.name || 'Chưa giao', // Truy cập name từ dữ liệu đã ép kiểu
+      assigned_to: assignedToData?._id, // Lấy _id từ dữ liệu đã ép kiểu cho trường 'assigned_to' của Gantt task
       description: task.description,
       color: task.color
     };
