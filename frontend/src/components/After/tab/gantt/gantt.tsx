@@ -2,42 +2,36 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gantt } from "dhtmlx-gantt";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
-import { useAuth } from "../../../context/AuthContext"; // Sửa lại đường dẫn nếu cần
+import { useAuth } from "../../../context/AuthContext";
 
-// HÀM HELPER ĐỂ VIỆT HÓA TRẠNG THÁI
+// Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
   const statusMap: { [key: string]: string } = {
-    'Active': 'Hoạt động',
-    'Planning': 'Lên kế hoạch',
-    'On Hold': 'Tạm dừng',
-    'Completed': 'Hoàn thành',
-    'In Progress': 'Đang thực hiện',
-    'Delayed': 'Trì hoãn',
-    'Cancelled': 'Đã hủy'
-    // Thêm các trạng thái khác nếu có
+    'Active': 'Hoạt động', 'Planning': 'Lên kế hoạch', 'On Hold': 'Tạm dừng',
+    'Completed': 'Hoàn thành', 'In Progress': 'Đang thực hiện',
+    'Delayed': 'Trì hoãn', 'Cancelled': 'Đã hủy'
   };
   return statusMap[status] || status;
 };
 
-// Thêm interface để tránh lỗi TypeScript
+// Interface Project
 interface Project {
-  id?: string;
-  _id?: string;
-  text?: string;
-  project_name?: string; // Tên trường dự án từ API
-  name?: string;
-  start_date?: string | Date;
-  end_date?: string | Date;
-  status?: string;
-  progress?: number;
-  [key: string]: any; // Cho phép các trường khác
+  _id?: string; id?: string; text?: string; project_name?: string;
+  start_date?: string | Date; end_date?: string | Date; status?: string;
+  [key: string]: any;
 }
 
 export default function ProjectPortfolioGanttPage() {
   const ganttContainer = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const { token } = useAuth(); // Lấy token từ AuthContext
+  const { token } = useAuth();
+  
+  // State và Ref cho tooltip custom
+  const [customTooltip, setCustomTooltip] = useState<{
+    visible: boolean; x: number; y: number; content: any;
+  }>({ visible: false, x: 0, y: 0, content: null });
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const container = ganttContainer.current;
@@ -45,11 +39,10 @@ export default function ProjectPortfolioGanttPage() {
 
     // --- Cấu hình Gantt ---
     gantt.config.readonly = true;
-    // BƯỚC 1: Bật chức năng chọn dòng
     gantt.config.select_task = true;
     gantt.config.date_format = "%Y-%m-%d %H:%i";
-    
-    // Tạo một hàm helper để định dạng ngày tháng
+    gantt.config.tooltip = false; // Tắt tooltip mặc định
+
     const formatDate = gantt.date.date_to_str("%Y-%m-%d");
     
     // SỬA LỖI 3: Cập nhật template của cột status để Việt hóa
@@ -68,16 +61,48 @@ export default function ProjectPortfolioGanttPage() {
         template: (task) => {
           const statusColorClass = `status-color status-color-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
           const localizedText = localizeStatus(task.status || '');
-          const tooltipTitle = `Trạng thái: ${localizedText}`; // Nội dung của tooltip
+          const tooltipTitle = `Trạng thái: ${localizedText}`;
           return `<span class="${statusColorClass}" title="${tooltipTitle}"></span> <span class="status-label">${localizedText}</span>`;
         }
       },
     ];
     
     gantt.templates.task_class = (start, end, task) => `gantt-project-status-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
-    gantt.templates.tooltip_text = (start, end, task) => `<b>Dự án:</b> ${task.text}<br/><i>(Nhấp đúp để xem chi tiết)</i>`;
     
     gantt.init(container);
+
+    // ================= SỬA LỖI: SỬ DỤNG SỰ KIỆN HOVER DOM CHUẨN =================
+    // Gắn sự kiện hover cho từng task line sau khi Gantt render
+    setTimeout(() => {
+      const lines = document.querySelectorAll('.gantt_task_line');
+      lines.forEach(line => {
+        const el = line as HTMLElement;
+        const taskId = el.getAttribute('task_id');
+        if (!taskId) return;
+        // Xóa sự kiện cũ nếu có
+        el.onmouseenter = null;
+        el.onmouseleave = null;
+        // Gắn sự kiện mouseenter
+        el.addEventListener('mouseenter', (e: MouseEvent) => {
+          if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
+          const task = gantt.getTask(taskId);
+          console.log('[DEBUG] Hover vào task:', task); // Debug dữ liệu khi hover
+          setCustomTooltip({
+            visible: true,
+            x: e.pageX,
+            y: e.pageY,
+            content: task,
+          });
+        });
+        // Gắn sự kiện mouseleave
+        el.addEventListener('mouseleave', () => {
+          tooltipTimeoutRef.current = setTimeout(() => {
+            setCustomTooltip((prev) => ({ ...prev, visible: false }));
+          }, 300);
+        });
+      });
+    }, 0);
+    // =======================================================================
 
     (async () => {
       if (!token) {
@@ -96,19 +121,15 @@ export default function ProjectPortfolioGanttPage() {
           credentials: "include",
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("🎯 [Gantt Effect] Fetch response:", resp);
         
         if (!resp.ok) throw new Error(`Lỗi API: ${resp.status}`);
         
         const data = await resp.json();
-        console.log("🎯 [Gantt Effect] API data:", data);
-        
         let arr = Array.isArray(data) ? data : data.projects;
         if (!Array.isArray(arr)) arr = [];
         
         // ======================== BƯỚC XỬ LÝ DỮ LIỆU ========================
         // Chuyển đổi các trường ngày tháng từ chuỗi (string) sang đối tượng Date
-        // VÀ SỬA LỖI 1 & 2: Ánh xạ dữ liệu để Gantt hiểu đúng
         const processedData = arr.map((project: Project) => {
           const result = { 
             ...project,
@@ -162,23 +183,51 @@ export default function ProjectPortfolioGanttPage() {
         });
         // =====================================================================
         
-        console.log("🎯 [Gantt Effect] Dự án đã xử lý:", processedData.length, processedData[0]);
+        console.log("🎯 [Gantt Effect] Dự án đã xử lý:", processedData.length);
         gantt.clearAll();
         gantt.parse({ data: processedData, links: [] });
+
+        // Gắn lại sự kiện hover cho các task line SAU KHI PARSE
+        setTimeout(() => {
+          const lines = document.querySelectorAll('.gantt_task_line');
+          lines.forEach(line => {
+            const el = line as HTMLElement;
+            const taskId = el.getAttribute('task_id');
+            if (!taskId) return;
+            el.onmouseenter = null;
+            el.onmouseleave = null;
+            el.addEventListener('mouseenter', (e: MouseEvent) => {
+              if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
+              const task = gantt.getTask(taskId);
+              setCustomTooltip({
+                visible: true,
+                x: e.pageX,
+                y: e.pageY,
+                content: task,
+              });
+            });
+            el.addEventListener('mouseleave', () => {
+              tooltipTimeoutRef.current = setTimeout(() => {
+                setCustomTooltip((prev) => ({ ...prev, visible: false }));
+              }, 300);
+            });
+          });
+        }, 0);
         
       } catch (e) {
         console.error("🎯 [Gantt Effect] ERROR:", e);
         setError(e instanceof Error ? e.message : "Lỗi tải dữ liệu");
       } finally {
         setIsLoading(false);
-        console.log("🎯 [Gantt Effect] setIsLoading(false)");
       }
     })();
 
     return () => {
+      if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
+      setCustomTooltip({ visible: false, x: 0, y: 0, content: null });
       gantt.clearAll();
     };
-  }, [token]); // token trong dependencies để useEffect chạy lại khi token thay đổi
+  }, [token]);
 
   return (
     <main style={{ width: "100%", height: "100%" }}>
@@ -201,31 +250,91 @@ export default function ProjectPortfolioGanttPage() {
           </div>
         )}
       </div>
+      
+      {/* Component Tooltip Custom */}
+      {customTooltip.visible && customTooltip.content && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${customTooltip.x + 20}px`,
+            top: `${customTooltip.y + 20}px`,
+            zIndex: 1000,
+            pointerEvents: 'none',
+            transition: 'opacity 0.2s, transform 0.2s',
+            opacity: 1,
+            transform: 'translateY(0)',
+          }}
+        >
+          <div style={{
+            backgroundColor: 'rgba(31, 41, 55, 0.95)', 
+            color: 'white',
+            border: '1px solid rgba(75, 85, 99, 0.5)',
+            borderRadius: '0.5rem',
+            padding: '0.75rem',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2)',
+            maxWidth: '280px',
+            backdropFilter: 'blur(8px)'
+          }}>
+            <div style={{
+              fontWeight: 'bold', 
+              fontSize: '0.95rem', 
+              marginBottom: '0.5rem', 
+              color: '#93c5fd', 
+              borderBottom: '1px solid rgba(75, 85, 99, 0.5)',
+              paddingBottom: '0.5rem'
+            }}>
+              {customTooltip.content.text}
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#f3f4f6' }}>
+              <p style={{ marginBottom: '0.25rem' }}>
+                <strong>Trạng thái:</strong> {localizeStatus(customTooltip.content.status || '')}
+              </p>
+              <p style={{ marginBottom: '0.25rem' }}>
+                <strong>Bắt đầu:</strong> {customTooltip.content.start_date ? new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
+              </p>
+              <p>
+                <strong>Kết thúc:</strong> {customTooltip.content.end_date ? new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <style>{`
         /* CSS cho trạng thái của task trên thanh Gantt */
         .gantt-project-status-hoạt-động {
-          background-color: #10b981 !important;
+          background-color: #10b981 !important; /* Màu xanh lá cây cho 'Hoạt động' */
           border-color: #059669 !important;
-          color: white !important;
+          color: white !important; /* Màu chữ trắng để dễ đọc */
         }
         .gantt-project-status-lên-kế-hoạch {
-          background-color: #f59e0b !important;
+          background-color: #f59e0b !important; /* Màu vàng cam cho 'Lên kế hoạch' */
           border-color: #d97706 !important;
           color: white !important;
         }
         .gantt-project-status-tạm-dừng {
-          background-color: #f43f5e !important;
+          background-color: #f43f5e !important; /* Màu đỏ cho 'Tạm dừng' */
           border-color: #e11d48 !important;
           color: white !important;
         }
         .gantt-project-status-hoàn-thành {
-          background-color: #3b82f6 !important;
+          background-color: #3b82f6 !important; /* Màu xanh dương cho 'Hoàn thành' */
           border-color: #2563eb !important;
           color: white !important;
         }
         .gantt-project-status-đang-thực-hiện {
-          background-color: #8b5cf6 !important;
+          background-color: #8b5cf6 !important; /* Màu tím cho 'Đang thực hiện' */
           border-color: #7c3aed !important;
+          color: white !important;
+        }
+        .gantt-project-status-trì-hoãn {
+          background-color: #ef4444 !important; /* Màu đỏ tươi cho 'Trì hoãn' */
+          border-color: #dc2626 !important;
+          color: white !important;
+        }
+        .gantt-project-status-đã-hủy {
+          background-color: #6b7280 !important; /* Màu xám cho 'Đã hủy' */
+          border-color: #4b5563 !important;
           color: white !important;
         }
 
@@ -252,6 +361,12 @@ export default function ProjectPortfolioGanttPage() {
         }
         .status-color-đang-thực-hiện {
           background-color: #8b5cf6;
+        }
+        .status-color-trì-hoãn {
+          background-color: #ef4444;
+        }
+        .status-color-đã-hủy {
+          background-color: #6b7280;
         }
 
         /* CSS cho màu sắc ngày bắt đầu và kết thúc trong Grid */
