@@ -112,10 +112,17 @@ export default function GanttTab() {
     gantt.config.grid_resize = true;
     gantt.config.readonly = false;
     gantt.config.date_grid = "%d-%m-%Y";
-    gantt.config.date_format = "%Y-%m-%d %H:%i";    // ======================= THAY ĐỔI QUAN TRỌNG =======================
+    gantt.config.date_format = "%Y-%m-%d %H:%i";
+
+    // ======================= THAY ĐỔI QUAN TRỌNG =======================
     // TẮT TOOLTIP DHTMLX và tự tạo custom tooltip  
     gantt.config.tooltip = false; // TẮT tooltip của dhtmlx
     console.log('DHTMLX Tooltip disabled, using custom tooltip');
+    
+    // ======================== THAY ĐỔI QUAN TRỌNG ========================
+    // TẮT chức năng cho phép người dùng kéo thả thanh tiến độ
+    gantt.config.drag_progress = false;
+    console.log('Progress drag disabled - tiến độ chỉ dựa trên trạng thái');
     // ===================================================================
     
     // Thêm cấu hình responsive cho Gantt
@@ -459,9 +466,9 @@ export default function GanttTab() {
             Kéo thả để thay đổi thời gian, nhấp đúp vào tên để đổi tên, nhấp đúp vào task để xem chi tiết.
           </span>
         </div>        <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-          💡 Tip: Mọi thay đổi sẽ được tự động lưu và đồng bộ với bảng Kanban. Di chuột qua thanh task để xem tooltip thông tin chi tiết!
+          💡 Tip: Mọi thay đổi sẽ được tự động lưu và đồng bộ với bảng Kanban. Tiến độ task được tự động tính dựa trên trạng thái (Cần làm: 0%, Đang làm: 50%, Hoàn thành: 100%).
         </div>        <div className="mt-1 text-xs text-green-600 dark:text-green-400">
-          ✅ Custom Tooltip với giao diện tối đẹp mắt! Di chuột qua thanh task để xem.
+          ✅ Custom Tooltip với giao diện tối đẹp mắt! ✅ Tiến độ tự động - không thể kéo thả thủ công!
         </div>
       </div>
 
