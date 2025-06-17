@@ -8,7 +8,8 @@ import Breadcrumb from "../components/After/Breadcrumb";
 import WidgetIntroduce from "../components/widget/introduce";
 import WidgetSchedule from "../components/widget/schedule";
 import WidgetCustomize from "../components/widget/customize";
-import GanttTab from "../components/After/tab/gantt/GanttTab";
+import GanttTab from "../components/After/tab/gantt/GanttTab"; // "Gantt Nhỏ" - cho một dự án cụ thể
+import ProjectPortfolioGanttPage from "../components/After/tab/gantt/gantt"; // "Gantt Lớn" - tổng quan tất cả dự án
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'; // Import useSearchParams
 
 // Định nghĩa kiểu cho các widget có sẵn
@@ -81,36 +82,43 @@ interface User {
 
 const DashboardAfter: React.FC = () => {
     const [widgets, setWidgets] = useState<WidgetItem[]>([]);
-    const { userId } = useParams<{ userId: string }>(); // Lấy userId từ URL
-    const [searchParams] = useSearchParams(); // Lấy search params
+    const { userId } = useParams<{ userId: string }>();
+    const [searchParams] = useSearchParams();
     const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const navigate = useNavigate();
 
-    // Lấy thông tin breadcrumb từ URL params
-    const currentView = searchParams.get('view'); // gantt, projects, documents, etc.
-    const projectId = searchParams.get('projectId');
+    const currentView = searchParams.get('view');
+    const projectId = searchParams.get('projectId'); // Vẫn giữ lại nếu cần cho các view khác
 
-    console.log('📊 [Dashboard_After] Current view:', currentView);
-    console.log('📊 [Dashboard_After] Project ID:', projectId);
+    // DEBUGGING: Log thông tin quan trọng
+    useEffect(() => {
+      console.log('🎛️ [Dashboard_After] Component Mounted/Updated');
+      console.log('🎛️ [Dashboard_After] User ID from URL params:', userId);
+      console.log('🎛️ [Dashboard_After] Current view from searchParams:', currentView);
+      console.log('🎛️ [Dashboard_After] Project ID from searchParams:', projectId);
+    }, [userId, currentView, projectId]);
 
     useEffect(() => {
-        // Kiểm tra xem có userId trên URL hay không
         if (userId) {
-            // Nếu có userId, bạn có thể fetch thông tin người dùng chi tiết (nếu cần)
-            console.log("Dashboard của người dùng có ID:", userId);
-            // Ở đây bạn có thể gọi API để lấy thông tin người dùng dựa trên userId
+            console.log("🎛️ [Dashboard_After] Dashboard của người dùng có ID:", userId);
             const userFromStorage = localStorage.getItem('user');
             if (userFromStorage) {
                 setLoggedInUser(JSON.parse(userFromStorage));
             }
         } else {
-            // Nếu không có userId trên URL, có thể chuyển hướng về trang chủ hoặc trang lỗi
-            console.log("Không có userId trên URL dashboard");
+            console.warn("🎛️ [Dashboard_After] Không có userId trên URL dashboard. Điều hướng...");
             const userFromStorage = localStorage.getItem('user');
             if (userFromStorage) {
-                navigate(`/dashboard/${JSON.parse(userFromStorage).id}`);
+                const parsedUser = JSON.parse(userFromStorage);
+                if (parsedUser && parsedUser.id) {
+                    navigate(`/dashboard/${parsedUser.id}`);
+                } else {
+                    console.error("🎛️ [Dashboard_After] User từ localStorage không hợp lệ.");
+                    navigate('/');
+                }
             } else {
-                navigate('/'); // Hoặc một trang lỗi
+                console.warn("🎛️ [Dashboard_After] Không có user trong localStorage. Điều hướng về trang chủ.");
+                navigate('/');
             }
         }
     }, [userId, navigate]);
@@ -174,21 +182,19 @@ const DashboardAfter: React.FC = () => {
                 {/* Content chính co giãn responsive */}
                 <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                     {/* Breadcrumb dưới header */}
-                    <Breadcrumb items={
-                        currentView === 'gantt' ? 
-                        ["Dashboard", "Dự án", "Biểu đồ Gantt"] : 
-                        ["Dashboard"]
-                    } />
+                    <Breadcrumb /> 
                     
                     {/* Nội dung chính co giãn */}
                     <main className="flex-1 overflow-y-auto p-4">
                         {/* Conditional rendering based on view */}
-                        {currentView === 'gantt' ? (
+                        {currentView === 'portfolio-gantt' ? (
+                            <ProjectPortfolioGanttPage />
+                        ) : currentView === 'gantt' && projectId ? (
                             <GanttTab />
                         ) : (
                             <>
                                 <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                                    Chào mừng đến Dashboard
+                                    Chào mừng đến Dashboard, {loggedInUser?.name || 'bạn'}!
                                 </h1>
                                 <DragDropContext onDragEnd={handleDragEnd}>
                                     {/* Grid responsive tự điều chỉnh */}

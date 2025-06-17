@@ -1,9 +1,23 @@
 // components/Breadcrumb.tsx
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { Home, Copy } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { projectApi } from "../../services/projectApi";
+
+// Helper function để làm sạch tên dự án, loại bỏ ID
+const cleanProjectName = (projectName: string): string => {
+  if (!projectName) return projectName;
+  
+  // Loại bỏ các pattern ID phổ biến:
+  // - " - 123456789" (dấu gạch ngang + số)
+  // - " 123456789" (chỉ số ở cuối)
+  // - Các ID dài hơn 8 ký tự
+  return projectName
+    .replace(/\s*-\s*\d{8,}$/g, '') // Loại bỏ " - 123456789" ở cuối
+    .replace(/\s+\d{8,}$/g, '') // Loại bỏ " 123456789" ở cuối
+    .trim();
+};
 
 // Định nghĩa kiểu cho từng mục breadcrumb
 interface BreadcrumbItem {
@@ -19,7 +33,8 @@ interface BreadcrumbProps {
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"] }) => {
   const { userId } = useContext(AuthContext);
   const location = useLocation();
-  const params = useParams<{ projectId: string; teamId: string }>(); // Lấy projectId và teamId từ URL
+  const params = useParams<{ projectId: string; teamId: string }>();
+  const [searchParams] = useSearchParams(); // Để đọc query params
 
   const [isKanbanPage, setIsKanbanPage] = useState(false);
   const [isGanttPage, setIsGanttPage] = useState(false);
@@ -29,44 +44,50 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
   const [isTeamDetailPage, setIsTeamDetailPage] = useState(false);
   const [teamName, setTeamName] = useState<string | null>(null);
   const [loadingTeamName, setLoadingTeamName] = useState(false);
+  const [isPortfolioGanttView, setIsPortfolioGanttView] = useState(false); // State mới cho Portfolio Gantt
+  
   useEffect(() => {
     const kanbanPathRegex = /^\/projects\/([a-zA-Z0-9-]+)\/kanban$/;
     const ganttPathRegex = /^\/projects\/([a-zA-Z0-9-]+)\/kanban\/gantt$/;
     const teamDetailPathRegex = /^\/teams\/([a-zA-Z0-9-]+)/;
     const dashboardPathRegex = /^\/dashboard\/([a-zA-Z0-9-]+)$/;
-    
+
     const kanbanMatch = location.pathname.match(kanbanPathRegex);
     const ganttMatch = location.pathname.match(ganttPathRegex);
     const teamMatch = location.pathname.match(teamDetailPathRegex);
     const dashboardMatch = location.pathname.match(dashboardPathRegex);
     
-    // Check for dashboard with gantt view
-    const urlParams = new URLSearchParams(location.search);
-    const isDashboardGantt = dashboardMatch && urlParams.get('view') === 'gantt' && urlParams.get('projectId');
+    const currentViewQueryParam = searchParams.get('view');
 
-    if (isDashboardGantt) {
-      const projectId = urlParams.get('projectId');
-      setIsGanttPage(true);
-      setIsKanbanPage(false);
-      setIsTeamDetailPage(false);
-      setLoadingProjectName(true);
-      
-      // Fetch project name using API
+    // Reset states trước
+    setIsKanbanPage(false);
+    setIsGanttPage(false);
+    setIsTeamDetailPage(false);
+    setIsPortfolioGanttView(false); // Reset state mới
+
+    if (dashboardMatch && currentViewQueryParam === 'portfolio-gantt') {
+      setIsPortfolioGanttView(true);
+    } else if (dashboardMatch && currentViewQueryParam === 'gantt' && searchParams.get('projectId')) {
+      const projectId = searchParams.get('projectId');
+      setIsGanttPage(true); // "Gantt Nhỏ" của một dự án cụ thể trên dashboard
+      // ... (logic fetch project name nếu cần cho breadcrumb "Gantt Nhỏ")
       if (projectId) {
+        setLoadingProjectName(true);
         projectApi.getProject(projectId)
           .then(project => {
-            setKanbanProjectName(project.project_name || `Dự án ${projectId.substring(0, 8)}...`);
+            const cleanName = cleanProjectName(project.project_name || `Dự án ${projectId.substring(0, 8)}...`);
+            setKanbanProjectName(cleanName);
             setLoadingProjectName(false);
           })
           .catch(error => {
-            console.error('Error fetching project:', error);
+            console.error('Error fetching project for Gantt Nhỏ view:', error);
             setKanbanProjectName(`Dự án ${projectId.substring(0, 8)}...`);
             setLoadingProjectName(false);
           });
       } else {
         setLoadingProjectName(false);
       }
-    } else if (ganttMatch && params.projectId) {
+    } else if (ganttMatch && params.projectId) { // Logic cũ cho /projects/:id/kanban/gantt
       setIsGanttPage(true);
       setIsKanbanPage(false);
       setIsTeamDetailPage(false);
@@ -75,7 +96,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
       // Fetch project name using API
       projectApi.getProject(params.projectId)
         .then(project => {
-          setKanbanProjectName(project.project_name || `Dự án ${params.projectId?.substring(0, 8)}...`);
+          const cleanName = cleanProjectName(project.project_name || `Dự án ${params.projectId?.substring(0, 8)}...`);
+          setKanbanProjectName(cleanName);
           setLoadingProjectName(false);
         })
         .catch(error => {
@@ -92,7 +114,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
       // Fetch project name using API
       projectApi.getProject(params.projectId)
         .then(project => {
-          setKanbanProjectName(project.project_name || `Dự án ${params.projectId?.substring(0, 8)}...`);
+          const cleanName = cleanProjectName(project.project_name || `Dự án ${params.projectId?.substring(0, 8)}...`);
+          setKanbanProjectName(cleanName);
           setLoadingProjectName(false);
         })
         .catch(error => {
@@ -112,18 +135,37 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
         setTeamName(`Nhóm ${params.teamId?.substring(0, 8)}...`);
         setLoadingTeamName(false);
       }, 300);
-    } else {
-      setIsKanbanPage(false);
-      setIsGanttPage(false);
-      setIsTeamDetailPage(false);
-      setKanbanProjectName(null);
-      setTeamName(null);
-    }
-  }, [location.pathname, location.search, params.projectId, params.teamId]);
+    } 
+  }, [location.pathname, location.search, params.projectId, params.teamId, searchParams]); // Thêm searchParams vào dependency array
   // Copy path
   const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.pathname);
+    navigator.clipboard.writeText(`${location.pathname}${location.search}`);
   };
+
+  // Ưu tiên hiển thị Breadcrumb cho Portfolio Gantt nếu state là true
+  if (isPortfolioGanttView) {
+    return (
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-2 px-4 sm:px-6 lg:px-8 text-sm">
+        <div className="max-w-7xl mx-auto flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+          <Link to={`/dashboard/${userId || ""}`} className="hover:text-primary flex items-center">
+            <Home className="w-4 h-4 mr-1" />
+            Dashboard
+          </Link>
+          <span>/</span>
+          <span className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
+            Tổng quan Gantt
+          </span>
+           <button
+            onClick={handleCopy}
+            className="ml-auto p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            title="Copy đường dẫn"
+          >
+            <Copy size={16} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Handle team detail page breadcrumb
   if (isTeamDetailPage) {
@@ -188,15 +230,15 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
           {isDashboardGantt ? (
             <>
               <span className="hover:text-primary flex items-center">
-                Dự án [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+                {loadingProjectName ? "Đang tải..." : kanbanProjectName || "Dự án"}
               </span>
               <span>/</span>
               <span className="hover:text-primary flex items-center">
-                Kanban [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+                Kanban
               </span>
               <span>/</span>
               <span className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
-                Gantt [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+                Gantt
               </span>
             </>
           ) : (
@@ -206,11 +248,11 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
               </Link>
               <span>/</span>
               <Link to={`/projects/${projectIdFromUrl}/kanban`} className="hover:text-primary flex items-center">
-                Kanban [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+                {loadingProjectName ? "Đang tải..." : kanbanProjectName || "Dự án"}
               </Link>
               <span>/</span>
               <span className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
-                Gantt [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+                Gantt
               </span>
             </>
           )}
@@ -236,11 +278,11 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
           </Link>
           <span>/</span>
           <span className="hover:text-primary flex items-center">
-            Dự án [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+            {loadingProjectName ? "Đang tải..." : kanbanProjectName || "Dự án"}
           </span>
           <span>/</span>
           <span className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
-            Kanban [{loadingProjectName ? "Đang tải..." : kanbanProjectName || "Tên dự án"}]
+            Kanban
           </span>
           <button
             onClick={handleCopy}
@@ -260,9 +302,6 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
       ? { label: item, path: item === "Dashboard" ? `/dashboard/${userId || ""}` : undefined }
       : item
   );
-
-  // Tạo path đầy đủ cho copy (biến này không được sử dụng trong code gốc, nhưng giữ lại nếu bạn cần)
-  // const fullPath = normalizedItems.map(i => i.path || '').filter(Boolean).join('/');
 
   return (
     <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-2 px-4 sm:px-6 lg:px-8 text-sm">

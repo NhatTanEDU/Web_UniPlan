@@ -14,6 +14,20 @@ import { userPermissionsApi } from "../../../../services/userPermissionsApi";
 import DocumentUpload from "../../../common/DocumentUpload";
 import { socket, joinKanbanRoom, leaveKanbanRoom } from "../../../../services/socket";
 
+// Helper function để làm sạch tên dự án, loại bỏ ID
+const cleanProjectName = (projectName: string): string => {
+  if (!projectName) return projectName;
+  
+  // Loại bỏ các pattern ID phổ biến:
+  // - " - 123456789" (dấu gạch ngang + số)
+  // - " 123456789" (chỉ số ở cuối)
+  // - Các ID dài hơn 8 ký tự
+  return projectName
+    .replace(/\s*-\s*\d{8,}$/g, '') // Loại bỏ " - 123456789" ở cuối
+    .replace(/\s+\d{8,}$/g, '') // Loại bỏ " 123456789" ở cuối
+    .trim();
+};
+
 const STATUS = ["Cần làm", "Đang làm", "Hoàn thành"];
 
 const Kanban = () => {
@@ -710,8 +724,8 @@ const Kanban = () => {
         <Breadcrumb items={["Dashboard", "Dự Án", "Bảng Kanban"]} />
         <main className="flex-1 overflow-y-auto p-4">          <div className="mb-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              Bảng Kanban {currentProject?.project_name && `- ${currentProject.project_name}`}
-            </h1>            <div className="flex items-center gap-4">              {loading && (
+              Bảng Kanban {currentProject?.project_name && `- ${cleanProjectName(currentProject.project_name)}`}
+            </h1><div className="flex items-center gap-4">              {loading && (
                 <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
                   Đang tải dữ liệu...

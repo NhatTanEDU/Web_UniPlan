@@ -136,7 +136,7 @@ const Sidebar: React.FC = () => {
     { icon: <Settings size={20} />, label: "Cài đặt", path: "/settings" },
     { icon: <MessageSquare size={20} />, label: "Chat", path: "/chat" },
     { icon: <BarChart size={20} />, label: "Báo cáo", path: "/reports" },
-    { icon: <Calendar size={20} />, label: "Gantt", path: "/gantt" },
+    { icon: <Calendar size={20} />, label: "Gantt", path: `/dashboard/${userId || ":userId"}?view=portfolio-gantt` },
     { icon: <Cpu size={20} />, label: "AI Assistant", path: role === "free" ? "#" : "/ai-assistant" },
     { icon: <DollarSign size={20} />, label: "Gói dịch vụ", path: "/pricingPage" },
   ];
@@ -160,24 +160,48 @@ const Sidebar: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto p-4">
         <nav className="space-y-1">
-          {mainMenu.map((item, index) => (
-            <Link
-              key={index}
-              to={item.path}
-              className={`flex items-center p-3 rounded-lg transition-all duration-200 ease-in-out ${
-                item.path === "#" ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100 dark:hover:bg-gray-700"
-              } ${
-                location.pathname.startsWith(item.path) ? "bg-gray-200 dark:bg-gray-700 font-semibold" : ""
-              } ${collapsed ? "justify-center" : ""}`}
-              onMouseEnter={(e) => handleMouseEnter(e, item.label)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <span className="flex-shrink-0">{item.icon}</span>
-              {!collapsed && (
-                <span className="ml-3 transition-opacity duration-200 ease-in-out">{item.label}</span>
-              )}
-            </Link>
-          ))}
+          {mainMenu.map((item, index) => {
+            const currentPathname = location.pathname;
+            const currentSearchParams = location.search;
+
+            // Phân tích item.path thành pathname và search params
+            const itemUrl = new URL(item.path, window.location.origin); // Dùng URL để parse dễ dàng hơn
+            const itemPathname = itemUrl.pathname;
+            const itemSearchParams = itemUrl.search;
+
+            let isActive = false;
+            if (currentPathname === itemPathname) {
+              if (itemSearchParams && currentSearchParams) {
+                // Cả hai đều có search params, so sánh chúng
+                isActive = itemSearchParams === currentSearchParams;
+              } else if (!itemSearchParams && !currentSearchParams) {
+                // Cả hai đều không có search params, chỉ cần pathname khớp
+                isActive = true;
+              } else {
+                // Một có, một không -> không active
+                isActive = false;
+              }
+            }
+
+            return (
+              <Link
+                key={index}
+                to={item.path} // Sử dụng item.path gốc để điều hướng
+                className={`flex items-center p-3 rounded-lg transition-all duration-200 ease-in-out ${
+                  item.path === "#" ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                } ${
+                  isActive ? "bg-gray-200 dark:bg-gray-700 font-semibold" : ""
+                } ${collapsed ? "justify-center" : ""}`}
+                onMouseEnter={(e) => handleMouseEnter(e, item.label)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <span className="flex-shrink-0">{item.icon}</span>
+                {!collapsed && (
+                  <span className="ml-3 transition-opacity duration-200 ease-in-out">{item.label}</span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {!collapsed && (
