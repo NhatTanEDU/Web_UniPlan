@@ -45,19 +45,31 @@ export default function ProjectPortfolioGanttPage() {
 
     // --- Cấu hình Gantt ---
     gantt.config.readonly = true;
+    // BƯỚC 1: Bật chức năng chọn dòng
+    gantt.config.select_task = true;
     gantt.config.date_format = "%Y-%m-%d %H:%i";
+    
+    // Tạo một hàm helper để định dạng ngày tháng
+    const formatDate = gantt.date.date_to_str("%Y-%m-%d");
     
     // SỬA LỖI 3: Cập nhật template của cột status để Việt hóa
     gantt.config.columns = [
       { name: "text", label: "Tên Dự Án", tree: true, width: 300 },
-      { name: "start_date", label: "Bắt đầu", align: "center", width: 120 },
-      { name: "end_date", label: "Kết thúc", align: "center", width: 120 },
+      {
+        name: "start_date", label: "Bắt đầu", align: "center", width: 120,
+        template: (task: any) => `<span class="date-color date-color-start"></span> ${formatDate(task.start_date)}`
+      },
+      {
+        name: "end_date", label: "Kết thúc", align: "center", width: 120,
+        template: (task: any) => `<span class="date-color date-color-end"></span> ${formatDate(task.end_date)}`
+      },
       {
         name: "status", label: "Trạng thái", align: "center", width: 120,
         template: (task) => {
-          const cssClass = `status-label status-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
+          const statusColorClass = `status-color status-color-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
           const localizedText = localizeStatus(task.status || '');
-          return `<span class="${cssClass}">${localizedText}</span>`;
+          const tooltipTitle = `Trạng thái: ${localizedText}`; // Nội dung của tooltip
+          return `<span class="${statusColorClass}" title="${tooltipTitle}"></span> <span class="status-label">${localizedText}</span>`;
         }
       },
     ];
@@ -189,6 +201,111 @@ export default function ProjectPortfolioGanttPage() {
           </div>
         )}
       </div>
+      <style>{`
+        /* CSS cho trạng thái của task trên thanh Gantt */
+        .gantt-project-status-hoạt-động {
+          background-color: #10b981 !important;
+          border-color: #059669 !important;
+          color: white !important;
+        }
+        .gantt-project-status-lên-kế-hoạch {
+          background-color: #f59e0b !important;
+          border-color: #d97706 !important;
+          color: white !important;
+        }
+        .gantt-project-status-tạm-dừng {
+          background-color: #f43f5e !important;
+          border-color: #e11d48 !important;
+          color: white !important;
+        }
+        .gantt-project-status-hoàn-thành {
+          background-color: #3b82f6 !important;
+          border-color: #2563eb !important;
+          color: white !important;
+        }
+        .gantt-project-status-đang-thực-hiện {
+          background-color: #8b5cf6 !important;
+          border-color: #7c3aed !important;
+          color: white !important;
+        }
+
+        /* CSS cho màu sắc trạng thái trong Grid */
+        .status-color {
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          margin-right: 5px;
+          vertical-align: middle; /* Căn giữa chấm tròn với chữ */
+        }
+        .status-color-hoạt-động {
+          background-color: #10b981;
+        }
+        .status-color-lên-kế-hoạch {
+          background-color: #f59e0b;
+        }
+        .status-color-tạm-dừng {
+          background-color: #f43f5e;
+        }
+        .status-color-hoàn-thành {
+          background-color: #3b82f6;
+        }
+        .status-color-đang-thực-hiện {
+          background-color: #8b5cf6;
+        }
+
+        /* CSS cho màu sắc ngày bắt đầu và kết thúc trong Grid */
+        .date-color {
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          margin-right: 5px;
+          vertical-align: middle;
+        }
+        .date-color-start {
+          background-color: #3b82f6; /* Màu xanh dương cho ngày bắt đầu */
+        }
+        .date-color-end {
+          background-color: #ea580c; /* Màu cam cho ngày kết thúc */
+        }
+        .status-label {
+          vertical-align: middle;
+        }
+
+        /* BƯỚC 1: CSS cho dòng được chọn */
+        .gantt_row.gantt_selected {
+          background-color: #eef2ff !important;
+        }
+        .dark .gantt_row.gantt_selected {
+          background-color: #312e81 !important;
+        }
+
+        /* BƯỚC 3: CSS cho thanh cuộn */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #94a3b8;
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+        .dark ::-webkit-scrollbar-track {
+          background: #1e293b;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+          background: #475569;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+      `}</style>
     </main>
   );
 }
