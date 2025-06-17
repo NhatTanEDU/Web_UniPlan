@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { COLORS } from "../../constants/colors"; // Cập nhật đường dẫn đúng với dự án của bạn
 interface LoginFormProps {
-  onLoginSuccess: (token: string, user: { id: string; name: string; email: string }) => void;
+  onLoginSuccess: (token: string, user: { id: string; name: string; email: string; role?: "admin" | "paid" | "free" }) => void;
   onError: (message: string) => void;
 }
 
@@ -24,8 +24,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onError }) => {
       });
 
       const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      // Không cần lưu riêng vào localStorage nữa, AuthContext sẽ lưu
+      // AuthContext sẽ quản lý token và user
       onLoginSuccess(token, user);
 
     } catch (err: any) {

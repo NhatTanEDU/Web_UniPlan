@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 import LoginForm from "../../components/auth/LoginForm";
 import LoginSideInfo from "../../components/auth/LoginSideInfo";
 import { AuthError } from "../../components/auth/AuthError";
+import { useAuth } from "../../components/context/AuthContext"; // Thêm import useAuth
 
 const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth(); // Lấy hàm login từ AuthContext
 
-  const handleLoginSuccess = (token: string, user: { id: string; name: string; email: string }) => {
+  const handleLoginSuccess = (token: string, user: { id: string; name: string; email: string; role?: "admin" | "paid" | "free" }) => {
+    // Gọi login từ AuthContext để lưu token và user info
+    login(token, user);
+    // Sau đó chuyển hướng
     navigate(`/dashboard/${user.id}`);
   };
 
