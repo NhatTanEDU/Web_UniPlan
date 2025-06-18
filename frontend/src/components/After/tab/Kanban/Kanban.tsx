@@ -68,8 +68,6 @@ const Kanban = () => {
   useEffect(() => {
     console.log("🔍 DEBUG: currentProject state changed to:", currentProject);  }, [currentProject]);
 
-  // ...existing code...
-
   // Debug useEffect to monitor loading state changes
   useEffect(() => {
     console.log("🔍 DEBUG: loading state changed to:", loading);
@@ -193,7 +191,7 @@ const Kanban = () => {
             
           } catch (kanbanError: any) {
             console.error("❌ DEBUG: Lỗi trong quá trình find-first, create-if-not-found:", kanbanError);
-            throw new Error('Không thể tải hoặc tạo bảng Kanban cho dự án này: ' + kanbanError.message);
+            throw new Error('Không thể tải hoặc tạo bảng tiến độ cho dự án này: ' + kanbanError.message);
           }          // ✅ BƯỚC 2: XỬ LÝ TASKS
           // Nếu đã có tasks từ findKanbanByProject, sử dụng luôn
           // Nếu không có (Kanban mới tạo), tasks đã được set = []
@@ -703,7 +701,7 @@ const Kanban = () => {
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <Breadcrumb items={["Dashboard", "Dự Án", "Bảng Kanban"]} />
+          <Breadcrumb items={["Dashboard", "Dự Án", "Bảng tiến độ"]} />
           <main className="flex-1 overflow-y-auto p-4">
             <div className="flex justify-center items-center h-64">
               <div className="text-lg text-gray-600 dark:text-gray-300">Đang tải...</div>
@@ -721,10 +719,10 @@ const Kanban = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <Breadcrumb items={["Dashboard", "Dự Án", "Bảng Kanban"]} />
+        <Breadcrumb items={["Dashboard", "Dự Án", "Bảng tiến độ"]} />
         <main className="flex-1 overflow-y-auto p-4">          <div className="mb-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              Bảng Kanban {currentProject?.project_name && `- ${cleanProjectName(currentProject.project_name)}`}
+              Bảng tiến độ {currentProject?.project_name && `- ${cleanProjectName(currentProject.project_name)}`}
             </h1><div className="flex items-center gap-4">              {loading && (
                 <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>

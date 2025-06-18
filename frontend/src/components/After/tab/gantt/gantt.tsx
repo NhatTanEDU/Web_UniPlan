@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { gantt } from "dhtmlx-gantt";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
@@ -26,6 +27,7 @@ export default function ProjectPortfolioGanttPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const { token } = useAuth();
+  const navigate = useNavigate(); // Thêm hook điều hướng
   
   // State và Ref cho tooltip custom
   const [customTooltip, setCustomTooltip] = useState<{
@@ -70,6 +72,22 @@ export default function ProjectPortfolioGanttPage() {
     gantt.templates.task_class = (start, end, task) => `gantt-project-status-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
     
     gantt.init(container);
+    // === SỰ KIỆN TƯƠI NG TÁC QUAN TRỌNG NHẤT ===
+    // Khi người dùng nhấp đúp chuột vào một dự án, chuyển hướng tới "Gantt Nhỏ" của dự án đó
+    gantt.attachEvent("onTaskDblClick", (id) => {
+      console.log(`🚀 Navigating from Portfolio Gantt to Project Gantt with ID: ${id}`);
+      // Lấy userId từ localStorage hoặc AuthContext để tạo URL đầy đủ
+      const user = JSON.parse(localStorage.getItem("user") || '{}');
+      const userId = user.id;
+      if (userId) {
+        // Điều hướng đến Dashboard với các query params để render GanttTab
+        navigate(`/dashboard/${userId}?view=gantt&projectId=${id}`);
+      } else {
+        console.error("Không tìm thấy User ID để điều hướng.");
+      }
+      return false; // Ngăn chặn popup chỉnh sửa mặc định của Gantt
+    });
+    // ...existing code...
 
     // ================= SỬA LỖI: SỬ DỤNG SỰ KIỆN HOVER DOM CHUẨN =================
     // Gắn sự kiện hover cho từng task line sau khi Gantt render
@@ -227,7 +245,7 @@ export default function ProjectPortfolioGanttPage() {
       setCustomTooltip({ visible: false, x: 0, y: 0, content: null });
       gantt.clearAll();
     };
-  }, [token]);
+  }, [token, navigate]);
 
   return (
     <main style={{ width: "100%", height: "100%" }}>

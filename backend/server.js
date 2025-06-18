@@ -75,4 +75,15 @@ const startServer = async () => {
 // Gọi hàm để bắt đầu
 startServer();
 
+// Bắt lỗi toàn cục để server không bị sập bất ngờ
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  process.exit(1); // Để nodemon tự động restart lại server
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1); // Để nodemon tự động restart lại server
+});
+
 module.exports = server;

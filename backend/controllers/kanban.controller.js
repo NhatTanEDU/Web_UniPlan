@@ -408,13 +408,28 @@ exports.getKanbanByProjectId = async (req, res) => {
 
     // Bước 3: Tìm Kanban cho dự án
     console.log(`${reqId} [4] Đang tìm Kanban cho dự án...`);
-    const kanban = await Kanban.findOne({ project_id: projectId });
+    let kanban = await Kanban.findOne({ project_id: projectId });
 
     if (!kanban) {
-      console.log(`${reqId} [RESULT] Không tìm thấy Kanban cho dự án này.`);
-      return res.status(404).json({ 
-        message: 'Không tìm thấy bảng Kanban cho dự án này',
-        found: false 
+      console.log(`${reqId} [RESULT] Không tìm thấy Kanban cho dự án này. Tự động tạo mới!`);
+      // Tạo Kanban mới cho project này
+      kanban = new Kanban({
+        project_id: projectId,
+        name: `Bảng Kanban cho ${project.project_name}`,
+        created_by: userId
+      });
+      await kanban.save();
+      // Cập nhật lại project.kanban_id
+      project.kanban_id = kanban._id;
+      await project.save();
+      // Tasks sẽ là mảng rỗng
+      const tasks = [];
+      return res.status(201).json({
+        kanban,
+        tasks,
+        project_name: project.project_name,
+        found: true,
+        autoCreated: true
       });
     }
 

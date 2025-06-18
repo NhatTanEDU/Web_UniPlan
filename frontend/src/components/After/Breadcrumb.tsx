@@ -229,13 +229,19 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
           <span>/</span>
           {isDashboardGantt ? (
             <>
-              <span className="hover:text-primary flex items-center">
+              <Link
+                to={`/projects/${projectIdFromUrl}/kanban`}
+                className="hover:text-primary flex items-center"
+              >
                 {loadingProjectName ? "Đang tải..." : kanbanProjectName || "Dự án"}
-              </span>
+              </Link>
               <span>/</span>
-              <span className="hover:text-primary flex items-center">
+              <Link
+                to={`/projects/${projectIdFromUrl}/kanban`}
+                className="hover:text-primary flex items-center"
+              >
                 Kanban
-              </span>
+              </Link>
               <span>/</span>
               <span className="text-gray-800 dark:text-gray-200 font-medium flex items-center">
                 Gantt
@@ -243,11 +249,17 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items: propItems = ["Dashboard"
             </>
           ) : (
             <>
-              <Link to="/projects" className="hover:text-primary flex items-center">
+              <Link
+                to="/projects"
+                className="hover:text-primary flex items-center"
+              >
                 Dự án
               </Link>
               <span>/</span>
-              <Link to={`/projects/${projectIdFromUrl}/kanban`} className="hover:text-primary flex items-center">
+              <Link
+                to={`/projects/${projectIdFromUrl}/kanban`}
+                className="hover:text-primary flex items-center"
+              >
                 {loadingProjectName ? "Đang tải..." : kanbanProjectName || "Dự án"}
               </Link>
               <span>/</span>
