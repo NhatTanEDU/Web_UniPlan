@@ -4,6 +4,7 @@ import { gantt } from "dhtmlx-gantt";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import './gantt-custom.css';
 
 // Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
@@ -49,7 +50,21 @@ export default function ProjectPortfolioGanttPage() {
     
     // SỬA LỖI 3: Cập nhật template của cột status để Việt hóa
     gantt.config.columns = [
-      { name: "text", label: "Tên Dự Án", tree: true, width: 300 },
+      { 
+        name: "text", label: "Tên Dự Án", tree: true, width: 300,
+        template: function(task) {
+          const now = new Date();
+          const endDate = new Date(task.end_date || task.end);
+          const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (diffDays < 0) {
+            return `<span style="color:#ff4d4f; font-weight:bold;">${task.text}</span>`;
+          } else if (diffDays <= 3) {
+            return `<span style="color:#faad14; font-weight:bold;">${task.text}</span>`;
+          }
+          return task.text;
+        }
+      },
       {
         name: "start_date", label: "Bắt đầu", align: "center", width: 120,
         template: (task: any) => `<span class="date-color date-color-start"></span> ${formatDate(task.start_date)}`
@@ -69,7 +84,33 @@ export default function ProjectPortfolioGanttPage() {
       },
     ];
     
-    gantt.templates.task_class = (start, end, task) => `gantt-project-status-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
+    // Template để kiểm soát màu chữ tên dự án
+    gantt.templates.task_text = function(start, end, task) {
+      const now = new Date();
+      const endDate = new Date(task.end_date || task.end || end);
+      const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let textColor = '';
+      if (diffDays < 0) {
+        // Đã hết hạn - chữ màu đỏ
+        textColor = 'color: #ff4d4f; font-weight: bold;';
+      } else if (diffDays <= 3) {
+        // Sắp hết hạn (<=3 ngày) - chữ màu vàng đậm
+        textColor = 'color: #faad14; font-weight: bold;';
+      }
+      
+      return `<span style="${textColor}">${task.text}</span>`;
+    };
+    
+    // Thêm class cho task line nếu sắp hết hạn hoặc đã hết hạn
+    gantt.templates.task_class = (start, end, task) => {
+      const now = new Date();
+      const endDate = new Date(task.end_date || task.end || end);
+      const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return 'gantt-task-expired'; // Đã hết hạn
+      if (diffDays <= 3) return 'gantt-task-warning'; // Sắp hết hạn (<=3 ngày)
+      return `gantt-project-status-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
+    };
     
     gantt.init(container);
     // === SỰ KIỆN TƯƠI NG TÁC QUAN TRỌNG NHẤT ===
@@ -97,14 +138,11 @@ export default function ProjectPortfolioGanttPage() {
         const el = line as HTMLElement;
         const taskId = el.getAttribute('task_id');
         if (!taskId) return;
-        // Xóa sự kiện cũ nếu có
         el.onmouseenter = null;
         el.onmouseleave = null;
-        // Gắn sự kiện mouseenter
         el.addEventListener('mouseenter', (e: MouseEvent) => {
           if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
           const task = gantt.getTask(taskId);
-          console.log('[DEBUG] Hover vào task:', task); // Debug dữ liệu khi hover
           setCustomTooltip({
             visible: true,
             x: e.pageX,
@@ -112,7 +150,35 @@ export default function ProjectPortfolioGanttPage() {
             content: task,
           });
         });
-        // Gắn sự kiện mouseleave
+        el.addEventListener('mouseleave', () => {
+          tooltipTimeoutRef.current = setTimeout(() => {
+            setCustomTooltip((prev) => ({ ...prev, visible: false }));
+          }, 300);
+        });
+      });
+      // GẮN THÊM SỰ KIỆN HOVER VÀO TÊN DỰ ÁN (CỘT TÊN DỰ ÁN)
+      // Chỉ chọn cell tên dự án (cột đầu tiên)
+      const nameCells = document.querySelectorAll('.gantt_row .gantt_cell_tree .gantt_tree_content');
+      console.log('[DEBUG] Số lượng nameCells:', nameCells.length); // DEBUG LOG
+      nameCells.forEach((cell, idx) => {
+        const el = cell as HTMLElement;
+        const row = el.closest('.gantt_row');
+        if (!row) return;
+        const taskId = row.getAttribute('task_id');
+        if (!taskId) return;
+        el.onmouseenter = null;
+        el.onmouseleave = null;
+        el.addEventListener('mouseenter', (e: MouseEvent) => {
+          if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
+          const task = gantt.getTask(taskId);
+          console.log(`[DEBUG] Hover vào tên dự án (cell ${idx}):`, task); // DEBUG LOG
+          setCustomTooltip({
+            visible: true,
+            x: e.pageX,
+            y: e.pageY,
+            content: task,
+          });
+        });
         el.addEventListener('mouseleave', () => {
           tooltipTimeoutRef.current = setTimeout(() => {
             setCustomTooltip((prev) => ({ ...prev, visible: false }));
@@ -230,6 +296,12 @@ export default function ProjectPortfolioGanttPage() {
               }, 300);
             });
           });
+        }, 0);
+        
+        // Sau khi render, đồng bộ class màu từ task line sang row/cell tên dự án
+        setTimeout(() => {
+          // Cài đặt ban đầu đã đủ, không cần thêm code ở đây nữa
+          // do đã dùng task_text template để điều khiển trực tiếp màu chữ
         }, 0);
         
       } catch (e) {
@@ -437,6 +509,14 @@ export default function ProjectPortfolioGanttPage() {
         }
         .dark ::-webkit-scrollbar-thumb:hover {
           background: #64748b;
+        }
+
+        /* CSS cho hiệu ứng cảnh báo và hết hạn */
+        .gantt-task-warning {
+          background-color: rgba(255, 165, 0, 0.7) !important; /* Màu cam nhạt cho cảnh báo */
+        }
+        .gantt-task-expired {
+          background-color: rgba(255, 0, 0, 0.7) !important; /* Màu đỏ nhạt cho hết hạn */
         }
       `}</style>
     </main>

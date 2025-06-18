@@ -1,0 +1,23 @@
+/* Hiệu ứng màu cho task Gantt hết hạn và sắp hết hạn */
+.gantt-task-expired .gantt_task_line {
+  background: repeating-linear-gradient(135deg, #ff4d4f 0 10px, #fff0f0 10px 20px);
+  border: 2px solid #ff4d4f !important;
+  opacity: 0.85;
+}
+.gantt-task-warning .gantt_task_line {
+  background: repeating-linear-gradient(135deg, #faad14 0 10px, #fffbe6 10px 20px);
+  border: 2px solid #faad14 !important;
+  opacity: 0.95;
+}
+.gantt-task-expired .gantt_cell_tree .gantt_tree_content {
+  background: none !important;
+  color: #ff4d4f !important;
+  font-weight: bold;
+  border-radius: 0;
+}
+.gantt-task-warning .gantt_cell_tree .gantt_tree_content {
+  background: none !important;
+  color: #faad14 !important;
+  font-weight: bold;
+  border-radius: 0;
+}
