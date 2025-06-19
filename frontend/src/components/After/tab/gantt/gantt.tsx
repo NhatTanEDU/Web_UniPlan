@@ -1,18 +1,12 @@
 // src/components/After/tab/gantt/gantt.tsx
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { gantt } from "dhtmlx-gantt";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import './gantt-custom.css';
-import { Input, Select, Button, Tooltip, Switch, Radio, Space, Row, Col, Statistic, Card, Tag, Spin, Progress, Tabs, Divider } from 'antd'; 
-import { 
-  SearchOutlined, ExpandAltOutlined, CompressOutlined, CalendarOutlined, InfoCircleOutlined,
-  CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined, CopyOutlined,
-  ReloadOutlined, PieChartOutlined, BarChartOutlined, CalendarFilled, WarningOutlined
-} from '@ant-design/icons';
-// Import thư viện chart nếu cần
-import { Pie } from '@ant-design/plots';
+import { Input, Select, Button, Tooltip, Switch, Radio, Space } from 'antd'; // Loại bỏ Popover
+import { SearchOutlined, ExpandAltOutlined, CompressOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons'; // Loại bỏ FilterOutlined
 
 // Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
@@ -57,6 +51,7 @@ export default function ProjectPortfolioGanttPage() {
   
   // State để quản lý ẩn/hiện chú thích
   const [showLegend, setShowLegend] = useState(true);
+
   // State để lưu trữ tất cả dự án và các bộ lọc
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -64,15 +59,6 @@ export default function ProjectPortfolioGanttPage() {
   const [timeScale, setTimeScale] = useState("week");
   const [expandAll, setExpandAll] = useState(true);
   const [showTodayMarker, setShowTodayMarker] = useState(true);
-  
-  // Thống kê số lượng dự án theo trạng thái
-  const statusCounts = useMemo(() => {
-    return allProjects.reduce<Record<string, number>>((acc, project) => {
-      const status = project.status || 'default';
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    }, {});
-  }, [allProjects]);
   // Hàm áp dụng bộ lọc phía client
   const applyFilters = () => {
     if (!allProjects.length) return;
@@ -467,7 +453,8 @@ export default function ProjectPortfolioGanttPage() {
     );
   };
 
-  return (    <main style={{ width: "100%", height: "100%" }}>      <div style={{
+  return (    <main style={{ width: "100%", height: "100%" }}>
+      <div style={{
         backgroundColor: "#fff",
         borderBottom: "2px solid #e5e7eb",
         padding: "16px 24px",
@@ -505,59 +492,6 @@ export default function ProjectPortfolioGanttPage() {
           >
             {showLegend ? "Ẩn chú thích" : "Hiện chú thích"}
           </Button>
-        </div>
-        
-        {/* KPI Cards - Thống kê số lượng dự án theo trạng thái */}
-        <div style={{ 
-          display: "flex", 
-          flexWrap: "wrap", 
-          gap: "16px", 
-          marginTop: "16px",
-          padding: "16px",
-          backgroundColor: "#f8fafc",
-          borderRadius: "8px"
-        }}>
-          <Statistic
-            title="Tổng dự án"
-            value={allProjects.length}
-            valueStyle={{ color: "#1f2937" }}
-            prefix={<CopyOutlined style={{ marginRight: "4px" }} />}
-          />
-          
-          <Statistic
-            title="Hoạt động"
-            value={statusCounts["Active"] || 0}
-            valueStyle={{ color: "#52c41a" }}
-            prefix={<ClockCircleOutlined style={{ marginRight: "4px", color: "#52c41a" }} />}
-          />
-          
-          <Statistic
-            title="Lên kế hoạch"
-            value={statusCounts["Planning"] || 0}
-            valueStyle={{ color: "#1890ff" }}
-            prefix={<ClockCircleOutlined style={{ marginRight: "4px", color: "#1890ff" }} />}
-          />
-          
-          <Statistic
-            title="Hoàn thành"
-            value={statusCounts["Completed"] || 0}
-            valueStyle={{ color: "#eb2f96" }}
-            prefix={<CheckCircleOutlined style={{ marginRight: "4px", color: "#eb2f96" }} />}
-          />
-          
-          <Statistic
-            title="Đã hủy"
-            value={statusCounts["Cancelled"] || 0}
-            valueStyle={{ color: "#6b7280" }}
-            prefix={<CloseCircleOutlined style={{ marginRight: "4px", color: "#6b7280" }} />}
-          />
-          
-          <Statistic
-            title="Trì hoãn"
-            value={statusCounts["Delayed"] || 0}
-            valueStyle={{ color: "#f5222d" }}
-            prefix={<ClockCircleOutlined style={{ marginRight: "4px", color: "#f5222d" }} />}
-          />
         </div>
 
         {/* Phần chú thích - có thể ẩn/hiện */}
@@ -609,122 +543,74 @@ export default function ProjectPortfolioGanttPage() {
             </div>
           </div>
         )}      </div>
-        {/* Toolbar cho các điều khiển UI */}
+      
+      {/* Toolbar cho các điều khiển UI */}
       <div style={{ 
-        padding: "16px 24px", 
-        backgroundColor: "#ffffff", 
+        padding: "12px 24px", 
+        backgroundColor: "#f5f5f5", 
         borderBottom: "1px solid #e8e8e8", 
-        marginBottom: "16px",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+        marginBottom: "10px",
         display: "flex",
         flexWrap: "wrap",
-        gap: "12px",
-        alignItems: "center"
+        gap: "10px"
       }}>
-        <Space size="middle" wrap style={{ flex: 1 }}>
-          {/* Tìm kiếm */}
-          <Input
-            placeholder="Tìm kiếm dự án..."
-            prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={e => setSearchText(e.target.value)}
-            style={{ width: 240 }}
-            allowClear
-          />
-          
-          {/* Bộ lọc trạng thái */}
-          <Select
-            mode="multiple"
-            placeholder="Lọc theo trạng thái"
-            value={statusFilter}
-            onChange={handleStatusFilter}
-            style={{ width: 280 }}
-            options={projectStatuses.map(s => ({ 
-              label: (
-                <span style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ 
-                    display: "inline-block",
-                    width: "8px", 
-                    height: "8px", 
-                    backgroundColor: s.color, 
-                    borderRadius: "2px", 
-                    marginRight: "8px" 
-                  }} />
-                  {s.label}
-                </span>
-              ), 
-              value: s.value 
-            }))}
-            maxTagCount="responsive"
-            allowClear
-          />
-          
-          {/* Nút reset bộ lọc */}
-          {(searchText || statusFilter.length > 0) && (
-            <Button 
-              icon={<ReloadOutlined />}
-              onClick={() => {
-                setSearchText('');
-                setStatusFilter([]);
-              }}
-            >
-              Xóa bộ lọc
-            </Button>
-          )}
-        </Space>
+        {/* Tìm kiếm */}
+        <Input
+          placeholder="Tìm kiếm dự án..."
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+          allowClear
+        />
+        
+        {/* Bộ lọc trạng thái */}
+        <Select
+          mode="multiple"
+          placeholder="Lọc theo trạng thái"
+          value={statusFilter}
+          onChange={handleStatusFilter}
+          style={{ width: 240 }}
+          options={projectStatuses.map(s => ({ label: s.label, value: s.value }))}
+          maxTagCount="responsive"
+          allowClear
+        />
+        
+        {/* Nút reset bộ lọc */}
+        {(searchText || statusFilter.length > 0) && (
+          <Button 
+            onClick={() => {
+              setSearchText('');
+              setStatusFilter([]);
+            }}
+          >
+            Xóa bộ lọc
+          </Button>
+        )}
         
         {/* Hiển thị số lượng kết quả nếu đã lọc */}
         {allProjects.length > 0 && (gantt.getTaskCount() < allProjects.length) && (
-          <Tag color="blue" style={{ fontSize: "13px", padding: "4px 8px" }}>
+          <div style={{ marginLeft: "auto", padding: "5px 10px", backgroundColor: "#e6f7ff", border: "1px solid #91d5ff", borderRadius: "4px" }}>
             Hiển thị: {gantt.getTaskCount()}/{allProjects.length} dự án
-          </Tag>
-        )}
-      </div>
-        <div style={{ 
-        position: "relative", 
-        width: "100%", 
-        height: "650px", 
-        backgroundColor: "#ffffff",
-        borderRadius: "8px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
-      }}>
+          </div>
+        )}      </div>
+      
+      <div style={{ position: "relative", width: "100%", height: "650px" }}>
         <div ref={ganttContainer} style={{ width: "100%", height: "650px" }} />
         {isLoading && !error && (
           <div style={{
-            position: "absolute", 
-            left: 0, 
-            top: 0, 
-            width: "100%", 
-            height: "100%",
-            background: "rgba(255,255,255,0.8)", 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center", 
-            zIndex: 10
+            position: "absolute", left: 0, top: 0, width: "100%", height: "100%",
+            background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10
           }}>
-            <Spin tip="Đang khởi tạo biểu đồ Gantt..." size="large" />
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              <span style={{ marginLeft: 16, color: "#555" }}>Đang khởi tạo biểu đồ Gantt...</span>
+            </div>
           </div>
         )}
         {error && (
-          <div style={{ 
-            position: "absolute", 
-            left: 0, 
-            top: 0, 
-            width: "100%", 
-            height: "100%", 
-            background: "rgba(255,240,240,0.95)", 
-            zIndex: 20, 
-            display: "flex", 
-            flexDirection: "column",
-            alignItems: "center", 
-            justifyContent: "center",
-            padding: "20px"
-          }}>
-            <CloseCircleOutlined style={{ fontSize: "32px", color: "#f5222d", marginBottom: "16px" }} />
-            <div style={{ color: "#f5222d", fontWeight: "bold", fontSize: "16px", textAlign: "center" }}>{error}</div>
-            <Button type="primary" danger style={{ marginTop: "16px" }} onClick={() => window.location.reload()}>
-              Thử lại
-            </Button>
+          <div style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%", background: "rgba(255,0,0,0.1)", zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ color: "red", fontWeight: "bold" }}>{error}</span>
           </div>
         )}
       </div>
