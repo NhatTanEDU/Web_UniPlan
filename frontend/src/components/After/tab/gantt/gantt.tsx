@@ -59,15 +59,57 @@ export default function ProjectPortfolioGanttPage() {
   const [timeScale, setTimeScale] = useState("week");
   const [expandAll, setExpandAll] = useState(true);
   const [showTodayMarker, setShowTodayMarker] = useState(true);
-
   // Hàm áp dụng bộ lọc phía client
-  const applyFilters = () => { /* ... giữ nguyên ... */ };
-  // Hàm xử lý tìm kiếm
-  const handleSearch = () => { /* ... giữ nguyên ... */ };
+  const applyFilters = () => {
+    if (!allProjects.length) return;
+    
+    setIsLoading(true);
+    
+    let filteredProjects = [...allProjects];
+    
+    // Lọc theo tên dự án (không phân biệt chữ hoa/thường)
+    if (searchText.trim()) {
+      const searchLower = searchText.trim().toLowerCase();
+      filteredProjects = filteredProjects.filter(project => {
+        const projectName = project.text || project.project_name || '';
+        return projectName.toLowerCase().includes(searchLower);
+      });
+    }
+    
+    // Lọc theo trạng thái (nếu có trạng thái được chọn)
+    if (statusFilter.length > 0) {
+      filteredProjects = filteredProjects.filter(project => 
+        statusFilter.includes(project.status || '')
+      );
+    }
+    
+    // Cập nhật dữ liệu Gantt với kết quả đã lọc
+    gantt.clearAll();
+    gantt.parse({
+      data: filteredProjects
+    });
+    
+    // Hiển thị số lượng kết quả lọc (tùy chọn)
+    console.log(`Đã lọc: ${filteredProjects.length}/${allProjects.length} dự án`);
+    
+    setIsLoading(false);
+  };
+
   // Hàm xử lý lọc theo trạng thái
-  const handleStatusFilter = (values: string[]) => { /* ... giữ nguyên ... */ };
+  const handleStatusFilter = (values: string[]) => {
+    setStatusFilter(values);
+    // Việc áp dụng lọc sẽ được xử lý trong useEffect
+  };
+
   // useEffect để áp dụng lại bộ lọc khi state thay đổi
-  useEffect(() => { /* ... giữ nguyên ... */ }, [searchText, statusFilter, allProjects]);
+  useEffect(() => {
+    // Thêm debounce cho tìm kiếm để tránh gọi quá nhiều lần khi người dùng gõ nhanh
+    const timer = setTimeout(() => {
+      applyFilters();
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [searchText, statusFilter, allProjects]);
   // Hàm xử lý thay đổi thang thời gian
   const handleTimeScaleChange = (value: string) => { /* ... giữ nguyên ... */ };
   // Hàm xử lý thu gọn/mở rộng tất cả
@@ -305,8 +347,12 @@ export default function ProjectPortfolioGanttPage() {
           return result;
         });
         // =====================================================================
+          console.log("🎯 [Gantt Effect] Dự án đã xử lý:", processedData.length);
         
-        console.log("🎯 [Gantt Effect] Dự án đã xử lý:", processedData.length);
+        // Lưu trữ dữ liệu gốc vào state để sử dụng cho lọc
+        setAllProjects(processedData);
+        
+        // Hiển thị trên Gantt chart
         gantt.clearAll();
         gantt.parse({ data: processedData, links: [] });
 
@@ -496,8 +542,58 @@ export default function ProjectPortfolioGanttPage() {
               </div>
             </div>
           </div>
+        )}      </div>
+      
+      {/* Toolbar cho các điều khiển UI */}
+      <div style={{ 
+        padding: "12px 24px", 
+        backgroundColor: "#f5f5f5", 
+        borderBottom: "1px solid #e8e8e8", 
+        marginBottom: "10px",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "10px"
+      }}>
+        {/* Tìm kiếm */}
+        <Input
+          placeholder="Tìm kiếm dự án..."
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+          allowClear
+        />
+        
+        {/* Bộ lọc trạng thái */}
+        <Select
+          mode="multiple"
+          placeholder="Lọc theo trạng thái"
+          value={statusFilter}
+          onChange={handleStatusFilter}
+          style={{ width: 240 }}
+          options={projectStatuses.map(s => ({ label: s.label, value: s.value }))}
+          maxTagCount="responsive"
+          allowClear
+        />
+        
+        {/* Nút reset bộ lọc */}
+        {(searchText || statusFilter.length > 0) && (
+          <Button 
+            onClick={() => {
+              setSearchText('');
+              setStatusFilter([]);
+            }}
+          >
+            Xóa bộ lọc
+          </Button>
         )}
-      </div>
+        
+        {/* Hiển thị số lượng kết quả nếu đã lọc */}
+        {allProjects.length > 0 && (gantt.getTaskCount() < allProjects.length) && (
+          <div style={{ marginLeft: "auto", padding: "5px 10px", backgroundColor: "#e6f7ff", border: "1px solid #91d5ff", borderRadius: "4px" }}>
+            Hiển thị: {gantt.getTaskCount()}/{allProjects.length} dự án
+          </div>
+        )}      </div>
       
       <div style={{ position: "relative", width: "100%", height: "650px" }}>
         <div ref={ganttContainer} style={{ width: "100%", height: "650px" }} />
