@@ -5,6 +5,8 @@ import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import './gantt-custom.css';
+import { Input, Select, Button, Tooltip, Switch, Radio, Space } from 'antd'; // Loại bỏ Popover
+import { SearchOutlined, ExpandAltOutlined, CompressOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons'; // Loại bỏ FilterOutlined
 
 // Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
@@ -23,18 +25,57 @@ interface Project {
   [key: string]: any;
 }
 
+// Định nghĩa các trạng thái dự án và màu sắc tương ứng
+const projectStatuses = [
+  { value: 'Active', label: 'Hoạt động', color: '#52c41a' },        /* xanh lá */
+  { value: 'Planning', label: 'Lên kế hoạch', color: '#1890ff' },   /* xanh dương */
+  { value: 'On Hold', label: 'Tạm dừng', color: '#faad14' },        /* vàng */
+  { value: 'Completed', label: 'Hoàn thành', color: '#eb2f96' },    /* hồng đậm */
+  { value: 'In Progress', label: 'Đang thực hiện', color: '#722ed1' }, /* tím */
+  { value: 'Delayed', label: 'Trì hoãn', color: '#f5222d' },        /* đỏ */
+  { value: 'Cancelled', label: 'Đã hủy', color: '#6b7280' },        /* xám */
+  { value: 'Default', label: 'Mặc định', color: '#000' }            /* đen */
+];
+
 export default function ProjectPortfolioGanttPage() {
   const ganttContainer = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const { token } = useAuth();
   const navigate = useNavigate(); // Thêm hook điều hướng
-  
-  // State và Ref cho tooltip custom
+    // State và Ref cho tooltip custom
   const [customTooltip, setCustomTooltip] = useState<{
     visible: boolean; x: number; y: number; content: any;
   }>({ visible: false, x: 0, y: 0, content: null });
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // State để quản lý ẩn/hiện chú thích
+  const [showLegend, setShowLegend] = useState(true);
+
+  // State để lưu trữ tất cả dự án và các bộ lọc
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [timeScale, setTimeScale] = useState("week");
+  const [expandAll, setExpandAll] = useState(true);
+  const [showTodayMarker, setShowTodayMarker] = useState(true);
+
+  // Hàm áp dụng bộ lọc phía client
+  const applyFilters = () => { /* ... giữ nguyên ... */ };
+  // Hàm xử lý tìm kiếm
+  const handleSearch = () => { /* ... giữ nguyên ... */ };
+  // Hàm xử lý lọc theo trạng thái
+  const handleStatusFilter = (values: string[]) => { /* ... giữ nguyên ... */ };
+  // useEffect để áp dụng lại bộ lọc khi state thay đổi
+  useEffect(() => { /* ... giữ nguyên ... */ }, [searchText, statusFilter, allProjects]);
+  // Hàm xử lý thay đổi thang thời gian
+  const handleTimeScaleChange = (value: string) => { /* ... giữ nguyên ... */ };
+  // Hàm xử lý thu gọn/mở rộng tất cả
+  const toggleExpandAll = () => { /* ... giữ nguyên ... */ };
+  // Hàm load dữ liệu Gantt từ API
+  const loadGanttData = async () => { /* ... giữ nguyên ... */ };
+  // Template cải tiến cho tooltip
+  const renderEnhancedTooltip = (task: any) => { /* ... giữ nguyên ... */ };
 
   useEffect(() => {
     const container = ganttContainer.current;
@@ -316,33 +357,146 @@ export default function ProjectPortfolioGanttPage() {
       gantt.clearAll();
     };
   }, [token, navigate]);
-  return (
-    <main style={{ width: "100%", height: "100%" }}>
-      {/* Header tiêu đề */}
+  
+  // Component hiển thị tooltip
+  const TooltipComponent = () => {
+    if (!customTooltip.visible || !customTooltip.content) return null;
+    
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          left: `${customTooltip.x + 15}px`,
+          top: `${customTooltip.y + 15}px`,
+          zIndex: 10001
+        }}
+      >
+        <div style={{
+          backgroundColor: 'rgba(31, 41, 55, 0.95)', 
+          color: 'white',
+          border: '1px solid rgba(75, 85, 99, 0.5)',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2)',
+          maxWidth: '280px',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{
+            fontWeight: 'bold', 
+            fontSize: '0.95rem', 
+            marginBottom: '0.5rem', 
+            color: '#93c5fd', 
+            borderBottom: '1px solid rgba(75, 85, 99, 0.5)',
+            paddingBottom: '0.5rem'
+          }}>
+            {customTooltip.content.text}
+          </div>
+          <div style={{ fontSize: '0.85rem', color: '#f3f4f6' }}>
+            <p style={{ marginBottom: '0.25rem' }}>
+              <strong>Trạng thái:</strong> {localizeStatus(customTooltip.content.status || '')}
+            </p>
+            <p style={{ marginBottom: '0.25rem' }}>
+              <strong>Bắt đầu:</strong> {customTooltip.content.start_date ? new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
+            </p>
+            <p>
+              <strong>Kết thúc:</strong> {customTooltip.content.end_date ? new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (    <main style={{ width: "100%", height: "100%" }}>
       <div style={{
         backgroundColor: "#fff",
         borderBottom: "2px solid #e5e7eb",
         padding: "16px 24px",
         marginBottom: "16px"
       }}>
-        <h1 style={{
-          fontSize: "24px",
-          fontWeight: "bold",
-          color: "#1f2937",
-          margin: 0,
-          display: "flex",
-          alignItems: "center",
-          gap: "12px"
-        }}>
-          📊 Tổng quan Gantt - Quản lý Dự án
-        </h1>
-        <p style={{
-          fontSize: "14px",
-          color: "#6b7280",
-          margin: "8px 0 0 0"
-        }}>
-          Xem tổng quan tiến độ và trạng thái của tất cả dự án trong hệ thống
-        </p>
+        {/* Phần tiêu đề và mô tả */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <h1 style={{
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: "#1f2937",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "12px"
+            }}>
+              📊 Tổng quan Gantt - Quản lý Dự án
+            </h1>
+            <p style={{
+              fontSize: "14px",
+              color: "#6b7280",
+              margin: "8px 0 0 0"
+            }}>
+              Xem tổng quan tiến độ và trạng thái của tất cả dự án trong hệ thống
+            </p>
+          </div>
+          
+          {/* Nút chú thích - có thể ẩn/hiện */}
+          <Button 
+            type="text" 
+            icon={<InfoCircleOutlined />} 
+            onClick={() => setShowLegend(!showLegend)}
+            style={{ marginLeft: "8px", marginTop: "4px" }}
+          >
+            {showLegend ? "Ẩn chú thích" : "Hiện chú thích"}
+          </Button>
+        </div>
+
+        {/* Phần chú thích - có thể ẩn/hiện */}
+        {showLegend && (
+          <div style={{
+            marginTop: "16px",
+            padding: "12px",
+            backgroundColor: "#f9fafb",
+            borderRadius: "6px",
+            border: "1px solid #e5e7eb"
+          }}>
+            <div style={{ marginBottom: "8px", fontWeight: "500", fontSize: "14px" }}>Chú thích:</div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+              gap: "12px",
+            }}>
+              {projectStatuses.map((status) => (
+                <div key={status.value} style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  fontSize: "14px",
+                }}>
+                  <div style={{ 
+                    backgroundColor: status.color, 
+                    width: "12px", 
+                    height: "12px", 
+                    borderRadius: "3px", 
+                    marginRight: "8px" 
+                  }} />
+                  {status.label}
+                </div>
+              ))}
+              
+              <div style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
+                <div style={{ backgroundColor: '#ff4d4f', width: '12px', height: '12px', borderRadius: '3px', marginRight: '8px' }} />
+                Quá hạn
+              </div>
+              
+              <div style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
+                <div style={{ backgroundColor: '#faad14', width: '12px', height: '12px', borderRadius: '3px', marginRight: '8px' }} />
+                Sắp hết hạn
+              </div>
+              
+              <div style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
+                <div style={{ backgroundColor: '#ff4d4f', width: '2px', height: '16px', marginRight: '8px' }} />
+                Ngày hiện tại
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       
       <div style={{ position: "relative", width: "100%", height: "650px" }}>
@@ -366,53 +520,7 @@ export default function ProjectPortfolioGanttPage() {
       </div>
       
       {/* Component Tooltip Custom */}
-      {customTooltip.visible && customTooltip.content && (
-        <div
-          style={{
-            position: 'fixed',
-            left: `${customTooltip.x + 20}px`,
-            top: `${customTooltip.y + 20}px`,
-            zIndex: 1000,
-            pointerEvents: 'none',
-            transition: 'opacity 0.2s, transform 0.2s',
-            opacity: 1,
-            transform: 'translateY(0)',
-          }}
-        >
-          <div style={{
-            backgroundColor: 'rgba(31, 41, 55, 0.95)', 
-            color: 'white',
-            border: '1px solid rgba(75, 85, 99, 0.5)',
-            borderRadius: '0.5rem',
-            padding: '0.75rem',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2)',
-            maxWidth: '280px',
-            backdropFilter: 'blur(8px)'
-          }}>
-            <div style={{
-              fontWeight: 'bold', 
-              fontSize: '0.95rem', 
-              marginBottom: '0.5rem', 
-              color: '#93c5fd', 
-              borderBottom: '1px solid rgba(75, 85, 99, 0.5)',
-              paddingBottom: '0.5rem'
-            }}>
-              {customTooltip.content.text}
-            </div>
-            <div style={{ fontSize: '0.85rem', color: '#f3f4f6' }}>
-              <p style={{ marginBottom: '0.25rem' }}>
-                <strong>Trạng thái:</strong> {localizeStatus(customTooltip.content.status || '')}
-              </p>
-              <p style={{ marginBottom: '0.25rem' }}>
-                <strong>Bắt đầu:</strong> {customTooltip.content.start_date ? new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
-              </p>
-              <p>
-                <strong>Kết thúc:</strong> {customTooltip.content.end_date ? new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <TooltipComponent />
       
       <style>{`
         /* CSS cho trạng thái của task trên thanh Gantt */
