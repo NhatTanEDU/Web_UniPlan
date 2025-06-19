@@ -21,3 +21,37 @@
   font-weight: bold;
   border-radius: 0;
 }
+
+/* ==================== Status text color styling ==================== */
+.status-label {
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  padding: 2px 4px !important;
+  font-weight: 500;
+}
+
+/* Colors for each status text */
+.status-label.status-color-active { color: #52c41a !important; }        /* Hoạt động - xanh lá */
+.status-label.status-color-planning { color: #1890ff !important; }      /* Lên kế hoạch - xanh dương */
+.status-label.status-color-on-hold { color: #faad14 !important; }       /* Tạm dừng - vàng */
+.status-label.status-color-completed { color: #eb2f96 !important; }     /* Hoàn thành - hồng đậm */
+.status-label.status-color-in-progress { color: #722ed1 !important; }   /* Đang thực hiện - tím */
+.status-label.status-color-delayed { color: #f5222d !important; }       /* Trì hoãn - đỏ */
+.status-label.status-color-cancelled { color: #f5222d !important; }     /* Đã hủy - đỏ */
+.status-label.status-color-default { color: #000 !important; }
+
+/* Allow grid cells to show full status text */
+.gantt_grid .gantt_cell, .gantt_grid .gantt_cell_tree {
+  overflow: visible !important;
+  white-space: nowrap;
+  min-height: 24px !important;
+  height: auto !important;
+}
+.gantt_tree_content {
+  height: auto !important;
+  padding: 2px 4px !important;
+}
+/* ====================================================================== */

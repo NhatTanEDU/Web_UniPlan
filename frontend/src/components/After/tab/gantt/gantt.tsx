@@ -72,14 +72,12 @@ export default function ProjectPortfolioGanttPage() {
       {
         name: "end_date", label: "Kết thúc", align: "center", width: 120,
         template: (task: any) => `<span class="date-color date-color-end"></span> ${formatDate(task.end_date)}`
-      },
-      {
+      },      {
         name: "status", label: "Trạng thái", align: "center", width: 120,
         template: (task) => {
-          const statusColorClass = `status-color status-color-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
           const localizedText = localizeStatus(task.status || '');
-          const tooltipTitle = `Trạng thái: ${localizedText}`;
-          return `<span class="${statusColorClass}" title="${tooltipTitle}"></span> <span class="status-label">${localizedText}</span>`;
+          const statusColorClass = `status-color-${task.status?.toLowerCase().replace(' ', '-') || 'default'}`;
+          return `<span class="status-label ${statusColorClass}">${localizedText}</span>`;
         }
       },
     ];
@@ -318,9 +316,35 @@ export default function ProjectPortfolioGanttPage() {
       gantt.clearAll();
     };
   }, [token, navigate]);
-
   return (
     <main style={{ width: "100%", height: "100%" }}>
+      {/* Header tiêu đề */}
+      <div style={{
+        backgroundColor: "#fff",
+        borderBottom: "2px solid #e5e7eb",
+        padding: "16px 24px",
+        marginBottom: "16px"
+      }}>
+        <h1 style={{
+          fontSize: "24px",
+          fontWeight: "bold",
+          color: "#1f2937",
+          margin: 0,
+          display: "flex",
+          alignItems: "center",
+          gap: "12px"
+        }}>
+          📊 Tổng quan Gantt - Quản lý Dự án
+        </h1>
+        <p style={{
+          fontSize: "14px",
+          color: "#6b7280",
+          margin: "8px 0 0 0"
+        }}>
+          Xem tổng quan tiến độ và trạng thái của tất cả dự án trong hệ thống
+        </p>
+      </div>
+      
       <div style={{ position: "relative", width: "100%", height: "650px" }}>
         <div ref={ganttContainer} style={{ width: "100%", height: "650px" }} />
         {isLoading && !error && (
