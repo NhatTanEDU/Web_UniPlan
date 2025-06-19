@@ -1,12 +1,16 @@
 // src/components/After/tab/gantt/gantt.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { gantt } from "dhtmlx-gantt";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import './gantt-custom.css';
-import { Input, Select, Button, Tooltip, Switch, Radio, Space } from 'antd'; // Loại bỏ Popover
-import { SearchOutlined, ExpandAltOutlined, CompressOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons'; // Loại bỏ FilterOutlined
+import { Input, Select, Button, Tooltip, Switch, Radio, Space, Spin } from 'antd'; 
+import { 
+  SearchOutlined, ExpandAltOutlined, CompressOutlined, CalendarOutlined, InfoCircleOutlined,
+  BarChartOutlined, PieChartOutlined, ProjectOutlined, ReloadOutlined
+} from '@ant-design/icons';
+import ReactECharts from 'echarts-for-react';
 
 // Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
@@ -51,7 +55,6 @@ export default function ProjectPortfolioGanttPage() {
   
   // State để quản lý ẩn/hiện chú thích
   const [showLegend, setShowLegend] = useState(true);
-
   // State để lưu trữ tất cả dự án và các bộ lọc
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -59,6 +62,9 @@ export default function ProjectPortfolioGanttPage() {
   const [timeScale, setTimeScale] = useState("week");
   const [expandAll, setExpandAll] = useState(true);
   const [showTodayMarker, setShowTodayMarker] = useState(true);
+  
+  // State để quản lý loại biểu đồ hiển thị
+  const [chartView, setChartView] = useState('gantt'); // 'gantt', 'pie', 'bar'
   // Hàm áp dụng bộ lọc phía client
   const applyFilters = () => {
     if (!allProjects.length) return;
@@ -401,8 +407,91 @@ export default function ProjectPortfolioGanttPage() {
       if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
       setCustomTooltip({ visible: false, x: 0, y: 0, content: null });
       gantt.clearAll();
-    };
-  }, [token, navigate]);
+    };  }, [token, navigate]);
+  // Theo dõi thay đổi chartView để tái khởi tạo biểu đồ Gantt khi cần
+  useEffect(() => {
+    if (chartView === 'gantt' && allProjects.length > 0) {
+      const container = ganttContainer.current;
+      if (!container) return;
+      
+      try {
+        // Cấu hình Gantt 
+        gantt.config.readonly = true;
+        gantt.config.select_task = true;
+        gantt.config.date_format = "%Y-%m-%d %H:%i";
+        gantt.config.tooltip = false; // Tắt tooltip mặc định
+        
+        // Cấu hình columns nếu chưa được cài đặt
+        if (!gantt.config.columns || gantt.config.columns.length === 0) {
+          gantt.config.columns = [
+            { 
+              name: "text", label: "Tên Dự Án", tree: true, width: 300,
+              template: function(task) {
+                const now = new Date();
+                const endDate = new Date(task.end_date || task.end);
+                const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 0) {
+                  return `<span style="color:#ff4d4f; font-weight:bold;">${task.text}</span>`;
+                } else if (diffDays <= 3) {
+                  return `<span style="color:#faad14; font-weight:bold;">${task.text}</span>`;
+                }
+                return task.text;
+              }
+            },
+            { name: "start_date", label: "Bắt đầu", align: "center", width: 100 },
+            { name: "end_date", label: "Kết thúc", align: "center", width: 100 },
+            { 
+              name: "status", label: "Trạng thái", align: "center", width: 110,
+              template: function(task) {
+                return `<div class="gantt_cell_status">${localizeStatus(task.status || '')}</div>`;
+              }
+            }
+          ];
+        }
+        
+        // Reinitialize Gantt
+        gantt.init(container);
+        
+        // Clear and parse data
+        gantt.clearAll();
+        gantt.parse({ data: allProjects });
+        
+        console.log("Gantt reinitalized after switching from another chart view");
+        
+        // Gắn lại sự kiện hover cho các task line SAU KHI PARSE
+        setTimeout(() => {
+          const lines = document.querySelectorAll('.gantt_task_line');
+          console.log("Found task lines after switching view:", lines.length);
+          
+          lines.forEach(line => {
+            const el = line as HTMLElement;
+            const taskId = el.getAttribute('task_id');
+            if (!taskId) return;
+            el.onmouseenter = null;
+            el.onmouseleave = null;
+            el.addEventListener('mouseenter', (e: MouseEvent) => {
+              if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
+              const task = gantt.getTask(taskId);
+              setCustomTooltip({
+                visible: true,
+                x: e.pageX,
+                y: e.pageY,
+                content: task,
+              });
+            });
+            el.addEventListener('mouseleave', () => {
+              tooltipTimeoutRef.current = setTimeout(() => {
+                setCustomTooltip((prev) => ({ ...prev, visible: false }));
+              }, 300);
+            });
+          });
+        }, 500); // Tăng thời gian chờ để đảm bảo DOM đã render
+      } catch (error) {
+        console.error("Error reinitializing Gantt chart:", error);
+      }
+    }
+  }, [chartView, allProjects]);
   
   // Component hiển thị tooltip
   const TooltipComponent = () => {
@@ -450,6 +539,133 @@ export default function ProjectPortfolioGanttPage() {
           </div>
         </div>
       </div>
+    );
+  };
+
+  // Component biểu đồ phân tích dự án
+  const ProjectChart = ({ chartType, projects }: { chartType: string; projects: Project[] }) => {
+    const chartOptions = useMemo(() => {
+      if (!projects?.length) return {};
+      
+      // Đếm số lượng dự án theo trạng thái
+      const statusCounts = projects.reduce((acc, project) => {
+        const status = project.status || 'default';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      // Chuẩn bị dữ liệu cho biểu đồ
+      const statuses = Object.keys(statusCounts);
+      const counts = statuses.map(status => statusCounts[status]);
+      
+      // Lấy màu và nhãn từ projectStatuses
+      const labels = statuses.map(status => {
+        const statusInfo = projectStatuses.find(s => s.value === status);
+        return statusInfo?.label || status;
+      });
+      
+      const colors = statuses.map(status => {
+        const statusInfo = projectStatuses.find(s => s.value === status);
+        return statusInfo?.color || '#999';
+      });
+      
+      // Tùy theo loại biểu đồ
+      switch(chartType) {
+        case 'pie':
+          return {
+            tooltip: {
+              trigger: 'item',
+              formatter: '{a} <br/>{b}: {c} dự án ({d}%)'
+            },
+            legend: {
+              orient: 'vertical',
+              right: 10,
+              top: 'center',
+              data: labels
+            },
+            series: [
+              {
+                name: 'Trạng thái dự án',
+                type: 'pie',
+                radius: ['50%', '70%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                  borderRadius: 6,
+                  borderColor: '#fff',
+                  borderWidth: 2
+                },
+                label: {
+                  show: false
+                },
+                emphasis: {
+                  label: {
+                    show: true,
+                    fontSize: '16',
+                    fontWeight: 'bold'
+                  }
+                },
+                labelLine: {
+                  show: false
+                },
+                data: statuses.map((status, index) => ({
+                  value: counts[index],
+                  name: labels[index],
+                  itemStyle: { color: colors[index] }
+                }))
+              }
+            ]
+          };
+          
+        case 'bar':
+          return {
+            tooltip: {
+              trigger: 'axis',
+              axisPointer: { type: 'shadow' }
+            },
+            grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '3%',
+              containLabel: true
+            },
+            xAxis: {
+              type: 'category',
+              data: labels,
+              axisLabel: {
+                interval: 0,
+                rotate: 30
+              }
+            },
+            yAxis: {
+              type: 'value',
+              name: 'Số dự án'
+            },
+            series: [
+              {
+                name: 'Số lượng',
+                data: statuses.map((status, index) => ({
+                  value: counts[index],
+                  itemStyle: { color: colors[index] }
+                })),
+                type: 'bar',
+                showBackground: true,
+                backgroundStyle: {
+                  color: 'rgba(180, 180, 180, 0.2)'
+                }
+              }
+            ]
+          };
+          
+        default:
+          return {};
+      }
+    }, [chartType, projects]);
+    
+    return (
+      <ReactECharts 
+        option={chartOptions}
+        style={{ height: 400, width: '100%' }}
+      />
     );
   };
 
@@ -594,26 +810,91 @@ export default function ProjectPortfolioGanttPage() {
             Hiển thị: {gantt.getTaskCount()}/{allProjects.length} dự án
           </div>
         )}      </div>
-      
-      <div style={{ position: "relative", width: "100%", height: "650px" }}>
-        <div ref={ganttContainer} style={{ width: "100%", height: "650px" }} />
-        {isLoading && !error && (
-          <div style={{
-            position: "absolute", left: 0, top: 0, width: "100%", height: "100%",
-            background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10
-          }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <span style={{ marginLeft: 16, color: "#555" }}>Đang khởi tạo biểu đồ Gantt...</span>
-            </div>
-          </div>
-        )}
-        {error && (
-          <div style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%", background: "rgba(255,0,0,0.1)", zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "red", fontWeight: "bold" }}>{error}</span>
-          </div>
-        )}
+        {/* Lựa chọn loại biểu đồ */}
+      <div style={{ 
+        marginBottom: "16px", 
+        display: "flex", 
+        justifyContent: "flex-end",
+        padding: "0 24px" 
+      }}>
+        <Select
+          defaultValue="gantt"
+          value={chartView}
+          onChange={setChartView}
+          style={{ width: 180 }}
+          options={[
+            { 
+              value: 'gantt', 
+              label: 'Biểu đồ Gantt', 
+              icon: <ProjectOutlined /> 
+            },
+            { 
+              value: 'pie', 
+              label: 'Biểu đồ tròn', 
+              icon: <PieChartOutlined /> 
+            },
+            { 
+              value: 'bar', 
+              label: 'Biểu đồ cột', 
+              icon: <BarChartOutlined /> 
+            }
+          ]}
+          optionRender={(option) => (
+            <Space>
+              {option.data.icon}
+              {option.label}
+            </Space>
+          )}
+        />
       </div>
+        {/* Hiển thị biểu đồ dựa trên lựa chọn */}      {chartView === 'gantt' ? (
+        <div style={{ position: "relative", width: "100%", height: "650px", backgroundColor: "#fff", borderRadius: "8px", boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)" }}>
+          {/* Sử dụng key={chartView} để đảm bảo React tạo lại DOM element khi chuyển đổi view */}
+          <div key={chartView} ref={ganttContainer} style={{ width: "100%", height: "650px" }} />
+          {isLoading && !error && (
+            <div style={{
+              position: "absolute", left: 0, top: 0, width: "100%", height: "100%",
+              background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+                <Spin size="large" />
+                <span>Đang khởi tạo biểu đồ Gantt...</span>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div style={{ 
+          width: "100%", 
+          height: "650px",
+          backgroundColor: "#fff", 
+          borderRadius: "8px",
+          boxShadow: "0 1px 2px rgba(0, 0, 0, 0.03)", 
+          padding: "16px",
+          position: "relative"
+        }}>
+          <h3 style={{ margin: "0 0 16px" }}>
+            {chartView === 'pie' ? 'Biểu đồ tròn phân bố dự án theo trạng thái' : 'Biểu đồ cột phân bố dự án theo trạng thái'}
+          </h3>
+          {isLoading ? (
+            <div style={{
+              display: "flex", 
+              justifyContent: "center", 
+              alignItems: "center",
+              height: "calc(100% - 30px)"
+            }}>
+              <Spin size="large" />
+            </div>
+          ) : (
+            <ProjectChart chartType={chartView} projects={allProjects} />
+          )}
+        </div>      )}
+      
+      {error && (
+        <div style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%", background: "rgba(255,0,0,0.1)", zIndex: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ color: "red", fontWeight: "bold" }}>{error}</span>
+        </div>
+      )}
       
       {/* Component Tooltip Custom */}
       <TooltipComponent />
