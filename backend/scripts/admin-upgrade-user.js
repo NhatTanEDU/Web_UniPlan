@@ -6,6 +6,7 @@
 //node scripts/admin-upgrade-user.js search admin
 //Nâng cấp admin_test@example.com lên gói tháng bằng ID
 //node scripts/admin-upgrade-user.js 6846ffc96b1914ede2f998cd monthly
+//node scripts/admin-upgrade-user.js 6855a3a7736a993ccfbfa9d1 monthly
 const mongoose = require('mongoose');
 const User = require('../models/user.model');
 require('dotenv').config();

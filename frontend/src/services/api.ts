@@ -36,6 +36,7 @@ api.interceptors.response.use(
   },
   (error) => {
     console.log('❌ [API Response] Error:', error.config?.url, error.response?.status, error.response?.data);
+    console.log('❌ [API Response] Full error data:', JSON.stringify(error.response?.data, null, 2));
     
     // Nếu token hết hạn hoặc không hợp lệ (401/403)
     if (error.response?.status === 401 || error.response?.status === 403) {

@@ -14,14 +14,13 @@ async function createTestUser() {
     
     // Tạo user mới
     const hashedPassword = await bcrypt.hash('123456', 10);
-    
-    const newUser = new User({
+      const newUser = new User({
       full_name: 'Test New User',
       email: `test.new.user.${Date.now()}@gmail.com`,
       password: hashedPassword,
-      role: 'user',
+      role: 'User', // ✅ Fix: 'User' thay vì 'user'
       isActive: true,
-      // Không set current_plan_type -> sẽ là null/undefined -> user mới
+      // Không set current_plan_type -> sẽ là free_trial (default)
     });
     
     await newUser.save();
