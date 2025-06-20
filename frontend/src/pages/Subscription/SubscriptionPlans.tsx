@@ -21,13 +21,12 @@ const SubscriptionPlans: React.FC = () => {
                 toast.error("Bạn cần đăng nhập để nâng cấp gói.");
                 navigate('/login');
                 return;
-            }
-            try {
+            }            try {
                 const response = await subscriptionService.createPayment({
-                    amount,
-                    orderInfo: `Thanh toan goi ${planType}`,
-                    userId: userId, // Use userId from context
-                    planType: planType,
+                    planType: planType as 'monthly' | 'yearly',
+                    amount: amount,
+                    returnUrl: `${window.location.origin}/payment/result`,
+                    notifyUrl: `${window.location.origin}/api/payment/notify`,
                 });
                 if (response && response.payUrl) {
                     window.location.href = response.payUrl;

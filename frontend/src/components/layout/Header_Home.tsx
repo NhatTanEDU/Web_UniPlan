@@ -20,6 +20,44 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
   const { subscriptionStatus, notifications, unreadCount, isLoading } = useSubscription();
+  
+  // Debug authentication và token
+  useEffect(() => {
+    console.log('🔐 [Header_Home] Authentication Debug:');
+    
+    // Kiểm tra token trong localStorage
+    const token = localStorage.getItem('token');
+    const userInfo = localStorage.getItem('user');
+    
+    console.log('🔑 Token exists:', !!token);
+    console.log('🔑 Token preview:', token ? token.substring(0, 50) + '...' : 'null');
+    console.log('👤 User info exists:', !!userInfo);
+    console.log('👤 User prop exists:', !!user);
+    
+    // Kiểm tra token có hết hạn không
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        const isExpired = payload.exp < currentTime;
+        
+        console.log('⏰ Token expiry:', new Date(payload.exp * 1000).toLocaleString());
+        console.log('⏰ Current time:', new Date(currentTime * 1000).toLocaleString());
+        console.log('❌ Token expired:', isExpired);
+        console.log('👤 Token user ID:', payload.id);
+        console.log('📧 Token email:', payload.email);
+        
+        if (isExpired) {
+          console.error('🚨 TOKEN HẾT HẠN - Cần đăng nhập lại!');
+        }
+      } catch (error) {
+        console.error('❌ Error decoding token:', error);
+      }
+    } else {
+      console.warn('🚨 KHÔNG CÓ TOKEN - User chưa đăng nhập!');
+    }
+  }, [user]);
+
   useEffect(() => {
     console.log('🔎 [Header_Home] subscriptionStatus:', subscriptionStatus);
     if (subscriptionStatus) {
@@ -34,6 +72,8 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
       console.log('� isPremium:', subscriptionStatus.isPremium);
       console.log('🔍 isActive:', subscriptionStatus.isActive);
       console.log('🔍 daysRemaining:', subscriptionStatus.daysRemaining);
+    } else {
+      console.warn('📦 subscriptionStatus is null - API call failed or user not authenticated');
     }
   }, [subscriptionStatus]);
 

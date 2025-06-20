@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import subscriptionService, { SubscriptionStatus, NotificationItem } from '../../services/subscriptionService';
 import { useAuth } from './AuthContext';
 
@@ -32,26 +32,37 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const isAuthenticated = !!token;
 
   // Tính số thông báo chưa đọc
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  // Refresh subscription status
-  const refreshSubscriptionStatus = async () => {
-    if (!isAuthenticated) return;
-      try {
+  const unreadCount = notifications.filter(n => !n.read).length;  // Refresh subscription status
+  const refreshSubscriptionStatus = useCallback(async () => {
+    if (!isAuthenticated) {
+      console.log('🔐 [SubscriptionContext] Not authenticated, skipping refresh');
+      return;
+    }
+    
+    // Debug token và authentication
+    const token = localStorage.getItem('token');
+    console.log('🔑 [SubscriptionContext] Token exists:', !!token);
+    console.log('🔑 [SubscriptionContext] Token preview:', token?.substring(0, 30) + '...');
+    console.log('🔑 [SubscriptionContext] isAuthenticated:', isAuthenticated);
+    
+    try {
       setIsLoading(true);
       setError(null);
+      console.log('🚀 [SubscriptionContext] Calling getSubscriptionStatus...');
       const status = await subscriptionService.getSubscriptionStatus();
+      console.log('✅ [SubscriptionContext] Received status:', status);
       setSubscriptionStatus(status);
-    } catch (err) {
-      console.error('Error refreshing subscription status:', err);
-      setError('Không thể tải trạng thái gói dịch vụ');
+    } catch (err: any) {
+      console.error('❌ [SubscriptionContext] Error refreshing subscription status:', err);
+      console.error('❌ [SubscriptionContext] Error response data:', err.response?.data);
+      console.error('❌ [SubscriptionContext] Request config headers:', err.config?.headers);
+      setError(err.message || 'Không thể tải trạng thái gói dịch vụ');
     } finally {
       setIsLoading(false);
     }
-  };
-
+  }, [isAuthenticated]);
   // Refresh notifications
-  const refreshNotifications = async () => {
+  const refreshNotifications = useCallback(async () => {
     if (!isAuthenticated) return;
     
     try {
@@ -60,7 +71,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     } catch (err) {
       console.error('Error refreshing notifications:', err);
     }
-  };
+  }, [isAuthenticated]);
 
   // Mark notification as read
   const markNotificationAsRead = async (notificationId: string) => {
@@ -94,8 +105,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const requiresPremium = (): boolean => {
     if (!subscriptionStatus) return true;
     return !subscriptionStatus.isPremium;
-  };
-  // Load dữ liệu khi user đăng nhập
+  };  // Load dữ liệu khi user đăng nhập
   useEffect(() => {
     if (isAuthenticated) {
       refreshSubscriptionStatus();
@@ -105,9 +115,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       setNotifications([]);
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
-
-  // Auto refresh subscription status mỗi 5 phút
+  }, [isAuthenticated, refreshSubscriptionStatus, refreshNotifications]);  // Auto refresh subscription status mỗi 5 phút
   useEffect(() => {
     if (!isAuthenticated) return;
     
@@ -116,7 +124,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     }, 5 * 60 * 1000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refreshSubscriptionStatus]);
 
   // Auto refresh notifications mỗi 2 phút
   useEffect(() => {
@@ -127,7 +135,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     }, 2 * 60 * 1000); // 2 minutes
 
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refreshNotifications]);
   const value: SubscriptionContextType = {
     subscriptionStatus,
     notifications,
