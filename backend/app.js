@@ -21,6 +21,7 @@ require('./models/teamActivity.model');
 require('./models/userWidget.model');
 require('./models/widget.model');
 require('./models/document.model');
+require('./models/payment.model'); // Payment model for MoMo integration
 
 // Feature toggles for safe operation
 const { isFeatureEnabled, featureToggleMiddleware, getEnabledFeatures, getDisabledFeatures } = require('./config/featureToggles');
@@ -287,6 +288,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Document upload routes - Always enabled (essential feature)
 app.use('/api/documents', require('./routes/document.routes'));
+
+// Payment routes - Always enabled (core business feature)
+app.use('/api/payment', require('./routes/payment.routes'));
+
+// Subscription routes - for subscription status and notifications
+app.use('/api/subscription', require('./routes/subscription.routes'));
 
 // IMPORTANT: Place specific routes BEFORE generic/dynamic routes
 app.use('/api/admin', adminRoutes);

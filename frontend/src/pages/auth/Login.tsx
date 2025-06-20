@@ -9,12 +9,12 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth(); // Lấy hàm login từ AuthContext
-
-  const handleLoginSuccess = (token: string, user: { id: string; name: string; email: string; role?: "admin" | "paid" | "free" }) => {
+  
+  const handleLoginSuccess = (token: string, user: { id: string; name: string; full_name?: string; email: string; role?: "admin" | "paid" | "free" }) => {
     // Gọi login từ AuthContext để lưu token và user info
     login(token, user);
-    // Sau đó chuyển hướng
-    navigate(`/dashboard/${user.id}`);
+    // Chuyển hướng về trang chủ sau đăng nhập thay vì dashboard cũ
+    navigate('/home');
   };
 
   const handleLoginError = (message: string) => {

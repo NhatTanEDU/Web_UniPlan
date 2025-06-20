@@ -4,6 +4,7 @@ import AppRoutes from './router';
 import { AuthProvider } from "./components/context/AuthContext";
 import { NetworkProvider } from "./components/context/NetworkContext";
 import { ToastProvider } from './components/context/ToastContext';
+import { SubscriptionProvider } from './components/context/SubscriptionContext';
 
 const AppContent: React.FC = () => {
     const navigate = useNavigate();
@@ -12,7 +13,9 @@ const AppContent: React.FC = () => {
         <AuthProvider navigate={navigate}>
             <NetworkProvider navigate={navigate}>
                 <ToastProvider>
-                    <AppRoutes />
+                    <SubscriptionProvider>
+                        <AppRoutes />
+                    </SubscriptionProvider>
                 </ToastProvider>
             </NetworkProvider>
         </AuthProvider>

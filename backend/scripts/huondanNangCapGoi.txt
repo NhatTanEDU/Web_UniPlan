@@ -1,0 +1,39 @@
+Nâng cấp gói theo email:
+node scripts/admin-upgrade-user.js admin1@gmail.com yearly
+
+Nâng cấp gói theo ID:
+node scripts/admin-upgrade-user.js 6846ffc96b1914ede2f998cd monthly
+
+Tìm kiếm user:
+node scripts/admin-upgrade-user.js search admin
+
+Hiển thị menu help:
+node scripts/admin-upgrade-user.js
+
+
+Đặc điểm của script:
+Bỏ qua thanh toán: Tự động set payment_status = 'completed'
+An toàn: Validate input và hiển thị thông tin chi tiết
+Linh hoạt: Hỗ trợ cả email và ObjectId
+User-friendly: Menu rõ ràng và tìm kiếm tiện lợi
+
+# Test toàn bộ Phase 3
+node scripts/test-phase3-subscription.js
+
+# Test từng phần riêng
+node scripts/test-phase3-subscription.js service
+node scripts/test-phase3-subscription.js notification  
+node scripts/test-phase3-subscription.js middleware
+
+
+# Test server health
+node scripts/test-api-endpoints.js health
+
+# Test authentication
+node scripts/test-api-endpoints.js auth
+
+# Test payment plans
+node scripts/test-api-endpoints.js plans
+
+# Test toàn bộ API
+node scripts/test-api-endpoints.js
