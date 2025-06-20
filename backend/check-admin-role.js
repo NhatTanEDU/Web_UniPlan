@@ -17,10 +17,10 @@ async function checkAdminRole() {
                 full_name: adminUser.full_name,
                 email: adminUser.email,
                 role: adminUser.role,
-                current_plan_type: adminUser.current_plan_type,
-                online_status: adminUser.online_status,
-                isActive: adminUser.isActive
-            });            // Fix admin data if needed
+                current_plan_type: adminUser.current_plan_type
+            });
+            console.log('📦 Kế hoạch (current_plan_type):', adminUser.current_plan_type);
+            // Fix admin data if needed
             let needUpdate = false;
             
             if (adminUser.role !== 'Admin') {
@@ -47,10 +47,9 @@ async function checkAdminRole() {
                     full_name: updatedUser.full_name,
                     email: updatedUser.email,
                     role: updatedUser.role,
-                    current_plan_type: updatedUser.current_plan_type,
-                    online_status: updatedUser.online_status,
-                    isActive: updatedUser.isActive
+                    current_plan_type: updatedUser.current_plan_type
                 });
+                console.log('📦 Kế hoạch cập nhật:', updatedUser.current_plan_type);
             } else {
                 console.log('✅ Admin data is correct');
             }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Crown, User, Settings, LogOut, CreditCard } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
 import NotificationDropdown from './NotificationDropdown';
@@ -20,6 +20,23 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
   const { subscriptionStatus, notifications, unreadCount, isLoading } = useSubscription();
+  useEffect(() => {
+    console.log('🔎 [Header_Home] subscriptionStatus:', subscriptionStatus);
+    if (subscriptionStatus) {
+      // Nếu API có trả về field raw `current_plan_type`
+      // (tùy backend bạn gọi đúng key này)
+      // hoặc dùng subscriptionType
+      const raw = (subscriptionStatus as any).current_plan_type;
+      console.log(
+        '📦 current_plan_type:',
+        raw ?? subscriptionStatus.subscriptionType ?? 'undefined'
+      );
+      console.log('� isPremium:', subscriptionStatus.isPremium);
+      console.log('🔍 isActive:', subscriptionStatus.isActive);
+      console.log('🔍 daysRemaining:', subscriptionStatus.daysRemaining);
+    }
+  }, [subscriptionStatus]);
+
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const handleNavigate = (path: string) => {
@@ -62,9 +79,11 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
   const handleBillingClick = () => {
     handleNavigate('/subscription/billing');
   };
-  const isPremium = subscriptionStatus?.isPremium || false;
   const isExpired = subscriptionStatus?.subscriptionType === 'expired';
   const daysRemaining = subscriptionStatus?.daysRemaining || 0;
+  const subscriptionType = subscriptionStatus?.subscriptionType;
+  const isFreeTrial = subscriptionType === 'free_trial';
+  const isPaid = !isFreeTrial && !isExpired;
   
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -98,6 +117,7 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
 
           {/* Right side */}
           <div className="flex items-center gap-2 md:gap-4">
+            {/* Bắt đầu */}
             <Button
               className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-md hover:from-purple-700 hover:to-blue-700 transition-all duration-200 text-base font-bold flex items-center gap-2"
               onClick={handleStartClick}
@@ -108,15 +128,20 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
                 <path d="m12 5 7 7-7 7"></path>
               </svg>
             </Button>
-            {/* Upgrade Button - Show if not premium or expired soon */}
-            {(!isPremium || (daysRemaining > 0 && daysRemaining <= 7)) && (
+
+            {/* Nếu trả phí (Paid) */}
+            {isPaid ? (
+              <span className="hidden sm:inline text-sm font-medium text-green-600 dark:text-green-400">
+                Đã thanh toán
+              </span>
+            ) : (
               <Button
                 onClick={handleUpgradeClick}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium px-2 sm:px-4 py-1.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium px-3 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5"
               >
                 <Crown className="h-4 w-4" />
                 <span className="hidden sm:inline">
-                  {isPremium ? 'Gia hạn' : 'Nâng cấp'}
+                  Nâng cấp
                 </span>
               </Button>
             )}
@@ -232,7 +257,7 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
       )}
 
       {/* Trial Warning Banner */}
-      {subscriptionStatus?.subscriptionType === 'free_trial' && daysRemaining <= 3 && daysRemaining > 0 && (
+      {isFreeTrial && daysRemaining <= 3 && daysRemaining > 0 && (
         <div className="bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 dark:from-yellow-900/30 dark:to-yellow-800/30 border-b border-yellow-200 dark:border-yellow-800">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
             <div className="flex items-center justify-between flex-wrap gap-2">
