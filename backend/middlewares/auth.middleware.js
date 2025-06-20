@@ -32,7 +32,8 @@ const verifyToken = (req, res, next) => {
     }
 
     req.user = {
-      userId: decoded.id,
+      id: decoded.id,  // Thay userId bằng id để consistent với checkSubscriptionStatus
+      userId: decoded.id,  // Giữ userId để backward compatibility
       email: decoded.email || null,
     };
     console.log('✅ [Auth Middleware] req.user set:', req.user);

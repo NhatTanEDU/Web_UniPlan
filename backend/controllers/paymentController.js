@@ -8,13 +8,13 @@ const paymentController = {
     /**
      * Tạo thanh toán mới
      * POST /api/payment/create
-     */
-    createPayment: async (req, res) => {
+     */    createPayment: async (req, res) => {
         try {
             const { planType } = req.body;
-            const userId = req.user.id;
+            const userId = req.user.userId; // ✅ Fix: sử dụng userId thay vì id
             
             console.log(`🔄 Creating payment for user ${userId}, plan: ${planType}`);
+            console.log('🔍 req.user:', req.user); // Debug log
             
             // Validate input
             if (!planType || !['monthly', 'yearly'].includes(planType)) {

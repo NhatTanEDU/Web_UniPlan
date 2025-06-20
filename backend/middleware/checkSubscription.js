@@ -10,32 +10,46 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 // Middleware kiểm tra trạng thái gói của user
 const checkSubscriptionStatus = async (req, res, next) => {
     try {
-        // Kiểm tra xem user đã được authenticate chưa
-        if (!req.user || !req.user.id) {
+        console.log('🔍 [checkSubscriptionStatus] Starting middleware...');
+        console.log('🔍 [checkSubscriptionStatus] req.user:', req.user);
+        console.log('🔍 [checkSubscriptionStatus] req.user.id:', req.user?.id);
+        console.log('🔍 [checkSubscriptionStatus] req.user.userId:', req.user?.userId);
+        
+        // Kiểm tra xem user đã được authenticate chưa - sử dụng userId thay vì id
+        if (!req.user || (!req.user.id && !req.user.userId)) {
+            console.log('❌ [checkSubscriptionStatus] No user or user.id/userId found');
             return res.status(401).json({
                 success: false,
                 message: 'Vui lòng đăng nhập để tiếp tục'
             });
         }
 
-        const userId = req.user.id;
+        // Sử dụng userId nếu có, fallback về id
+        const userId = req.user.userId || req.user.id;
+        console.log('🔍 [checkSubscriptionStatus] Using userId:', userId);
+        
         const cacheKey = `subscription_${userId}`;
         
         // Kiểm tra cache
         const cached = subscriptionCache.get(cacheKey);
         if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+            console.log('📦 [checkSubscriptionStatus] Using cached data');
             req.userSubscription = cached.data;
             return next();
         }
 
+        console.log('🔍 [checkSubscriptionStatus] Fetching user from database...');
         // Lấy thông tin user từ database
         const user = await User.findById(userId);
         if (!user) {
+            console.log('❌ [checkSubscriptionStatus] User not found in database');
             return res.status(404).json({
                 success: false,
                 message: 'Không tìm thấy thông tin người dùng'
             });
         }
+
+        console.log('✅ [checkSubscriptionStatus] User found:', { id: user._id, email: user.email, current_plan_type: user.current_plan_type });
 
         // Cập nhật trạng thái hết hạn nếu cần
         let needUpdate = false;

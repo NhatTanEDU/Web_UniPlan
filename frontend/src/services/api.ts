@@ -10,6 +10,7 @@ const api = axios.create({
   },
 });
 
+// Request interceptor để thêm token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   console.log('🔐 [API Interceptor] Token exists:', !!token);
@@ -26,6 +27,34 @@ api.interceptors.request.use((config) => {
   console.log('🔐 [API Interceptor] Final headers:', config.headers);
   return config;
 });
+
+// Response interceptor để xử lý token hết hạn
+api.interceptors.response.use(
+  (response) => {
+    console.log('✅ [API Response] Success:', response.config.url, response.status);
+    return response;
+  },
+  (error) => {
+    console.log('❌ [API Response] Error:', error.config?.url, error.response?.status, error.response?.data);
+    
+    // Nếu token hết hạn hoặc không hợp lệ (401/403)
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      const errorMessage = error.response?.data?.message;
+      console.log('🚪 [API Response] Token expired or invalid:', errorMessage);
+      
+      // Xóa token hết hạn
+      localStorage.removeItem("token");
+      
+      // Redirect về trang login (tránh vòng lặp)
+      if (!window.location.pathname.includes('/login')) {
+        console.log('🚪 [API Response] Redirecting to login...');
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 export const getProjects = async () => {
   const response = await api.get("/projects");
