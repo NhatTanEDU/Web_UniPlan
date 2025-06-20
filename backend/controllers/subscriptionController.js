@@ -9,12 +9,15 @@ const subscriptionController = {
     /**
      * Lấy trạng thái gói hiện tại
      * GET /api/subscription/status
-     */
-    getSubscriptionStatus: async (req, res) => {
+     */    getSubscriptionStatus: async (req, res) => {
         try {
-            const userId = req.user.id;
+            console.log('🔍 [getSubscriptionStatus] req.user:', req.user);
+            const userId = req.user.userId; // Sửa từ req.user.id thành req.user.userId
+            console.log('🔍 [getSubscriptionStatus] userId:', userId);
             
             const user = await User.findById(userId);
+            console.log('🔍 [getSubscriptionStatus] user found:', !!user);
+            
             if (!user) {
                 return res.status(404).json({
                     success: false,
@@ -22,40 +25,56 @@ const subscriptionController = {
                 });
             }
             
+            // 🔍 THÊM LOG CHI TIẾT CHO USER
+            console.log('🔍 [getSubscriptionStatus] User details:');
+            console.log('  - email:', user.email);
+            console.log('  - current_plan_type:', user.current_plan_type);
+            console.log('  - trial_start_date:', user.trial_start_date);
+            console.log('  - trial_end_date:', user.trial_end_date);
+            console.log('  - subscription_start_date:', user.subscription_start_date);
+            console.log('  - subscription_end_date:', user.subscription_end_date);
+            console.log('  - createdAt:', user.createdAt);
+            
             const planInfo = user.getPlanDisplayInfo();
             const remainingDays = subscriptionService.calculateRemainingDays(user);
             
-            res.json({
-                success: true,
-                data: {
-                    currentPlan: {
-                        type: user.current_plan_type,
-                        name: planInfo.name,
-                        isExpired: planInfo.isExpired,
-                        daysLeft: remainingDays
-                    },
-                    subscription: {
-                        startDate: user.subscription_start_date,
-                        endDate: user.subscription_end_date,
-                        nextBillingDate: user.next_billing_date,
-                        paymentStatus: user.payment_status
-                    },
-                    trial: {
-                        startDate: user.trial_start_date,
-                        endDate: user.trial_end_date,
-                        isExpired: user.isTrialExpired()
-                    },
-                    features: req.userSubscription?.features || [],
-                    limits: req.userSubscription?.limits || {},
-                    canAccess: user.canAccessService()
-                }
+            console.log('🔍 [getSubscriptionStatus] Calculated values:');
+            console.log('  - planInfo:', planInfo);
+            console.log('  - remainingDays:', remainingDays);
+            console.log('  - canAccessService:', user.canAccessService());
+            
+            // Logic xác định subscription type
+            let subscriptionType = user.current_plan_type;
+            if (!subscriptionType || subscriptionType === null || subscriptionType === undefined) {
+                subscriptionType = 'free_trial';
+                console.log('🔍 [getSubscriptionStatus] No plan type, defaulting to free_trial');
+            }
+            
+            // Logic xác định isPremium
+            const isPremium = ['monthly', 'yearly'].includes(subscriptionType);
+            console.log('🔍 [getSubscriptionStatus] isPremium calculation:', {
+                subscriptionType,
+                isPremium,
+                includes: ['monthly', 'yearly'].includes(subscriptionType)
             });
             
+            // Response đơn giản hóa để frontend dễ sử dụng
+            const response = {
+                subscriptionType: subscriptionType,
+                subscriptionStart: user.subscription_start_date,
+                subscriptionEnd: user.subscription_end_date,
+                daysRemaining: remainingDays,
+                isActive: user.canAccessService(),
+                isPremium: isPremium,
+                trialUsed: user.trial_start_date ? true : false
+            };            
+            console.log('✅ [getSubscriptionStatus] Final response:', response);
+            res.json(response);
         } catch (error) {
-            console.error('❌ Error getting subscription status:', error);
+            console.error('❌ [getSubscriptionStatus] Error:', error);
             res.status(500).json({
                 success: false,
-                message: 'Lỗi hệ thống khi lấy thông tin gói'
+                message: 'Lỗi server khi lấy trạng thái gói dịch vụ'
             });
         }
     },

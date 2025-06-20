@@ -20,7 +20,6 @@ console.log('🔍 checkSubscriptionStatus:', typeof checkSubscriptionStatus);
  */
 router.get('/status',
     authenticateToken,
-    checkSubscriptionStatus,
     subscriptionController.getSubscriptionStatus
 );
 

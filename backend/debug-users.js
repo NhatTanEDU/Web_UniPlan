@@ -18,19 +18,46 @@ async function checkUserData() {
       '68358b27e31157981e931d86'  // Unknown User 2
     ];
     
-    console.log('\n🔍 Checking user data:');
+    console.log('\n🔍 Checking user subscription data:');
     for (let userId of userIds) {
-      const user = await User.findById(userId).select('full_name email avatar_url role isActive');
+      const user = await User.findById(userId);
       console.log(`\nUser ID: ${userId}`);
       if (user) {
         console.log('✅ User found:', {
           id: user._id,
           full_name: user.full_name,
           email: user.email,
-          avatar_url: user.avatar_url,
           role: user.role,
           isActive: user.isActive
         });
+        
+        // 🔍 KIỂM TRA SUBSCRIPTION DATA
+        console.log('📦 Subscription data:');
+        console.log('  - current_plan_type:', user.current_plan_type);
+        console.log('  - trial_start_date:', user.trial_start_date);
+        console.log('  - trial_end_date:', user.trial_end_date);
+        console.log('  - subscription_start_date:', user.subscription_start_date);
+        console.log('  - subscription_end_date:', user.subscription_end_date);
+        
+        // 🔍 KIỂM TRA METHODS
+        if (typeof user.canAccessService === 'function') {
+          console.log('  - canAccessService():', user.canAccessService());
+        }
+        if (typeof user.getPlanDisplayInfo === 'function') {
+          console.log('  - getPlanDisplayInfo():', user.getPlanDisplayInfo());
+        }
+        
+        // 🔍 TÍNH TOÁN TRẠNG THÁI
+        const isPremium = ['monthly', 'yearly'].includes(user.current_plan_type);
+        const isActive = user.canAccessService ? user.canAccessService() : false;
+        const subscriptionType = user.current_plan_type || 'free_trial';
+        
+        console.log('🧮 Calculated status:');
+        console.log('  - subscriptionType:', subscriptionType);
+        console.log('  - isPremium:', isPremium);
+        console.log('  - isActive:', isActive);
+        console.log('  - shouldShowUpgrade:', !isPremium || !isActive);
+        
       } else {
         console.log('❌ User not found!');
       }
