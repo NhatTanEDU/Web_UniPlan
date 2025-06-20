@@ -55,19 +55,10 @@ router.post('/test-no-limit', (req, res) => {
 });
 
 router.post('/create', 
-    // Completely remove all middlewares for testing
-    (req, res, next) => {
-        console.log('🚀 [Payment Route] /create route reached - no middlewares!');
-        console.log('🚀 [Payment Route] Headers:', req.headers.authorization?.substring(0, 50) + '...');
-        
-        // Temporary: Mock req.user for testing
-        req.user = {
-            userId: '6832fb21218f3827624d77c1',
-            email: 'admin1@gmail.com'
-        };
-        console.log('🚀 [Payment Route] Mocked req.user:', req.user);
-        next();
-    },
+    // Add back proper authentication middleware
+    authenticateToken,
+    checkSubscriptionStatus,
+    createPaymentLimiter,
     paymentController.createPayment
 );
 

@@ -32,15 +32,22 @@ const paymentController = {
                     message: 'Không tìm thấy thông tin người dùng'
                 });
             }
+              // Kiểm tra xem user đã có payment đang pending không
+            console.log('🔍 [createPayment] Checking for existing pending payments...');
+            console.log('🔍 [createPayment] Query: user_id =', userId);
+            console.log('🔍 [createPayment] Query: payment_status = pending');
+            console.log('🔍 [createPayment] Query: expired_at > ', new Date());
             
-            // Kiểm tra xem user đã có payment đang pending không
             const existingPayment = await Payment.findOne({
                 user_id: userId,
                 payment_status: 'pending',
                 expired_at: { $gt: new Date() }
             });
             
+            console.log('🔍 [createPayment] Existing payment result:', existingPayment);
+            
             if (existingPayment) {
+                console.log('🚨 [createPayment] Found existing pending payment, blocking new payment');
                 return res.status(409).json({
                     success: false,
                     message: 'Bạn đã có một giao dịch đang chờ thanh toán. Vui lòng hoàn tất giao dịch hiện tại hoặc đợi hết hạn.',

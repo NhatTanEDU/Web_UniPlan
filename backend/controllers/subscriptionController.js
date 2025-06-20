@@ -11,8 +11,11 @@ const subscriptionController = {
      * GET /api/subscription/status
      */    getSubscriptionStatus: async (req, res) => {
         try {
+            // 🔍 THÊM LOG CHI TIẾT CHO DEBUG TOKEN
+            const authHeader = req.headers.authorization;
+            console.log('🔍 [getSubscriptionStatus] Raw auth header:', authHeader?.substring(0, 50) + '...');
             console.log('🔍 [getSubscriptionStatus] req.user:', req.user);
-            const userId = req.user.userId; // Sửa từ req.user.id thành req.user.userId
+            const userId = req.user.userId; // Sử dụng req.user.userId
             console.log('🔍 [getSubscriptionStatus] userId:', userId);
             
             const user = await User.findById(userId);
@@ -57,17 +60,17 @@ const subscriptionController = {
                 isPremium,
                 includes: ['monthly', 'yearly'].includes(subscriptionType)
             });
-            
-            // Response đơn giản hóa để frontend dễ sử dụng
+              // Response đơn giản hóa để frontend dễ sử dụng
             const response = {
                 subscriptionType: subscriptionType,
+                current_plan_type: subscriptionType, // Thêm field này để tương thích với frontend
                 subscriptionStart: user.subscription_start_date,
                 subscriptionEnd: user.subscription_end_date,
                 daysRemaining: remainingDays,
                 isActive: user.canAccessService(),
                 isPremium: isPremium,
                 trialUsed: user.trial_start_date ? true : false
-            };            
+            };
             console.log('✅ [getSubscriptionStatus] Final response:', response);
             res.json(response);
         } catch (error) {
