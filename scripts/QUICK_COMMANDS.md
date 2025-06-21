@@ -1,6 +1,23 @@
-# 🚀 QUICK COMMANDS - SUBSCRIPTION UPGRADE
+# 🚀 QUICK COMMANDS - SUBSCRIPTION MANAGEMENT
 
-## Điều hướng đến backend
+## 🌟 ONE-COMMAND SCRIPT (RECOMMENDED)
+```bash
+cd "d:\Official_Project\Project_UniPlan\Web_UniPlan-master\Web_UniPlan-master\backend"
+
+# All-in-one command - Easiest way!
+node one-command.js overview                              # System overview
+node one-command.js user admin1@gmail.com               # Check user
+node one-command.js upgrade admin1@gmail.com monthly --confirm  # Upgrade
+node one-command.js downgrade admin1@gmail.com free --confirm   # Downgrade
+node one-command.js fix admin1@gmail.com --confirm      # Fix plan info
+node one-command.js clear admin1@gmail.com              # Clear pending
+node one-command.js test                                 # Test system
+node one-command.js health                               # Health check
+```
+
+## 📋 OR Use Individual Scripts
+
+### Điều hướng đến backend
 ```bash
 cd "d:\Official_Project\Project_UniPlan\Web_UniPlan-master\Web_UniPlan-master\backend"
 ```
@@ -19,7 +36,7 @@ node find-user-by-email.js thanhtoan@gmail.com
 node find-user-by-email.js user@example.com
 ```
 
-### 👀 XEM TRƯỚC UPGRADE (DRY RUN)
+### � XEM TRƯỚC UPGRADE (DRY RUN)
 ```bash
 # Admin - monthly
 node upgrade-admin-subscription.js admin1@gmail.com monthly
@@ -49,10 +66,61 @@ node upgrade-admin-subscription.js thanhtoan@gmail.com monthly --confirm
 node upgrade-admin-subscription.js thanhtoan@gmail.com yearly --confirm
 ```
 
+### 📉 XEM TRƯỚC DOWNGRADE (DRY RUN)
+```bash
+# Admin yearly → monthly
+node downgrade-admin-subscription.js admin1@gmail.com monthly
+
+# Admin → free
+node downgrade-admin-subscription.js admin1@gmail.com free
+
+# Thanhtoan monthly → free
+node downgrade-admin-subscription.js thanhtoan@gmail.com free
+```
+
+### ⬇️ THỰC HIỆN DOWNGRADE
+```bash
+# Admin từ yearly xuống monthly
+node downgrade-admin-subscription.js admin1@gmail.com monthly --confirm
+
+# Admin xuống free
+node downgrade-admin-subscription.js admin1@gmail.com free --confirm
+
+# Thanhtoan xuống free
+node downgrade-admin-subscription.js thanhtoan@gmail.com free --confirm
+```
+
 ### 🧹 CLEAR PENDING PAYMENT (nếu lỗi 409)
 ```bash
 # Clear admin1
 node clear-payments-by-email.js admin1@gmail.com
+
+# Clear thanhtoan
+node clear-payments-by-email.js thanhtoan@gmail.com
+
+# Clear user khác
+node clear-payments-by-email.js user@example.com
+```
+
+### 🔧 FIX USER PLAN INFO (nếu hiển thị "unknown")
+```bash
+# Fix admin1
+node fix-user-plan-info.js admin1@gmail.com --confirm
+
+# Fix thanhtoan  
+node fix-user-plan-info.js thanhtoan@gmail.com --confirm
+
+# Fix user khác
+node fix-user-plan-info.js user@example.com --confirm
+```
+
+### 📊 SYSTEM OVERVIEW & TESTING
+```bash
+# Xem tổng quan toàn bộ hệ thống
+node subscription-overview.js
+
+# Test toàn bộ hệ thống subscription
+node final-subscription-test.js
 
 # Clear thanhtoan
 node clear-payments-by-email.js thanhtoan@gmail.com

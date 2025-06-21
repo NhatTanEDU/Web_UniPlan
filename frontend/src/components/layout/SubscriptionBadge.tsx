@@ -1,15 +1,17 @@
 import React from 'react';
-import { Crown, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Crown, Clock, AlertTriangle } from 'lucide-react';
 import { SubscriptionStatus } from '../../services/subscriptionService';
 
 interface SubscriptionBadgeProps {
   subscriptionStatus: SubscriptionStatus | null;
   isLoading?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 const SubscriptionBadge: React.FC<SubscriptionBadgeProps> = ({ 
   subscriptionStatus, 
-  isLoading 
+  isLoading,
+  onUpgradeClick
 }) => {
   if (isLoading) {
     return (
@@ -24,7 +26,7 @@ const SubscriptionBadge: React.FC<SubscriptionBadgeProps> = ({
     return null;
   }
 
-  const { subscriptionType, daysRemaining, isActive } = subscriptionStatus;
+  const { subscriptionType, daysRemaining } = subscriptionStatus;
 
   // Define badge styles and content based on subscription type
   const getBadgeConfig = () => {
@@ -58,32 +60,49 @@ const SubscriptionBadge: React.FC<SubscriptionBadgeProps> = ({
           bgColor: 'bg-gradient-to-r from-red-500 to-red-600',
           textColor: 'text-white',
           iconColor: 'text-red-100'
-        };
-      
-      default:
+        };      default:
         return {
-          icon: CheckCircle,
-          text: 'Free',
-          bgColor: 'bg-gray-100 dark:bg-gray-700',
-          textColor: 'text-gray-700 dark:text-gray-300',
-          iconColor: 'text-gray-500 dark:text-gray-400'
+          icon: Crown,
+          text: 'Nâng cấp',
+          bgColor: 'bg-gradient-to-r from-purple-600 to-blue-600',
+          textColor: 'text-white',
+          iconColor: 'text-white'
         };
     }
   };
-
   const { icon: Icon, text, bgColor, textColor, iconColor } = getBadgeConfig();
 
-  return (
-    <div className={`flex items-center space-x-2 px-4 py-2 rounded-full shadow-sm ${bgColor}`}>
+  // Check if this is a free plan that should be clickable
+  const isUpgradeable = subscriptionStatus?.subscriptionType === 'free';
+
+  const BadgeContent = () => (
+    <>
       <Icon className={`h-4 w-4 ${iconColor}`} />
       <span className={`text-sm font-medium ${textColor}`}>
         {text}
       </span>
       
       {/* Active indicator */}
-      {isActive && (
+      {subscriptionStatus?.isActive && (
         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
       )}
+    </>
+  );
+
+  if (isUpgradeable && onUpgradeClick) {
+    return (
+      <button
+        onClick={onUpgradeClick}
+        className={`flex items-center space-x-2 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all duration-200 ${bgColor}`}
+      >
+        <BadgeContent />
+      </button>
+    );
+  }
+
+  return (
+    <div className={`flex items-center space-x-2 px-4 py-2 rounded-full shadow-sm ${bgColor}`}>
+      <BadgeContent />
     </div>
   );
 };

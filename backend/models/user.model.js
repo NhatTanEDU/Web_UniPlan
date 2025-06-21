@@ -20,15 +20,16 @@ const userSchema = new mongoose.Schema({
         type: String, 
         required: [true, 'Mật khẩu là bắt buộc'], 
         minlength: [6, 'Mật khẩu phải có ít nhất 6 ký tự'] 
-    },
-    role: {
+    },    role: {
         type: String,
         enum: ['User', 'Admin'],
         default: 'User'
-    },    // Thông tin gói dịch vụ
+    },
+    
+    // Thông tin gói dịch vụ
     current_plan_type: {
         type: String,
-        enum: ['free_trial', 'expired', 'monthly', 'yearly'],
+        enum: ['free', 'free_trial', 'expired', 'monthly', 'yearly'],
         default: 'free_trial'
     },
     
@@ -187,13 +188,21 @@ userSchema.methods.getPlanDisplayInfo = function() {
                 type: 'yearly',
                 daysLeft: yearlyDaysLeft,
                 isExpired: yearlyDaysLeft === 0
-            };
-        case 'expired':
+            };        case 'expired':
             return {
                 name: 'Gói đã hết hạn',
                 type: 'expired',
                 daysLeft: 0,
                 isExpired: true
+            };
+        case 'free':
+        case null:
+        case undefined:
+            return {
+                name: 'Gói miễn phí',
+                type: 'free',
+                daysLeft: 0,
+                isExpired: false
             };
         default:
             return {

@@ -118,12 +118,11 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
 
   const handleBillingClick = () => {
     handleNavigate('/subscription/billing');
-  };
-  const isExpired = subscriptionStatus?.subscriptionType === 'expired';
+  };  const isExpired = subscriptionStatus?.subscriptionType === 'expired';
   const daysRemaining = subscriptionStatus?.daysRemaining || 0;
   const subscriptionType = subscriptionStatus?.subscriptionType;
   const isFreeTrial = subscriptionType === 'free_trial';
-  const isPaid = !isFreeTrial && !isExpired;
+  const isPaid = (subscriptionType === 'monthly' || subscriptionType === 'yearly') && !isExpired;
   
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -146,12 +145,12 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
               />
             </div>
           </div>
-          
-          {/* Center - Subscription Status */}
+            {/* Center - Subscription Status */}
           <div className="hidden md:flex justify-center">
             <SubscriptionBadge 
               subscriptionStatus={subscriptionStatus}
               isLoading={isLoading}
+              onUpgradeClick={handleUpgradeClick}
             />
           </div>
 
@@ -167,9 +166,7 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
                 <path d="M5 12h14"></path>
                 <path d="m12 5 7 7-7 7"></path>
               </svg>
-            </Button>
-
-            {/* Nếu trả phí (Paid) */}
+            </Button>            {/* Nếu trả phí (Paid) */}
             {isPaid ? (
               <span className="hidden sm:inline text-sm font-medium text-green-600 dark:text-green-400">
                 Đã thanh toán

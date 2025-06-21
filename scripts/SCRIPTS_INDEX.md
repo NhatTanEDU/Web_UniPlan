@@ -6,6 +6,7 @@
 | File | Mô tả | Cách dùng |
 |------|-------|-----------|
 | `UPGRADE_SUBSCRIPTION_GUIDE.md` | Hướng dẫn chi tiết nâng cấp subscription | Đọc để hiểu cách upgrade |
+| `DOWNGRADE_SUBSCRIPTION_GUIDE.md` | ⭐ Hướng dẫn chi tiết hạ cấp subscription | Đọc để hiểu cách downgrade |
 | `QUICK_COMMANDS.md` | Lệnh nhanh copy & paste | Copy paste các lệnh thường dùng |
 | `TESTING_COMMANDS.md` | Tổng hợp tất cả lệnh test | Tham khảo khi debug/test |
 | `SCRIPTS_INDEX.md` | File này - danh mục tổng quan | Navigation cho tất cả scripts |
@@ -13,7 +14,12 @@
 ### 🔧 **Script Files (.js) - Located in backend/**
 | Script | Chức năng | Usage |
 |--------|-----------|-------|
+| `one-command.js` | 🌟 **ALL-IN-ONE** subscription tool | `node one-command.js <command> [args]` |
 | `upgrade-admin-subscription.js` | ⭐ Nâng cấp subscription manual | `node upgrade-admin-subscription.js email plan --confirm` |
+| `downgrade-admin-subscription.js` | ⭐ Hạ cấp subscription manual | `node downgrade-admin-subscription.js email plan --confirm` |
+| `fix-user-plan-info.js` | ⭐ Fix trạng thái "unknown" plan | `node fix-user-plan-info.js email --confirm` |
+| `subscription-overview.js` | ⭐ Tổng quan hệ thống subscription | `node subscription-overview.js` |
+| `final-subscription-test.js` | ⭐ Test toàn bộ hệ thống | `node final-subscription-test.js` |
 | `find-user-by-email.js` | ⭐ Tìm user theo email | `node find-user-by-email.js email@example.com` |
 | `find-user-by-id.js` | ⭐ Tìm user theo ID | `node find-user-by-id.js user_id` |
 | `clear-payments-by-email.js` | ⭐ Clear pending payments | `node clear-payments-by-email.js email@example.com` |
@@ -51,27 +57,51 @@ node [script-name].js [parameters]
 
 ## ⭐ TOP PRIORITY SCRIPTS
 
-### **🔥 Must-know scripts (5 scripts quan trọng nhất):**
+### **🔥 Must-know scripts (8 scripts quan trọng nhất):**
 
-#### **1. upgrade-admin-subscription.js**
+#### **1. subscription-overview.js**
+```bash
+# Xem tổng quan toàn bộ hệ thống
+node subscription-overview.js
+```
+
+#### **2. upgrade-admin-subscription.js**
 ```bash
 # Nâng cấp subscription bỏ qua thanh toán
 node upgrade-admin-subscription.js admin1@gmail.com monthly --confirm
 ```
 
-#### **2. find-user-by-email.js**  
+#### **3. downgrade-admin-subscription.js**
+```bash
+# Hạ cấp subscription
+node downgrade-admin-subscription.js admin1@gmail.com free --confirm
+```
+
+#### **4. find-user-by-email.js**  
 ```bash
 # Kiểm tra thông tin user
 node find-user-by-email.js admin1@gmail.com
 ```
 
-#### **3. clear-payments-by-email.js**
+#### **5. clear-payments-by-email.js**
 ```bash
 # Fix lỗi 409 pending payment
 node clear-payments-by-email.js admin1@gmail.com
 ```
 
-#### **4. check-all-payments.js**
+#### **6. fix-user-plan-info.js**
+```bash
+# Fix trạng thái "unknown" plan
+node fix-user-plan-info.js admin1@gmail.com --confirm
+```
+
+#### **7. final-subscription-test.js**
+```bash
+# Test toàn bộ hệ thống subscription
+node final-subscription-test.js
+```
+
+#### **8. check-all-payments.js**
 ```bash
 # Xem tổng quan payments
 node check-all-payments.js

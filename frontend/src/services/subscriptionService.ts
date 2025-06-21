@@ -1,7 +1,7 @@
 import api from './api';
 
 export interface SubscriptionStatus {
-  subscriptionType: 'free_trial' | 'monthly' | 'yearly' | 'expired';
+  subscriptionType: 'free' | 'free_trial' | 'monthly' | 'yearly' | 'expired';
   subscriptionStart?: Date;
   subscriptionEnd?: Date;
   daysRemaining?: number;
@@ -42,7 +42,7 @@ export interface PaymentHistory {
 
 export interface SubscriptionHistory {
   _id: string;
-  subscriptionType: 'free_trial' | 'monthly' | 'yearly' | 'expired';
+  subscriptionType: 'free' | 'free_trial' | 'monthly' | 'yearly' | 'expired';
   startDate: Date;
   endDate?: Date;
   isDowngrade: boolean;
