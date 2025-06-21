@@ -16,8 +16,7 @@ const SubscriptionPlans: React.FC = () => {
             // Handle free plan
             toast.success("Bạn đã chọn gói Miễn phí.");
             // Potentially call an API to set the user to the free plan
-        } else {
-            if (!userId) {
+        } else {            if (!userId) {
                 toast.error("Bạn cần đăng nhập để nâng cấp gói.");
                 navigate('/login');
                 return;
@@ -28,14 +27,35 @@ const SubscriptionPlans: React.FC = () => {
                     returnUrl: `${window.location.origin}/payment/result`,
                     notifyUrl: `${window.location.origin}/api/payment/notify`,
                 });
-                if (response && response.payUrl) {
-                    window.location.href = response.payUrl;
+                
+                console.log('Payment response:', response);
+                
+                // Backend trả về { success: true, data: { payUrl: "..." } }
+                if (response && response.data && response.data.payUrl) {
+                    console.log('Redirecting to MoMo payment URL:', response.data.payUrl);
+                    window.location.href = response.data.payUrl;
                 } else {
+                    console.error('PayUrl not found in response:', response);
                     toast.error("Không thể tạo yêu cầu thanh toán. Vui lòng thử lại.");
-                }
-            } catch (error) {
+                    setSelectedPlan(null); // Reset button state
+                }            } catch (error: any) {
                 console.error("Payment creation failed:", error);
-                toast.error("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+                
+                // Xử lý trường hợp có giao dịch pending (status 409)
+                if (error.response && error.response.status === 409) {
+                    const errorData = error.response.data;
+                    if (errorData.existingPayment && errorData.existingPayment.payUrl) {
+                        console.log('Found existing pending payment, redirecting to existing payUrl:', errorData.existingPayment.payUrl);
+                        toast.success("Bạn có giao dịch đang chờ thanh toán. Đang chuyển hướng...");
+                        window.location.href = errorData.existingPayment.payUrl;
+                        return;
+                    } else {
+                        toast.error(errorData.message || "Bạn đã có giao dịch đang chờ thanh toán.");
+                    }
+                } else {
+                    toast.error("Đã có lỗi xảy ra. Vui lòng thử lại sau.");
+                }
+                setSelectedPlan(null); // Reset button state
             }
         }
     };
