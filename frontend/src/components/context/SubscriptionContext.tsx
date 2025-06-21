@@ -32,8 +32,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const isAuthenticated = !!token;
 
   // Tính số thông báo chưa đọc
-  const unreadCount = notifications.filter(n => !n.read).length;  // Refresh subscription status
-  const refreshSubscriptionStatus = useCallback(async () => {
+  const unreadCount = notifications.filter(n => !n.read).length;  // Refresh subscription status with cache control
+  const refreshSubscriptionStatus = useCallback(async (forceRefresh = false) => {
     if (!isAuthenticated) {
       console.log('🔐 [SubscriptionContext] Not authenticated, skipping refresh');
       return;
@@ -44,12 +44,12 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     console.log('🔑 [SubscriptionContext] Token exists:', !!token);
     console.log('🔑 [SubscriptionContext] Token preview:', token?.substring(0, 30) + '...');
     console.log('🔑 [SubscriptionContext] isAuthenticated:', isAuthenticated);
+    console.log('🔄 [SubscriptionContext] Force refresh:', forceRefresh);
     
     try {
       setIsLoading(true);
-      setError(null);
-      console.log('🚀 [SubscriptionContext] Calling getSubscriptionStatus...');
-      const status = await subscriptionService.getSubscriptionStatus();
+      setError(null);      console.log('🚀 [SubscriptionContext] Calling getSubscriptionStatus...');
+      const status = await subscriptionService.getSubscriptionStatus(forceRefresh);
       console.log('✅ [SubscriptionContext] Received status:', status);
       setSubscriptionStatus(status);
     } catch (err: any) {
@@ -105,17 +105,27 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   const requiresPremium = (): boolean => {
     if (!subscriptionStatus) return true;
     return !subscriptionStatus.isPremium;
-  };  // Load dữ liệu khi user đăng nhập
+  };  // Load dữ liệu khi user đăng nhập với auto-refresh sau payment
   useEffect(() => {
     if (isAuthenticated) {
-      refreshSubscriptionStatus();
+      // Check if need to force refresh after payment
+      const needsRefresh = localStorage.getItem('pendingPaymentRefresh');
+      
+      if (needsRefresh) {
+        console.log('🔄 [SubscriptionContext] Found pending payment refresh flag, force refreshing...');
+        localStorage.removeItem('pendingPaymentRefresh');
+        refreshSubscriptionStatus(true); // Force refresh
+      } else {
+        refreshSubscriptionStatus(false); // Normal refresh
+      }
+      
       refreshNotifications();
     } else {
       setSubscriptionStatus(null);
       setNotifications([]);
       setIsLoading(false);
     }
-  }, [isAuthenticated, refreshSubscriptionStatus, refreshNotifications]);  // Auto refresh subscription status mỗi 5 phút
+  }, [isAuthenticated, refreshSubscriptionStatus, refreshNotifications]);// Auto refresh subscription status mỗi 5 phút
   useEffect(() => {
     if (!isAuthenticated) return;
     

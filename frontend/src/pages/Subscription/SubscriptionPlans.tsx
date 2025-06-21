@@ -29,16 +29,19 @@ const SubscriptionPlans: React.FC = () => {
                 });
                 
                 console.log('Payment response:', response);
-                
-                // Backend trả về { success: true, data: { payUrl: "..." } }
+                  // Backend trả về { success: true, data: { payUrl: "..." } }
                 if (response && response.data && response.data.payUrl) {
                     console.log('Redirecting to MoMo payment URL:', response.data.payUrl);
+                    
+                    // Set flag để refresh sau khi quay lại từ MoMo
+                    localStorage.setItem('pendingPaymentRefresh', 'true');
+                    
                     window.location.href = response.data.payUrl;
                 } else {
                     console.error('PayUrl not found in response:', response);
                     toast.error("Không thể tạo yêu cầu thanh toán. Vui lòng thử lại.");
                     setSelectedPlan(null); // Reset button state
-                }            } catch (error: any) {
+                }} catch (error: any) {
                 console.error("Payment creation failed:", error);
                 
                 // Xử lý trường hợp có giao dịch pending (status 409)

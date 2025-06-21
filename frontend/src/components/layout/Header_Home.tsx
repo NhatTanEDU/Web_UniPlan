@@ -107,9 +107,18 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
     // Fallback nếu không có userId
     handleNavigate('/dashboard');
   };
-
   const handleUpgradeClick = () => {
     handleNavigate('/subscription/plans');
+  };
+
+  // Debug function to manually refresh subscription
+  const handleForceRefresh = () => {
+    console.log('🔄 [Header_Home] Manual force refresh triggered');
+    if (resetSubscriptionData) {
+      resetSubscriptionData();
+    }
+    // Force refresh subscription status
+    window.location.reload();
   };
 
   const handleAccountClick = () => {
@@ -255,10 +264,19 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
               isLoading={isLoading}
               onUpgradeClick={handleUpgradeClick}
             />
-          </div>
-
-          {/* Right side */}
+          </div>          {/* Right side */}
           <div className="flex items-center gap-2 md:gap-4">
+            {/* Development: Force refresh button */}
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                onClick={handleForceRefresh}
+                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                title="Force refresh subscription status"
+              >
+                🔄
+              </button>
+            )}
+            
             {/* Bắt đầu */}
             <Button
               className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-md hover:from-purple-700 hover:to-blue-700 transition-all duration-200 text-base font-bold flex items-center gap-2"

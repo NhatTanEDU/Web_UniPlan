@@ -13,16 +13,17 @@ console.log('checkSubscriptionStatus:', typeof checkSubscriptionStatus);
 // Middleware rate limiting cho payment endpoints
 const rateLimit = require('express-rate-limit');
 
-// Rate limit cho tạo thanh toán (5 requests per 15 minutes)
+// Rate limit cho tạo thanh toán (DISABLED for development)
 const createPaymentLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 requests per windowMs
+    max: 1000, // Very high limit for development
     message: {
         success: false,
         message: 'Quá nhiều yêu cầu tạo thanh toán. Vui lòng thử lại sau 15 phút.'
     },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => process.env.NODE_ENV === 'development' || true, // Skip rate limiting
 });
 
 // Rate limit cho kiểm tra status (30 requests per 15 minutes)

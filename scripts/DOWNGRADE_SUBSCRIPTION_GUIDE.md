@@ -17,12 +17,16 @@ node find-user-by-email.js user@example.com
 node downgrade-admin-subscription.js user@example.com free
 
 # 3. Hạ cấp thực tế (với confirm)
-node downgrade-admin-subscription.js user@example.com free --confirm
-
+node downgrade-admin-subscription.js  admin1@gmail.com free --confirm
+node find-user-by-email.js admin1@gmail.com
 # 4. Verify kết quả
 node find-user-by-email.js user@example.com
 ```
+# 5. clear thanh toán
+node clear-pending-payments-admin1.js
 
+#6. uodate gói
+node manual-confirm-payment.js
 ---
 
 ## 📋 Downgrade Matrix

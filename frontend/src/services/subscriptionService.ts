@@ -66,16 +66,27 @@ export interface PlanUpgradeData {
   planType: string;
 }
 
-class SubscriptionService {
-  // Lấy trạng thái subscription hiện tại
-  async getSubscriptionStatus(): Promise<SubscriptionStatus> {
+class SubscriptionService {  // Lấy trạng thái subscription hiện tại
+  async getSubscriptionStatus(forceRefresh = false): Promise<SubscriptionStatus> {
     try {
       const token = localStorage.getItem('token');
       console.log('🔐 [subscriptionService] Token exists:', !!token);
       console.log('🔐 [subscriptionService] Token preview:', token?.substring(0, 30) + '...');
+      console.log('🔄 [subscriptionService] Force refresh:', forceRefresh);
       
       console.log('🚀 [subscriptionService] Making request to: /subscription/status');
-      const response = await api.get('/subscription/status');
+      
+      const config = forceRefresh ? {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        params: {
+          _t: Date.now() // Cache bust parameter
+        }
+      } : {};
+      
+      const response = await api.get('/subscription/status', config);
       
       console.log('✅ [subscriptionService] Response status:', response.status);
       console.log('✅ [subscriptionService] Response data:', response.data);
