@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import subscriptionService, { SubscriptionStatus, NotificationItem } from '../../services/subscriptionService';
 import { useAuth } from './AuthContext';
-
   interface SubscriptionContextType {
   subscriptionStatus: SubscriptionStatus | null;
   notifications: NotificationItem[];
@@ -14,6 +13,7 @@ import { useAuth } from './AuthContext';
   markAllNotificationsAsRead: () => Promise<void>;
   checkSubscriptionExpiry: () => boolean;
   requiresPremium: () => boolean;
+  resetSubscriptionData: () => void;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | null>(null);
@@ -132,10 +132,19 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     
     const interval = setInterval(() => {
       refreshNotifications();
-    }, 2 * 60 * 1000); // 2 minutes
-
-    return () => clearInterval(interval);
+    }, 2 * 60 * 1000); // 2 minutes    return () => clearInterval(interval);
   }, [isAuthenticated, refreshNotifications]);
+
+  // Reset subscription data (for logout)
+  const resetSubscriptionData = useCallback(() => {
+    console.log('🔄 [SubscriptionContext] Resetting subscription data...');
+    setSubscriptionStatus(null);
+    setNotifications([]);
+    setIsLoading(false);
+    setError(null);
+    console.log('✅ [SubscriptionContext] Subscription data reset completed');
+  }, []);
+
   const value: SubscriptionContextType = {
     subscriptionStatus,
     notifications,
@@ -147,7 +156,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     markNotificationAsRead,
     markAllNotificationsAsRead,
     checkSubscriptionExpiry,
-    requiresPremium
+    requiresPremium,
+    resetSubscriptionData
   };
 
   return (

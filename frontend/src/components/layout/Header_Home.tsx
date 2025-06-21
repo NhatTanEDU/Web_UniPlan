@@ -19,7 +19,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
-  const { subscriptionStatus, notifications, unreadCount, isLoading } = useSubscription();
+  const { subscriptionStatus, notifications, unreadCount, isLoading, resetSubscriptionData } = useSubscription();
   
   // Debug authentication và token
   useEffect(() => {
@@ -115,10 +115,113 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
   const handleAccountClick = () => {
     handleNavigate('/account');
   };
-
   const handleBillingClick = () => {
     handleNavigate('/subscription/billing');
-  };  const isExpired = subscriptionStatus?.subscriptionType === 'expired';
+  };
+  // Hàm xử lý đăng xuất hoàn toàn
+  const handleLogout = () => {
+    // Hiển thị confirmation dialog
+    const confirmed = window.confirm(
+      'Bạn có chắc chắn muốn đăng xuất?\n\nTất cả dữ liệu phiên làm việc sẽ bị xóa.'
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+    
+    try {
+      console.log('🚪 [Header_Home] Starting logout process...');
+      
+      // 1. Xóa tất cả dữ liệu trong localStorage
+      const keysToRemove = [
+        'token',
+        'user', 
+        'userInfo',
+        'auth_token',
+        'access_token',
+        'refresh_token',
+        'subscriptionStatus',
+        'notifications',
+        'preferences',
+        'settings',
+        'lastActivity',
+        'rememberMe'
+      ];
+      
+      // Ghi log những key nào thực sự tồn tại
+      const existingKeys = keysToRemove.filter(key => localStorage.getItem(key) !== null);
+      console.log('🔍 [Header_Home] Found localStorage keys:', existingKeys);
+      
+      keysToRemove.forEach(key => {
+        if (localStorage.getItem(key)) {
+          localStorage.removeItem(key);
+          console.log(`🗑️ Removed ${key} from localStorage`);
+        }
+      });
+      
+      // 2. Xóa tất cả sessionStorage (nếu có)
+      const sessionKeys = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        sessionKeys.push(sessionStorage.key(i));
+      }
+      if (sessionKeys.length > 0) {
+        console.log('🔍 [Header_Home] Found sessionStorage keys:', sessionKeys);
+        sessionStorage.clear();
+        console.log('🗑️ Cleared sessionStorage');
+      }
+      
+      // 3. Xóa tất cả cookies liên quan (nếu có)
+      const cookiesToClear = ['token', 'auth', 'session', 'user', 'authToken', 'accessToken'];
+      cookiesToClear.forEach(cookieName => {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname.replace('www.', '')};`;
+      });
+      console.log('🍪 Cleared cookies');
+        // 4. Reset UI state và subscription context
+      setShowNotifications(false);
+      setShowUserMenu(false);
+      
+      // Reset subscription context data
+      if (resetSubscriptionData) {
+        resetSubscriptionData();
+        console.log('🔄 [Header_Home] Subscription context reset completed');
+      }
+      
+      // 5. Thông báo thành công
+      console.log('✅ [Header_Home] Logout cleanup completed successfully');
+      console.log('📊 [Header_Home] Remaining localStorage items:', localStorage.length);
+      console.log('📊 [Header_Home] Remaining sessionStorage items:', sessionStorage.length);
+      
+      // 6. Gọi callback onLogout từ parent component
+      if (onLogout) {
+        console.log('🚀 [Header_Home] Calling parent onLogout callback');
+        onLogout();
+      } else {
+        console.log('🚀 [Header_Home] No parent callback, redirecting to login');
+        // Fallback: redirect to login page
+        window.location.href = '/login';
+      }
+      
+    } catch (error) {
+      console.error('❌ [Header_Home] Error during logout:', error);
+      
+      // Fallback cleanup nếu có lỗi - clear tất cả
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log('🆘 [Header_Home] Emergency cleanup completed');
+      } catch (clearError) {
+        console.error('💥 [Header_Home] Emergency cleanup failed:', clearError);
+      }
+      
+      if (onLogout) {
+        onLogout();
+      } else {
+        window.location.href = '/login';
+      }
+    }
+  };const isExpired = subscriptionStatus?.subscriptionType === 'expired';
   const daysRemaining = subscriptionStatus?.daysRemaining || 0;
   const subscriptionType = subscriptionStatus?.subscriptionType;
   const isFreeTrial = subscriptionType === 'free_trial';
@@ -256,10 +359,8 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
                       <span>Thanh toán</span>
                     </button>
 
-                    <hr className="my-2 border-gray-200 dark:border-gray-700" />
-
-                    <button
-                      onClick={onLogout}
+                    <hr className="my-2 border-gray-200 dark:border-gray-700" />                    <button
+                      onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-2"
                     >
                       <LogOut className="h-4 w-4" />
