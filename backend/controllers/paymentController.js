@@ -9,13 +9,16 @@ const paymentController = {
      * Tạo thanh toán mới
      * POST /api/payment/create
      */    createPayment: async (req, res) => {
+        const userId = req.user?.userId;
+        console.log('🔍 [createPayment] Request headers:', req.headers);
+        console.log('🔍 [createPayment] Request body:', req.body);
         try {
             const { planType } = req.body;
-            const userId = req.user.userId; // ✅ Fix: sử dụng userId thay vì id
-            
+            console.log('🔍 [createPayment] planType:', planType);
+
             console.log(`🔄 Creating payment for user ${userId}, plan: ${planType}`);
             console.log('🔍 req.user:', req.user); // Debug log
-            
+
             // Validate input
             if (!planType || !['monthly', 'yearly'].includes(planType)) {
                 return res.status(400).json({
@@ -23,9 +26,10 @@ const paymentController = {
                     message: 'Gói thanh toán không hợp lệ. Chỉ chấp nhận: monthly, yearly'
                 });
             }
-            
+
             // Kiểm tra user tồn tại
             const user = await User.findById(userId);
+            console.log('🔍 [createPayment] User from DB:', user);
             if (!user) {
                 return res.status(404).json({
                     success: false,
@@ -79,6 +83,17 @@ const paymentController = {
             
         } catch (error) {
             console.error('❌ Error in createPayment:', error);
+            if (error.stack) console.error(error.stack);
+            // Auto-cancel any pending payments on error
+            try {
+                const cancelResult = await Payment.updateMany(
+                    { user_id: userId, payment_status: 'pending' },
+                    { payment_status: 'cancelled' }
+                );
+                console.log(`🗑️ Cancelled ${cancelResult.modifiedCount || cancelResult.nModified} pending payments for user ${userId}`);
+            } catch (cancelError) {
+                console.error('❌ Error cancelling pending payments:', cancelError);
+            }
             res.status(500).json({
                 success: false,
                 message: 'Lỗi hệ thống khi tạo thanh toán',

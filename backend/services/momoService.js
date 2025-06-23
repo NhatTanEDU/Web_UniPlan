@@ -40,9 +40,8 @@ class MoMoService {
     generateRequestId() {
         return `UNIPLAN_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
     }
-    
-    /**
-     * Tạo thanh toán MoMo
+      /**
+     * Tạo thanh toán MoMo - THEO CHÍNH XÁC mẫu GitHub
      */
     async createPayment(userId, planType, userInfo = {}) {
         try {
@@ -53,44 +52,56 @@ class MoMoService {
             if (!planInfo) {
                 throw new Error(`Invalid plan type: ${planType}`);
             }
+              // Tạo order ID và request ID giống mẫu GitHub
+            const partnerCode = momoConfig.partnerCode;
+            const accessKey = momoConfig.accessKey;
+            const secretkey = momoConfig.secretKey;
+            const requestId = partnerCode + new Date().getTime();
+            const orderId = requestId;
+            const orderInfo = planInfo.description;
+            const redirectUrl = momoConfig.redirectUrl;
+            const ipnUrl = momoConfig.ipnUrl;
+            const amount = planInfo.amount.toString();
+            const requestType = "captureWallet";
+            const extraData = "";
             
-            // Tạo order ID và request ID
-            const orderId = Payment.generateOrderId();
-            const requestId = this.generateRequestId();
+            console.log(`🆔 Generated IDs - OrderID: ${orderId}, RequestID: ${requestId}`);
             
-            // Tạo request data
-            const requestData = {
-                partnerCode: momoConfig.partnerCode,
-                partnerName: 'UniPlan',
-                storeId: 'UniPlanStore',
-                requestId: requestId,
-                amount: planInfo.amount,
-                orderId: orderId,
-                orderInfo: planInfo.description,
-                redirectUrl: momoConfig.redirectUrl,
-                ipnUrl: momoConfig.ipnUrl,
-                lang: momoConfig.lang,
-                requestType: momoConfig.requestType,
-                autoCapture: momoConfig.autoCapture,
-                extraData: momoConfig.extraData
-            };
+            // Tạo raw signature string CHÍNH XÁC theo mẫu GitHub
+            const rawSignature = "accessKey="+accessKey+"&amount=" + amount+"&extraData=" + extraData+"&ipnUrl=" + ipnUrl+"&orderId=" + orderId+"&orderInfo=" + orderInfo+"&partnerCode=" + partnerCode +"&redirectUrl=" + redirectUrl+"&requestId=" + requestId+"&requestType=" + requestType;
             
-            // Tạo raw signature string
-            const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${requestData.amount}&extraData=${requestData.extraData}&ipnUrl=${requestData.ipnUrl}&orderId=${requestData.orderId}&orderInfo=${requestData.orderInfo}&partnerCode=${requestData.partnerCode}&redirectUrl=${requestData.redirectUrl}&requestId=${requestData.requestId}&requestType=${requestData.requestType}`;
+            console.log("--------------------RAW SIGNATURE----------------");
+            console.log(rawSignature);
             
             // Tạo signature
-            const signature = this.generateSignature(rawSignature);
-            requestData.signature = signature;
+            const signature = crypto.createHmac('sha256', secretkey)
+                .update(rawSignature)
+                .digest('hex');
+                
+            console.log("--------------------SIGNATURE----------------");
+            console.log(signature);
             
-            console.log('📝 MoMo request data prepared:', {
-                orderId,
-                requestId,
-                amount: planInfo.amount,
-                planType
-            });
+            // JSON object send to MoMo endpoint - CHÍNH XÁC theo mẫu GitHub
+            const requestData = {
+                partnerCode : partnerCode,
+                accessKey : accessKey,
+                requestId : requestId,
+                amount : amount,
+                orderId : orderId,
+                orderInfo : orderInfo,
+                redirectUrl : redirectUrl,
+                ipnUrl : ipnUrl,
+                extraData : extraData,
+                requestType : requestType,
+                signature : signature,
+                lang: 'vi'
+            };
             
+            console.log('📝 Full MoMo request body:', JSON.stringify(requestData, null, 2));            
             // Gọi MoMo API
             const momoResponse = await this.callMoMoAPI(requestData);
+            
+            console.log('✅ MoMo API Success - Full response:', momoResponse);
             
             // Lưu vào database
             const payment = new Payment({
@@ -104,6 +115,7 @@ class MoMoService {
                 momo_deeplink: momoResponse.deeplink,
                 momo_qr_code_url: momoResponse.qrCodeUrl,
                 payment_status: 'pending',
+                expired_at: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
                 metadata: {
                     ip_address: userInfo.ip,
                     user_agent: userInfo.userAgent,
@@ -113,8 +125,7 @@ class MoMoService {
             
             await payment.save();
             
-            console.log('✅ Payment created successfully:', orderId);
-            
+            console.log('✅ Payment created successfully:', orderId);            
             return {
                 success: true,
                 orderId: orderId,
@@ -124,10 +135,10 @@ class MoMoService {
                 payUrl: momoResponse.payUrl,
                 deeplink: momoResponse.deeplink,
                 qrCodeUrl: momoResponse.qrCodeUrl,
+                expiresAt: payment.expired_at,
                 message: 'Payment created successfully'
             };
-            
-        } catch (error) {
+              } catch (error) {
             console.error('❌ Error creating MoMo payment:', error);
             throw new Error(`Failed to create payment: ${error.message}`);
         }

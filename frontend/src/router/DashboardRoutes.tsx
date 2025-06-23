@@ -9,6 +9,7 @@ import Kanban from '../components/After/tab/Kanban/Kanban';
 import ReportPage from '../components/After/tab/reports/reports';
 import TeamOverviewPage from "../components/After/tab/teams/pages/TeamOverview";
 import TeamDetailPage from "../components/After/tab/teams/pages/TeamDetail";
+import AccountPage from '../pages/AccountPage';
 const DashboardRoutes = () => (
   <>
     <Route path="/dashboard/:userId" element={<DashboardAfter />} />
@@ -17,6 +18,7 @@ const DashboardRoutes = () => (
     <Route path="/teams" element={<TeamPage />} />
     <Route path="/chat" element={<ChatPage />} />
     <Route path="/reports" element={<ReportPage />} />
+    <Route path="/account" element={<AccountPage />} />
     <Route path="/projects/:projectId/kanban" element={<Kanban />} />
     {/* Team routes */}
     <Route path="/teams" element={<TeamOverviewPage />} />

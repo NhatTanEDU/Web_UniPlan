@@ -2,10 +2,10 @@
 require('dotenv').config();
 
 const momoConfig = {
-    // Thông tin đối tác MoMo
-    partnerCode: process.env.MOMO_PARTNER_CODE,
-    accessKey: process.env.MOMO_ACCESS_KEY,
-    secretKey: process.env.MOMO_SECRET_KEY,
+    // Thông tin đối tác MoMo (sử dụng chính xác credentials từ mẫu GitHub thành công)
+    partnerCode: process.env.MOMO_PARTNER_CODE || "MOMO",
+    accessKey: process.env.MOMO_ACCESS_KEY || "F8BBA842ECF85",
+    secretKey: process.env.MOMO_SECRET_KEY || "K951B6PE1waDMi640xX08PD3vg6EkVlz",
     
     // API endpoints
     apiHostname: process.env.MOMO_API_HOSTNAME || 'test-payment.momo.vn',
@@ -13,10 +13,8 @@ const momoConfig = {
     
     // Callback URLs
     redirectUrl: process.env.MOMO_REDIRECT_URL,
-    ipnUrl: process.env.MOMO_IPN_URL,
-    
-    // Cấu hình thanh toán
-    requestType: 'payWithMethod',
+    ipnUrl: process.env.MOMO_IPN_URL,    // Cấu hình thanh toán (theo format MoMo sample thành công)
+    requestType: 'captureWallet',
     extraData: '',
     autoCapture: true,
     lang: 'vi',
