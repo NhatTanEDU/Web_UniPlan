@@ -158,7 +158,7 @@ const downgradeUserSubscription = async (email, targetPlan) => {
             },
             metadata: {
                 duration_days: targetPlan === 'free' ? 0 : 30,
-                billing_cycle: targetPlan === 'free' ? null : targetPlan,
+                billing_cycle: targetPlan === 'free' ? undefined : targetPlan,
                 notes: `Downgrade method: direct_script, version: 1.0, old_plan: ${oldPlan.plan_type}`
             }
         };

@@ -27,9 +27,9 @@ cd "d:\Official_Project\Project_UniPlan\Web_UniPlan-master\Web_UniPlan-master\ba
 ### 🔍 KIỂM TRA USER
 ```bash
 # Admin user
-node find-user-by-email.js admin1@gmail.com
+node find-user-by-email.js admin1@gmail.com  # Hiển thị Trial Start/End (fallback về Subscription dates nếu null)
 
-# Thanhtoan user  
+# Thanh toán user  
 node find-user-by-email.js thanhtoan@gmail.com
 
 # User khác (thay email)
@@ -72,7 +72,7 @@ node upgrade-admin-subscription.js thanhtoan@gmail.com yearly --confirm
 node downgrade-admin-subscription.js admin1@gmail.com monthly
 
 # Admin → free
-node downgrade-admin-subscription.js admin1@gmail.com free
+node downgrade-admin-subscription.js admin1@gmail.com free --confirm
 
 # Thanhtoan monthly → free
 node downgrade-admin-subscription.js thanhtoan@gmail.com free

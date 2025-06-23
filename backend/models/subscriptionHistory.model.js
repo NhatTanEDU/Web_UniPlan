@@ -31,12 +31,12 @@ const subscriptionHistorySchema = new mongoose.Schema({
     // Trạng thái gói
     from_plan: {
         type: String,
-        enum: ['free_trial', 'expired', 'monthly', 'yearly'],
+        enum: ['free', 'free_trial', 'expired', 'monthly', 'yearly'],
         required: true
     },
     to_plan: {
         type: String,
-        enum: ['free_trial', 'expired', 'monthly', 'yearly'],
+        enum: ['free', 'free_trial', 'expired', 'monthly', 'yearly'],
         required: true
     },
     
@@ -103,7 +103,7 @@ const subscriptionHistorySchema = new mongoose.Schema({
         billing_cycle: {
             type: String,
             enum: ['monthly', 'yearly'],
-            default: null
+            default: undefined
         },
         notes: {
             type: String,
