@@ -1,38 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Crown, User, Settings, LogOut, CreditCard } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
+import { useUserInfo } from '../../hooks/useUserInfo';
 import NotificationDropdown from './NotificationDropdown';
 import SubscriptionBadge from './SubscriptionBadge';
 import { Button } from '../ui/button';
 import logo from '../../assets/Name_Logo_3x.png';
 
 interface HeaderProps {
-  user?: {
-    name?: string;
-    full_name?: string;
-    username?: string;
-    email: string;
-    avatar?: string;
-  };
   onNavigate?: (path: string) => void;
   onLogout?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
   const { subscriptionStatus, notifications, unreadCount, isLoading, resetSubscriptionData } = useSubscription();
-  
-  // Debug authentication và token
+  const { userInfo } = useUserInfo(); // Sử dụng hook để lấy thông tin user và avatar
+    // Debug authentication và token
   useEffect(() => {
     console.log('🔐 [Header_Home] Authentication Debug:');
     
     // Kiểm tra token trong localStorage
     const token = localStorage.getItem('token');
-    const userInfo = localStorage.getItem('user');
+    const userInfo_local = localStorage.getItem('user');
     
     console.log('🔑 Token exists:', !!token);
     console.log('🔑 Token preview:', token ? token.substring(0, 50) + '...' : 'null');
-    console.log('👤 User info exists:', !!userInfo);
-    console.log('👤 User prop exists:', !!user);
+    console.log('👤 User info exists:', !!userInfo_local);
+    console.log('👤 User from hook:', !!userInfo);
     
     // Kiểm tra token có hết hạn không
     if (token) {
@@ -56,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
     } else {
       console.warn('🚨 KHÔNG CÓ TOKEN - User chưa đăng nhập!');
     }
-  }, [user]);
+  }, [userInfo]);
 
   useEffect(() => {
     console.log('🔎 [Header_Home] subscriptionStatus:', subscriptionStatus);
@@ -326,38 +320,36 @@ const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) => {
                   />
                 </div>              )}
             </div>
-            
-            {/* User Menu */}
-            {user && (
+              {/* User Menu */}
+            {userInfo && (
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
-                >
-                  {user.avatar ? (
+                >                  {userInfo.avatar_url ? (
                     <img
-                      src={user.avatar}
-                      alt={user.name || 'User'}
+                      src={userInfo.avatar_url}
+                      alt={userInfo.full_name || 'User'}
                       className="h-8 w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
                     />
                   ) : (
                     <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                       <User className="h-5 w-5 text-white" />
-                    </div>
-                  )}
-                  <span className="hidden md:inline text-sm font-medium pr-1">
-                    {user.full_name || user.name || user.username || user.email.split('@')[0]}
-                  </span>
+                    </div>                  )}
+                  {/* Ẩn tên user, chỉ hiển thị avatar */}
+                  {/* <span className="hidden md:inline text-sm font-medium pr-1">
+                    {userInfo.full_name || userInfo.email.split('@')[0]}
+                  </span> */}
                 </button>
 
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {user.full_name || user.name || user.username || user.email.split('@')[0]}
+                        {userInfo.full_name || userInfo.email.split('@')[0]}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {user.email}
+                        {userInfo.email}
                       </p>
                     </div>
 

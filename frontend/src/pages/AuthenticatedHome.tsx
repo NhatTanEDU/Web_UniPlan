@@ -79,34 +79,10 @@ const AuthenticatedHome: React.FC = () => {
     }
     if (ref && ref.current) {
       ref.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-  // Lấy thông tin người dùng từ localStorage
-  const getUserFromLocalStorage = () => {
-    const userString = localStorage.getItem('user');
-    if (!userString) return undefined;
-    try {
-      const userData = JSON.parse(userString);
-      return {
-        name: userData.name,
-        full_name: userData.full_name,
-        username: userData.username,
-        email: userData.email || 'user@example.com', // Email mặc định để tránh lỗi TypeScript
-        avatar: userData.avatar
-      };
-    } catch (error) {
-      console.error('Error parsing user data from localStorage:', error);
-      return undefined;
-    }
-  };
-  
-  const userInfo = getUserFromLocalStorage();
-
-  return (
+    }  };    return (
     <div className="authenticated-home" style={{ minHeight: '100vh', backgroundColor: COLORS.background }}>
       {/* Header với thông tin subscription */}
       <Header 
-        user={userInfo}
         onNavigate={handleNavigate}
         onLogout={handleLogout}
       />
