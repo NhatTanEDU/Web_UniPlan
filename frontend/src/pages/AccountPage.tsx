@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Calendar, Crown, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { userService, UserInfo } from '../services/userService';
+import logo from "../assets/Name_Logo_3x.png";
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
@@ -112,103 +113,134 @@ const AccountPage: React.FC = () => {
       </div>
     );
   }
-
   const startDate = getStartDate(userInfo);
   const endDate = getEndDate(userInfo);
-  const daysRemaining = getDaysRemaining(endDate);
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay về
-          </button>
-        </div>
-
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
-              {userInfo.avatar_url ? (
-                <img 
-                  src={userInfo.avatar_url} 
-                  alt="Avatar" 
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-              ) : (
-                <User className="h-8 w-8 text-blue-600" />
-              )}
+  const daysRemaining = getDaysRemaining(endDate);  return (
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Top Header with Logo - Responsive */}
+      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="flex items-center justify-between h-16">            {/* Logo */}            <div className="flex items-center">
+              <img
+                src={logo}
+                alt="UniPlan"
+                className="h-7 sm:h-8 md:h-10 lg:h-12 xl:h-20 2xl:h-24 w-auto"
+              />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{userInfo.full_name}</h1>
-              <p className="text-gray-600">{userInfo.email}</p>
+            
+            {/* User Avatar/Menu bên phải - Responsive */}
+            <div className="flex items-center space-x-4">
+              {userInfo && (
+                <div className="flex items-center space-x-2">
+                  <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    {userInfo.avatar_url ? (
+                      <img 
+                        src={userInfo.avatar_url} 
+                        alt="Avatar" 
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-4 w-4 text-blue-600" />
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                    {userInfo.full_name}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Plan Information */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Crown className="h-6 w-6 text-yellow-500 mr-2" />
+      {/* Main Content Area - Responsive */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+        <div className="max-w-4xl mx-auto">
+          {/* Nút Quay về và Tiêu đề Trang - Responsive */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 shadow-sm mb-4 sm:mb-0 sm:mr-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Quay về
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 sm:mt-0">Thông tin tài khoản</h1>
+          </div>          {/* User Profile Card - Responsive */}
+          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 sm:p-6 mb-6 transform hover:scale-[1.005] transition-transform duration-200 ease-out">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 bg-blue-50 rounded-full flex items-center justify-center border-2 border-blue-200">
+                {userInfo.avatar_url ? (
+                  <img 
+                    src={userInfo.avatar_url} 
+                    alt="Avatar" 
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                )}
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{userInfo.full_name}</h2>
+                <p className="text-sm sm:text-lg text-gray-600">{userInfo.email}</p>
+              </div>
+            </div>
+          </div>        {/* Plan Information - Responsive */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 sm:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 pb-3 border-b border-gray-100">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center mb-2 sm:mb-0">
+              <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500 mr-2" />
               Thông tin gói dịch vụ
             </h2>
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPlanColor(userInfo.current_plan_type)}`}>
+            <span className={`inline-flex items-center px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-sm font-semibold ${getPlanColor(userInfo.current_plan_type)}`}>
               {getPlanDisplayName(userInfo.current_plan_type)}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-6 sm:gap-y-6 sm:gap-x-8">
             {/* Start Date */}
-            <div className="flex items-start space-x-3">
+            <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-green-600" />
+                <div className="h-9 w-9 sm:h-10 sm:w-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">Ngày bắt đầu</p>
-                <p className="text-sm text-gray-600">{formatDate(startDate)}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-900">Ngày bắt đầu</p>
+                <p className="text-sm sm:text-base text-gray-600">{formatDate(startDate)}</p>
               </div>
             </div>
 
             {/* End Date */}
-            <div className="flex items-start space-x-3">
+            <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 bg-red-100 rounded-lg flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-red-600" />
+                <div className="h-9 w-9 sm:h-10 sm:w-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">Ngày kết thúc</p>
-                <p className="text-sm text-gray-600">{formatDate(endDate)}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-900">Ngày kết thúc</p>
+                <p className="text-sm sm:text-base text-gray-600">{formatDate(endDate)}</p>
                 {daysRemaining !== null && (
-                  <p className={`text-xs mt-1 ${daysRemaining > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-xs mt-1 font-medium ${daysRemaining > 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {daysRemaining > 0 ? `Còn ${daysRemaining} ngày` : 'Đã hết hạn'}
                   </p>
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Progress Bar for Trial/Subscription */}
+          </div>          {/* Progress Bar for Trial/Subscription - Responsive */}
           {startDate && endDate && (
-            <div className="mt-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <div className="mt-6 pt-5 sm:mt-8 sm:pt-6 border-t border-gray-100">
+              <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-2 font-medium">
                 <span>Tiến trình sử dụng</span>
-                <span>
+                <span className={`${daysRemaining !== null && daysRemaining <= 0 ? 'text-red-600' : ''}`}>
                   {daysRemaining !== null && daysRemaining > 0 
                     ? `${daysRemaining} ngày còn lại` 
                     : 'Đã hết hạn'
                   }
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
                 {(() => {
                   const start = new Date(startDate).getTime();
                   const end = new Date(endDate).getTime();
@@ -217,9 +249,16 @@ const AccountPage: React.FC = () => {
                   const used = now - start;
                   const percentage = Math.max(0, Math.min(100, (used / total) * 100));
                   
+                  let barColor = 'bg-blue-500';
+                  if (percentage >= 100 || (daysRemaining !== null && daysRemaining <= 0)) {
+                    barColor = 'bg-red-500';
+                  } else if (daysRemaining !== null && daysRemaining <= 7) {
+                    barColor = 'bg-orange-400';
+                  }
+                  
                   return (
                     <div 
-                      className={`h-2 rounded-full ${percentage < 100 ? 'bg-blue-500' : 'bg-red-500'}`}
+                      className={`h-full rounded-full ${barColor}`}
                       style={{ width: `${percentage}%` }}
                     ></div>
                   );
@@ -227,17 +266,15 @@ const AccountPage: React.FC = () => {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Payment Status */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center mb-4">
-            <CheckCircle className="h-6 w-6 text-green-500 mr-2" />
+        </div>        {/* Payment Status - Responsive */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center mb-4 pb-3 border-b border-gray-100">
+            <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-500 mr-2" />
             Trạng thái thanh toán
           </h2>
           
-          <div className="flex items-center space-x-3">
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+          <div className="flex items-center space-x-3 mb-4">
+            <span className={`inline-flex items-center px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-sm font-semibold ${
               userInfo.payment_status === 'completed' 
                 ? 'bg-green-100 text-green-800'
                 : userInfo.payment_status === 'pending'
@@ -253,27 +290,28 @@ const AccountPage: React.FC = () => {
             </span>
           </div>
 
-          {/* Upgrade Button */}
+          {/* Upgrade Button - Responsive */}
           {(userInfo.current_plan_type === 'free' || userInfo.current_plan_type === 'expired') && (
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-800 mb-3">Nâng cấp gói để sử dụng đầy đủ tính năng UniPlan</p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            <div className="mt-5 p-4 sm:p-5 bg-blue-50 rounded-lg border border-blue-100">
+              <p className="text-sm sm:text-base text-blue-800 mb-3 sm:mb-4">Nâng cấp gói để sử dụng đầy đủ tính năng UniPlan</p>
+              <button className="bg-blue-600 text-white px-6 py-2 sm:px-8 sm:py-2.5 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md w-full sm:w-auto">
                 Nâng cấp ngay
               </button>
             </div>
           )}
 
-          {/* Trial Ending Soon Warning */}
+          {/* Trial Ending Soon Warning - Responsive */}
           {userInfo.current_plan_type === 'free_trial' && daysRemaining !== null && daysRemaining <= 3 && daysRemaining > 0 && (
-            <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-              <p className="text-yellow-800 mb-3">
-                Gói dùng thử của bạn sẽ hết hạn trong {daysRemaining} ngày
+            <div className="mt-5 p-4 sm:p-5 bg-yellow-50 rounded-lg border border-yellow-100">
+              <p className="text-sm sm:text-base text-yellow-800 mb-3 sm:mb-4">
+                Gói dùng thử của bạn sẽ hết hạn trong <span className="font-bold">{daysRemaining}</span> ngày
               </p>
-              <button className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
+              <button className="bg-yellow-600 text-white px-6 py-2 sm:px-8 sm:py-2.5 rounded-lg hover:bg-yellow-700 transition-colors duration-200 shadow-md w-full sm:w-auto">
                 Nâng cấp để tiếp tục
               </button>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
