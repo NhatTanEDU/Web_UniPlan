@@ -2,6 +2,44 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user.model'); // Import model từ file riêng
 const verifyToken = require('../middlewares/verifyToken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Cấu hình multer cho upload avatar
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(__dirname, '../uploads/avatars');
+        // Tạo thư mục nếu chưa tồn tại
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+        // Tạo tên file unique với timestamp và user ID
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, `avatar-${req.user.id}-${uniqueSuffix}${ext}`);
+    }
+});
+
+// File filter cho avatar
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Chỉ cho phép upload file ảnh!'), false);
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB
+    }
+});
 
 // Route lấy danh sách tất cả users
 router.get('/', verifyToken, async (req, res) => {
@@ -70,6 +108,75 @@ router.get('/me', verifyToken, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Lỗi server khi lấy thông tin user',
+            error: error.message
+        });
+    }
+});
+
+// Route cập nhật profile user hiện tại
+router.put('/profile', verifyToken, async (req, res) => {
+    try {
+        const { full_name, email, phone, address, bio, avatar_url } = req.body;
+        
+        // Validation
+        if (!full_name || !email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Họ tên và email là bắt buộc'
+            });
+        }
+
+        // Kiểm tra email đã tồn tại chưa (ngoại trừ user hiện tại)
+        const existingUser = await User.findOne({ 
+            email: email, 
+            _id: { $ne: req.user.id },
+            isActive: true 
+        });
+        
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email đã được sử dụng bởi tài khoản khác'
+            });
+        }
+
+        // Cập nhật thông tin profile
+        const updateData = {
+            full_name,
+            email,
+            phone,
+            address,
+            bio
+        };
+
+        // Chỉ cập nhật avatar_url nếu có
+        if (avatar_url) {
+            updateData.avatar_url = avatar_url;
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy user'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Cập nhật profile thành công',
+            data: { user }
+        });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi cập nhật profile',
             error: error.message
         });
     }
@@ -175,6 +282,104 @@ router.delete('/:id', verifyToken, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Lỗi server khi xóa user',
+            error: error.message
+        });
+    }
+});
+
+// Route upload avatar
+router.post('/upload-avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'Không có file được upload'
+            });
+        }
+
+        // Tạo URL cho avatar
+        const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+        // Cập nhật avatar URL vào database
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { avatar_url: avatarUrl },
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy user'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Upload avatar thành công',
+            data: {
+                avatar_url: avatarUrl
+            }
+        });
+    } catch (error) {
+        console.error('Error uploading avatar:', error);
+        
+        // Xóa file nếu có lỗi
+        if (req.file) {
+            fs.unlink(req.file.path, (err) => {
+                if (err) console.error('Error deleting file:', err);
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi upload avatar',
+            error: error.message
+        });
+    }
+});
+
+// Route cập nhật thông tin user hiện tại (PUT /me)
+router.put('/me', verifyToken, async (req, res) => {
+    try {
+        const { full_name, email, phone, address, bio, avatar_url } = req.body;
+        
+        const updateData = {
+            full_name,
+            email,
+            phone,
+            address,
+            bio
+        };
+
+        // Chỉ cập nhật avatar_url nếu có
+        if (avatar_url) {
+            updateData.avatar_url = avatar_url;
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Không tìm thấy user'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Cập nhật thông tin thành công',
+            data: { user }
+        });
+    } catch (error) {
+        console.error('Error updating user info:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi cập nhật thông tin',
             error: error.message
         });
     }

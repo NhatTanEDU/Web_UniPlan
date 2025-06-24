@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
   Search,
+  User,
 } from "lucide-react";
 import logo from "../../assets/Name_Logo_3x.png";
+import { useUserInfo } from "../../hooks/useUserInfo";
 // Định nghĩa kiểu cho props (tùy chọn, có thể mở rộng sau)
 interface HeaderProps {
     // Có thể thêm props nếu cần, ví dụ: onSearch, userData
@@ -14,17 +16,15 @@ interface HeaderProps {
     // State để quản lý menu user dropdown
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const navigate = useNavigate();
+    
+    // Sử dụng custom hook để lấy user info
+    const { userInfo, loading } = useUserInfo();
 
-    // Lấy thông tin user từ localStorage
-    let user = null;
-    try {
-      user = JSON.parse(localStorage.getItem("user") || "null");
-    } catch (e) {
-      user = null;
-    }
-    const userName = user?.name || "Tài khoản";
-    const userEmail = user?.email || "email@example.com";
+    // Lấy thông tin user với fallback
+    const userName = userInfo?.full_name || "Tài khoản";
+    const userEmail = userInfo?.email || "email@example.com";
     const userInitial = userName.charAt(0).toUpperCase();
+    const avatarUrl = userInfo?.avatar_url;
 
     // Hàm xử lý đăng xuất
     const handleLogout = () => {
@@ -76,8 +76,16 @@ interface HeaderProps {
                   className="flex items-center space-x-2"
                   aria-label="Menu người dùng"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
-                    {userInitial}
+                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center overflow-hidden">
+                    {avatarUrl ? (
+                      <img 
+                        src={avatarUrl} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-medium">{userInitial}</span>
+                    )}
                   </div>
                   <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 </button>

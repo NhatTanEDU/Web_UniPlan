@@ -11,6 +11,7 @@ import WidgetCustomize from "../components/widget/customize";
 import GanttTab from "../components/After/tab/gantt/GanttTab"; // "Gantt Nhỏ" - cho một dự án cụ thể
 import ProjectPortfolioGanttPage from "../components/After/tab/gantt/gantt"; // "Gantt Lớn" - tổng quan tất cả dự án
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'; // Import useSearchParams
+import { useUserInfo } from "../hooks/useUserInfo";
 
 // Định nghĩa kiểu cho các widget có sẵn
 type AvailableWidgets = {
@@ -74,18 +75,14 @@ interface WidgetItem {
     component: React.ReactNode;
 }
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-}
-
 const DashboardAfter: React.FC = () => {
     const [widgets, setWidgets] = useState<WidgetItem[]>([]);
     const { userId } = useParams<{ userId: string }>();
     const [searchParams] = useSearchParams();
-    const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
     const navigate = useNavigate();
+    
+    // Use the custom hook instead of local state
+    const { userInfo: loggedInUser } = useUserInfo();
 
     const currentView = searchParams.get('view');
     const projectId = searchParams.get('projectId'); // Vẫn giữ lại nếu cần cho các view khác
@@ -101,10 +98,6 @@ const DashboardAfter: React.FC = () => {
     useEffect(() => {
         if (userId) {
             console.log("🎛️ [Dashboard_After] Dashboard của người dùng có ID:", userId);
-            const userFromStorage = localStorage.getItem('user');
-            if (userFromStorage) {
-                setLoggedInUser(JSON.parse(userFromStorage));
-            }
         } else {
             console.warn("🎛️ [Dashboard_After] Không có userId trên URL dashboard. Điều hướng...");
             const userFromStorage = localStorage.getItem('user');
@@ -140,7 +133,7 @@ const DashboardAfter: React.FC = () => {
                 {
                     id: "introduce-1",
                     type: "introduce",
-                    component: <WidgetIntroduce userName={loggedInUser.name} />,
+                    component: <WidgetIntroduce userName={loggedInUser.full_name} />,
                 },
                 {
                     id: "schedule-1",
@@ -194,7 +187,7 @@ const DashboardAfter: React.FC = () => {
                         ) : (
                             <>
                                 <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                                    Chào mừng đến Dashboard, {loggedInUser?.name || 'bạn'}!
+                                    Chào mừng đến Dashboard, {loggedInUser?.full_name || 'bạn'}!
                                 </h1>
                                 <DragDropContext onDragEnd={handleDragEnd}>
                                     {/* Grid responsive tự điều chỉnh */}

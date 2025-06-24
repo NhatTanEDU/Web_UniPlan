@@ -12,7 +12,11 @@ export interface UserInfo {
   subscription_end_date?: string;
   payment_status?: string;
   avatar_url?: string;
+  phone?: string;
+  address?: string;
+  bio?: string;
   isActive?: boolean;
+  created_at?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -52,7 +56,6 @@ export const userService = {
       throw new Error(error.response?.data?.message || 'Không thể cập nhật thông tin');
     }
   },
-
   // Lấy thông tin user theo ID (nếu cần)
   getUserById: async (userId: string): Promise<UserResponse> => {
     try {
@@ -63,6 +66,46 @@ export const userService = {
     } catch (error: any) {
       console.error('❌ [UserService] Error fetching user by ID:', error);
       throw new Error(error.response?.data?.message || 'Không thể lấy thông tin user');
+    }
+  },
+
+  // Cập nhật profile
+  updateProfile: async (profileData: {
+    full_name?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    bio?: string;
+    avatar_url?: string;
+  }): Promise<UserResponse> => {
+    try {
+      console.log('🔄 [UserService] Updating profile...', profileData);
+      const response = await api.put('/users/profile', profileData);
+      console.log('✅ [UserService] Profile updated successfully:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ [UserService] Error updating profile:', error);
+      throw new Error(error.response?.data?.message || 'Không thể cập nhật thông tin cá nhân');
+    }
+  },
+
+  // Upload avatar
+  uploadAvatar: async (file: File): Promise<{ data: { avatar_url: string } }> => {
+    try {
+      console.log('📤 [UserService] Uploading avatar...');
+      const formData = new FormData();
+      formData.append('avatar', file);
+      
+      const response = await api.post('/users/upload-avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('✅ [UserService] Avatar uploaded successfully:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ [UserService] Error uploading avatar:', error);
+      throw new Error(error.response?.data?.message || 'Không thể upload avatar');
     }
   }
 };

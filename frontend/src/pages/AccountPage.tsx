@@ -1,29 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { User, Calendar, Crown, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
+import { User, Calendar, Crown, Clock, CheckCircle, ArrowLeft, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { userService, UserInfo } from '../services/userService';
+import { useUserInfo } from '../hooks/useUserInfo';
 import logo from "../assets/Name_Logo_3x.png";
 
 const AccountPage: React.FC = () => {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { userInfo, loading } = useUserInfo();
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchUserInfo();
-  }, []);
-  const fetchUserInfo = async () => {
-    try {
-      setLoading(true);
-      const response = await userService.getCurrentUser();
-      setUserInfo(response.data.user);
-    } catch (err: any) {
-      setError(err.message || 'Không thể tải thông tin tài khoản');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Remove the old useEffect and fetchUserInfo since we're using the hook now
 
   const getPlanDisplayName = (planType: string) => {
     const planNames: { [key: string]: string } = {
@@ -93,9 +80,8 @@ const AccountPage: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
           <div className="text-red-500 text-center">
             <p className="text-xl font-semibold mb-2">Lỗi</p>
-            <p>{error}</p>
-            <button 
-              onClick={fetchUserInfo}
+            <p>{error}</p>            <button 
+              onClick={() => window.location.reload()}
               className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Thử lại
@@ -127,12 +113,11 @@ const AccountPage: React.FC = () => {
                 className="h-7 sm:h-8 md:h-10 lg:h-12 xl:h-20 2xl:h-24 w-auto"
               />
             </div>
-            
-            {/* User Avatar/Menu bên phải - Responsive */}
+              {/* User Avatar/Menu bên phải - Responsive */}
             <div className="flex items-center space-x-4">
               {userInfo && (
                 <div className="flex items-center space-x-2">
-                  <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
                     {userInfo.avatar_url ? (
                       <img 
                         src={userInfo.avatar_url} 
@@ -168,24 +153,33 @@ const AccountPage: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 sm:mt-0">Thông tin tài khoản</h1>
           </div>          {/* User Profile Card - Responsive */}
           <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 sm:p-6 mb-6 transform hover:scale-[1.005] transition-transform duration-200 ease-out">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 bg-blue-50 rounded-full flex items-center justify-center border-2 border-blue-200">
-                {userInfo.avatar_url ? (
-                  <img 
-                    src={userInfo.avatar_url} 
-                    alt="Avatar" 
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  <User className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
-                )}
+            <div className="flex items-center justify-between mb-4">              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="flex-shrink-0 h-16 w-16 sm:h-20 sm:w-20 bg-blue-50 rounded-full flex items-center justify-center border-2 border-blue-200 overflow-hidden">
+                  {userInfo.avatar_url ? (
+                    <img 
+                      src={userInfo.avatar_url} 
+                      alt="Avatar" 
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{userInfo.full_name}</h2>
+                  <p className="text-sm sm:text-lg text-gray-600">{userInfo.email}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{userInfo.full_name}</h2>
-                <p className="text-sm sm:text-lg text-gray-600">{userInfo.email}</p>
-              </div>
+              <button
+                onClick={() => navigate('/profile')}
+                className="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-colors duration-200"
+              >
+                <Edit className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Chỉnh sửa hồ sơ</span>
+                <span className="sm:hidden">Sửa</span>
+              </button>
             </div>
-          </div>        {/* Plan Information - Responsive */}
+          </div>{/* Plan Information - Responsive */}
         <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 sm:p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 pb-3 border-b border-gray-100">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center mb-2 sm:mb-0">
@@ -298,9 +292,7 @@ const AccountPage: React.FC = () => {
                 Nâng cấp ngay
               </button>
             </div>
-          )}
-
-          {/* Trial Ending Soon Warning - Responsive */}
+          )}          {/* Trial Ending Soon Warning - Responsive */}
           {userInfo.current_plan_type === 'free_trial' && daysRemaining !== null && daysRemaining <= 3 && daysRemaining > 0 && (
             <div className="mt-5 p-4 sm:p-5 bg-yellow-50 rounded-lg border border-yellow-100">
               <p className="text-sm sm:text-base text-yellow-800 mb-3 sm:mb-4">
@@ -311,6 +303,45 @@ const AccountPage: React.FC = () => {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Account Information - Responsive */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 flex items-center mb-4 pb-3 border-b border-gray-100">
+            <User className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 mr-2" />
+            Thông tin tài khoản
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Ngày tham gia */}
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <Calendar className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Ngày tham gia</p>
+                <p className="text-gray-900">
+                  {userInfo.created_at || userInfo.createdAt
+                    ? new Date(userInfo.created_at || userInfo.createdAt!).toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })
+                    : 'Không rõ'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            {/* Loại tài khoản */}
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <Crown className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Loại tài khoản</p>
+                <p className="text-gray-900">
+                  {getPlanDisplayName(userInfo.current_plan_type)}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
         </div>
       </div>

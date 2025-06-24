@@ -69,8 +69,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    
-    // Các trường cũ
+      // Các trường cũ
     online_status: {
         type: String,
         enum: ['Online', 'Offline'],
@@ -80,6 +79,25 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    
+    // Thông tin cá nhân bổ sung
+    phone: {
+        type: String,
+        default: null,
+        trim: true
+    },
+    address: {
+        type: String,
+        default: null,
+        trim: true
+    },
+    bio: {
+        type: String,
+        default: null,
+        trim: true,
+        maxlength: [500, 'Giới thiệu không được vượt quá 500 ký tự']
+    },
+    
     isActive: {
         type: Boolean,
         default: true

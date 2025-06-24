@@ -160,6 +160,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Serve static files for uploads
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Block ALL Socket.IO requests silently BEFORE any logging
 app.use((req, res, next) => {
   // Check if this is a Socket.IO request
