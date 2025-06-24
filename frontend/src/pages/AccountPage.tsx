@@ -312,21 +312,40 @@ const AccountPage: React.FC = () => {
             Thông tin tài khoản
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Ngày tham gia */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">            {/* Ngày tham gia */}
             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
               <Calendar className="h-5 w-5 text-gray-400" />
               <div>
                 <p className="text-sm text-gray-500">Ngày tham gia</p>
                 <p className="text-gray-900">
-                  {userInfo.created_at || userInfo.createdAt
-                    ? new Date(userInfo.created_at || userInfo.createdAt!).toLocaleDateString('vi-VN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })
-                    : 'Không rõ'
-                  }
+                  {(() => {
+                    // Debug: Log all possible date fields
+                    console.log('🔍 User Info for Date Debug:', {
+                      created_at: userInfo.created_at,
+                      createdAt: userInfo.createdAt,
+                      updatedAt: userInfo.updatedAt,
+                      _id: userInfo._id,
+                      fullUserInfo: userInfo
+                    });
+                    
+                    // Try multiple possible field names
+                    const dateValue = userInfo.created_at || userInfo.createdAt || userInfo.updatedAt;
+                    
+                    if (dateValue) {
+                      try {
+                        return new Date(dateValue).toLocaleDateString('vi-VN', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        });
+                      } catch (error) {
+                        console.error('🔍 Date parsing error:', error, 'for value:', dateValue);
+                        return 'Lỗi định dạng ngày';
+                      }
+                    }
+                    
+                    return 'Không rõ';
+                  })()}
                 </p>
               </div>
             </div>

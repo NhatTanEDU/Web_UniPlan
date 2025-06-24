@@ -17,8 +17,8 @@ export interface UserInfo {
   bio?: string;
   isActive?: boolean;
   created_at?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string; // Mongoose default field
+  updatedAt?: string; // Mongoose default field
 }
 
 export interface UserResponse {
@@ -36,6 +36,9 @@ export const userService = {
       console.log('🔍 [UserService] Fetching current user info...');
       const response = await api.get('/users/me');
       console.log('✅ [UserService] User info fetched successfully:', response.data);
+      console.log('🔍 [UserService] User object details:', response.data.data.user);
+      console.log('🔍 [UserService] CreatedAt field:', response.data.data.user.createdAt);
+      console.log('🔍 [UserService] UpdatedAt field:', response.data.data.user.updatedAt);
       return response.data;
     } catch (error: any) {
       console.error('❌ [UserService] Error fetching user info:', error);
