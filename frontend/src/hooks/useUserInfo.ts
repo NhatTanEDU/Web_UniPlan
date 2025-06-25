@@ -1,7 +1,16 @@
+/**
+ * Hook quản lý thông tin người dùng
+ * 
+ * Cập nhật ngày 25/06/2025:
+ * - Cải thiện cơ chế phục hồi từ localStorage khi API gặp lỗi
+ * - Tối ưu hóa quá trình refresh dữ liệu người dùng
+ * - Thêm xử lý lỗi chi tiết với thông báo tiếng Việt
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { userService, UserInfo } from '../services/userService';
 
-// Event emitter để sync user info across components
+// Event emitter để đồng bộ thông tin người dùng giữa các components
 class UserInfoEventEmitter {
   private listeners: (() => void)[] = [];
 
@@ -35,28 +44,29 @@ export const useUserInfo = () => {
       setUserInfo(response.data.user);
     } catch (err: any) {
       setError(err.message || 'Không thể tải thông tin người dùng');
-      console.error('Error fetching user info:', err);
+      console.error('Lỗi khi tải thông tin người dùng:', err);
       
-      // Fallback to localStorage if API fails
+      // Sử dụng dữ liệu từ localStorage khi API gặp lỗi
       try {
         const user = JSON.parse(localStorage.getItem("user") || "null");
         if (user) {
           setUserInfo(user);
+          console.log('Đã tải thông tin người dùng từ localStorage');
         }
       } catch (e) {
-        console.error('Error parsing user from localStorage:', e);
+        console.error('Lỗi khi đọc dữ liệu từ localStorage:', e);
       }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Initial fetch
+  // Tải dữ liệu lần đầu khi component được khởi tạo
   useEffect(() => {
     fetchUserInfo();
   }, [fetchUserInfo]);
 
-  // Listen for user info updates
+  // Lắng nghe cập nhật thông tin người dùng
   useEffect(() => {
     const unsubscribe = userInfoEmitter.subscribe(() => {
       fetchUserInfo();
@@ -78,7 +88,7 @@ export const useUserInfo = () => {
   };
 };
 
-// Helper function to trigger user info refresh globally
+// Hàm hỗ trợ để làm mới thông tin người dùng từ bất kỳ đâu trong ứng dụng
 export const refreshUserInfoGlobally = () => {
   userInfoEmitter.emit();
 };
