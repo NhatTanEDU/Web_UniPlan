@@ -436,8 +436,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
               </AnimatePresence>
             </div>
             
-            {/* User Menu */}
-            {userInfo && (
+            {/* User Menu */}                {userInfo && (
               <div className="relative" ref={userMenuRef}>
                 <motion.button
                   ref={userMenuBtnRef}
@@ -447,15 +446,45 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
                   whileTap={{ scale: 0.95 }}
                   aria-label="Tài khoản người dùng"
                 >
-                  {userInfo.avatar_url ? (
-                    <img
-                      src={userInfo.avatar_url}
-                      alt={userInfo.full_name || 'User'}
-                      className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                    />
+                  {/* Kiểm tra có avatar và URL khác rỗng + hợp lệ hay không */}
+                  {userInfo.avatar_url && userInfo.avatar_url.trim() !== "" ? (
+                    <div className="relative">
+                      <img
+                        src={userInfo.avatar_url}
+                        alt={userInfo.full_name || 'User'}
+                        className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                        onError={() => {
+                          // Đặt giá trị state để biết ảnh lỗi - sử dụng ref trực tiếp
+                          const btn = userMenuBtnRef.current;
+                          if (btn) {
+                            // Xóa ảnh lỗi và thêm avatar mặc định
+                            const imgElements = btn.querySelectorAll('img');
+                            imgElements.forEach(img => img.style.display = 'none');
+                            
+                            // Tạo và thêm avatar mặc định
+                            const avatarDiv = document.createElement('div');
+                            avatarDiv.className = "h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center";
+                            
+                            const letterSpan = document.createElement('span');
+                            letterSpan.className = "text-white font-medium text-sm";
+                            letterSpan.textContent = userInfo.full_name ? 
+                              userInfo.full_name.charAt(0).toUpperCase() : 
+                              userInfo.email.charAt(0).toUpperCase();
+                            
+                            avatarDiv.appendChild(letterSpan);
+                            btn.appendChild(avatarDiv);
+                          }
+                        }}
+                      />
+                    </div>
                   ) : (
+                    // Avatar mặc định khi không có URL
                     <div className="h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <span className="text-white font-medium text-sm">
+                        {userInfo.full_name ? 
+                          userInfo.full_name.charAt(0).toUpperCase() : 
+                          userInfo.email.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                   )}
                 </motion.button>
