@@ -293,6 +293,9 @@ if (process.env.NODE_ENV !== 'production') {
 // Document upload routes - Always enabled (essential feature)
 app.use('/api/documents', require('./routes/document.routes'));
 
+// Avatar routes - For handling user avatars stored in MongoDB
+app.use('/api/avatar', require('./routes/avatar.routes'));
+
 // Payment routes - Always enabled (core business feature)
 app.use('/api/payment', require('./routes/payment.routes'));
 

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Crown, User, Settings, LogOut, ReceiptText, Home, ChevronDown } from 'lucide-react';
+import { Bell, Crown, Settings, LogOut, ReceiptText, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSubscription } from '../context/SubscriptionContext';
 import { useUserInfo } from '../../hooks/useUserInfo';
 import NotificationDropdown from './NotificationDropdown';
-import SubscriptionBadge from './SubscriptionBadge';
+// SubscriptionBadge has been removed from the UI
 import { Button } from '../ui/button';
 import logo from '../../assets/Name_Logo_3x.png';
+import userService from '../../services/userService';
 
 interface HeaderProps {
   onNavigate?: (path: string) => void;
@@ -14,7 +15,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
-  const { subscriptionStatus, notifications, unreadCount, isLoading, resetSubscriptionData } = useSubscription();
+  const { subscriptionStatus, notifications, unreadCount, resetSubscriptionData } = useSubscription();
   const { userInfo } = useUserInfo(); // Sử dụng hook để lấy thông tin user và avatar
   
   // Debug authentication và token
@@ -375,7 +376,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
                 onClick={handleStartClick}
               >
                 <span className="inline-block">Bắt đầu</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="inline-block hidden sm:block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="hidden sm:inline-block">
                   <path d="M5 12h14"></path>
                   <path d="m12 5 7 7-7 7"></path>
                 </svg>
@@ -449,33 +450,69 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
                   {/* Kiểm tra có avatar và URL khác rỗng + hợp lệ hay không */}
                   {userInfo.avatar_url && userInfo.avatar_url.trim() !== "" ? (
                     <div className="relative">
-                      <img
-                        src={userInfo.avatar_url}
-                        alt={userInfo.full_name || 'User'}
-                        className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
-                        onError={() => {
-                          // Đặt giá trị state để biết ảnh lỗi - sử dụng ref trực tiếp
-                          const btn = userMenuBtnRef.current;
-                          if (btn) {
-                            // Xóa ảnh lỗi và thêm avatar mặc định
-                            const imgElements = btn.querySelectorAll('img');
-                            imgElements.forEach(img => img.style.display = 'none');
+                      {/* Nếu avatar_url là Data URL (base64) thì dùng trực tiếp */}
+                      {userInfo.avatar_url.startsWith('data:image') ? (
+                        <img
+                          src={userInfo.avatar_url}
+                          alt={userInfo.full_name || 'User'}
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                          onError={() => {
+                            // Fallback nếu có lỗi
+                            const btn = userMenuBtnRef.current;
+                            if (btn) {
+                              const imgElements = btn.querySelectorAll('img');
+                              imgElements.forEach(img => img.style.display = 'none');
+                              
+                              // Tạo và thêm avatar mặc định
+                              const avatarDiv = document.createElement('div');
+                              avatarDiv.className = "h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center";
+                              
+                              const letterSpan = document.createElement('span');
+                              letterSpan.className = "text-white font-medium text-sm";
+                              letterSpan.textContent = userInfo.full_name ? 
+                                userInfo.full_name.charAt(0).toUpperCase() : 
+                                userInfo.email.charAt(0).toUpperCase();
+                              
+                              avatarDiv.appendChild(letterSpan);
+                              btn.appendChild(avatarDiv);
+                            }
+                          }}
+                        />
+                      ) : (
+                        // Nếu không phải Data URL thì dùng API endpoint để lấy hình từ MongoDB
+                        <img
+                          src={userService.getAvatarUrl(userInfo._id)}
+                          alt={userInfo.full_name || 'User'}
+                          className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            // Ghi log lỗi tải hình
+                            console.error('❌ [Header_Home] Avatar image failed to load:', e);
+                            console.log('🔄 [Header_Home] Using fallback avatar for user:', userInfo._id);
+                            console.log('🔗 [Header_Home] Failed image URL:', userService.getAvatarUrl(userInfo._id));
                             
-                            // Tạo và thêm avatar mặc định
-                            const avatarDiv = document.createElement('div');
-                            avatarDiv.className = "h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center";
-                            
-                            const letterSpan = document.createElement('span');
-                            letterSpan.className = "text-white font-medium text-sm";
-                            letterSpan.textContent = userInfo.full_name ? 
-                              userInfo.full_name.charAt(0).toUpperCase() : 
-                              userInfo.email.charAt(0).toUpperCase();
-                            
-                            avatarDiv.appendChild(letterSpan);
-                            btn.appendChild(avatarDiv);
-                          }
-                        }}
-                      />
+                            // Fallback nếu có lỗi
+                            const btn = userMenuBtnRef.current;
+                            if (btn) {
+                              const imgElements = btn.querySelectorAll('img');
+                              imgElements.forEach(img => img.style.display = 'none');
+                              
+                              // Tạo và thêm avatar mặc định
+                              const avatarDiv = document.createElement('div');
+                              avatarDiv.className = "h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center";
+                              
+                              const letterSpan = document.createElement('span');
+                              letterSpan.className = "text-white font-medium text-sm";
+                              letterSpan.textContent = userInfo.full_name ? 
+                                userInfo.full_name.charAt(0).toUpperCase() : 
+                                userInfo.email.charAt(0).toUpperCase();
+                              
+                              avatarDiv.appendChild(letterSpan);
+                              btn.appendChild(avatarDiv);
+                            }
+                          }}
+                        />
+                      )}
                     </div>
                   ) : (
                     // Avatar mặc định khi không có URL

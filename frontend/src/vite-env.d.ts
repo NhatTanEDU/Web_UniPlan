@@ -1,6 +1,6 @@
+// Create React App environment variable declarations
 /// <reference types="react-scripts" />
 
-// Extend ProcessEnv interface to include our custom environment variables
 declare namespace NodeJS {
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test';

@@ -75,6 +75,21 @@ const userSchema = new mongoose.Schema({
         enum: ['Online', 'Offline'],
         default: 'Offline'
     },
+    avatar: {
+        data: {
+            type: Buffer,
+            default: null
+        },
+        contentType: {
+            type: String,
+            default: null
+        },
+        uploaded_at: {
+            type: Date,
+            default: null
+        }
+    },
+    // Giữ lại avatar_url cho tương thích ngược với các API cũ
     avatar_url: {
         type: String,
         default: null
@@ -176,6 +191,31 @@ userSchema.methods.upgradeToSubscription = function(planType) {
 userSchema.methods.markAsExpired = function() {
     this.current_plan_type = 'expired';
     this.payment_status = 'none';
+};
+
+// Method để lưu avatar vào MongoDB
+userSchema.methods.setAvatar = function(fileBuffer, contentType) {
+    // Lưu dữ liệu hình ảnh vào MongoDB
+    this.avatar = {
+        data: fileBuffer,
+        contentType: contentType,
+        uploaded_at: new Date()
+    };
+    
+    // Tạo data URL để tương thích với các frontend hiện tại
+    // Định dạng: data:image/jpeg;base64,/9j/4AAQSkZJR...
+    const base64Data = fileBuffer.toString('base64');
+    this.avatar_url = `data:${contentType};base64,${base64Data}`;
+};
+
+// Method lấy avatar dưới dạng Data URL
+userSchema.methods.getAvatarDataUrl = function() {
+    if (!this.avatar || !this.avatar.data) {
+        return null;
+    }
+    
+    const base64Data = this.avatar.data.toString('base64');
+    return `data:${this.avatar.contentType};base64,${base64Data}`;
 };
 
 // Method lấy thông tin gói hiển thị

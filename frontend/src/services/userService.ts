@@ -92,24 +92,51 @@ export const userService = {
     }
   },
 
-  // Upload avatar
+  // Upload avatar (lưu trực tiếp vào MongoDB)
   uploadAvatar: async (file: File): Promise<{ data: { avatar_url: string } }> => {
     try {
-      console.log('📤 [UserService] Uploading avatar...');
+      console.log('📤 [UserService] Uploading avatar to MongoDB...');
       const formData = new FormData();
       formData.append('avatar', file);
       
-      const response = await api.post('/users/upload-avatar', formData, {
+      // Sử dụng API endpoint mới để lưu vào MongoDB
+      const response = await api.post('/avatar/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('✅ [UserService] Avatar uploaded successfully:', response.data);
+      console.log('✅ [UserService] Avatar uploaded successfully to MongoDB:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('❌ [UserService] Error uploading avatar:', error);
       throw new Error(error.response?.data?.message || 'Không thể upload avatar');
     }
+  },
+
+  // Xóa avatar người dùng
+  deleteAvatar: async (): Promise<{ success: boolean, message: string }> => {
+    try {
+      console.log('🗑️ [UserService] Deleting avatar...');
+      const response = await api.delete('/avatar/delete');
+      console.log('✅ [UserService] Avatar deleted successfully:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ [UserService] Error deleting avatar:', error);
+      throw new Error(error.response?.data?.message || 'Không thể xóa avatar');
+    }
+  },
+
+  // Lấy URL avatar từ ID người dùng (không dùng token - cho public usage)
+  getAvatarUrl: (userId: string): string => {
+    // Xử lý để tránh đường dẫn trùng '/api' nếu có trong baseURL
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
+    // Thêm timestamp để tránh cache
+    const timestamp = new Date().getTime();
+    console.log(`🖼️ [UserService] Getting avatar URL for userId: ${userId}`);
+    console.log(`🔗 [UserService] Avatar URL: ${baseUrl}/api/avatar/${userId}?t=${timestamp}`);
+    
+    return `${baseUrl}/api/avatar/${userId}?t=${timestamp}`;
   }
 };
 
