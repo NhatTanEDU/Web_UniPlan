@@ -6,6 +6,7 @@ const subscriptionController = require('../controllers/subscriptionController');
 // Sửa lại cách import cho đúng
 const authenticateToken = require('../middlewares/auth.middleware'); 
 const { checkSubscriptionStatus } = require('../middleware/checkSubscription');
+const User = require('../models/user.model');
 
 // Debug imports
 console.log('🔍 subscriptionController:', typeof subscriptionController);
@@ -90,5 +91,29 @@ router.get('/notifications', authenticateToken, subscriptionController.getNotifi
 router.post('/notifications/mark-read', authenticateToken, subscriptionController.markNotificationAsRead);
 
 router.post('/notifications/mark-all-read', authenticateToken, subscriptionController.markAllNotificationsAsRead);
+
+/**
+ * @route   POST /api/subscription/upgrade-fake
+ * @desc    Fake upgrade user subscription (demo only)
+ * @access  Private
+ */
+router.post('/upgrade-fake',
+    authenticateToken,
+    async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User không tồn tại' });
+    // Giả lập nâng cấp gói lên yearly (demo)
+    user.current_plan_type = 'yearly';
+    user.subscription_start_date = new Date();
+    user.subscription_end_date = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+    user.payment_status = 'completed';
+    await user.save();
+    return res.json({ message: 'Demo upgrade thành công', plan: user.current_plan_type });
+  } catch (error) {
+    console.error('Lỗi demo upgrade:', error);
+    return res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;

@@ -212,6 +212,19 @@ class SubscriptionService {  // Lấy trạng thái subscription hiện tại
       throw error;
     }
   }
+
+  // Demo upgrade without real payment
+  async upgradeFake(): Promise<{ message: string; plan: string }> {
+    try {
+      console.log('🚀 [subscriptionService] Calling upgrade-fake endpoint');
+      const response = await api.post('/subscription/upgrade-fake');
+      console.log('✅ [subscriptionService] Fake upgrade response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ [subscriptionService] Error during fake upgrade:', error);
+      throw error;
+    }
+  }
 }
 
 const subscriptionService = new SubscriptionService();
