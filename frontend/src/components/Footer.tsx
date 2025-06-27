@@ -14,7 +14,7 @@ const Footer: React.FC<FooterProps> = ({ onFooterClick = () => { } }) => {
   return (
     <ScrollTrigger delay={0.8}>
       <footer
-        className="border-t pt-16 pb-12 px-4 sm:px-6 lg:px-8 font-poppins relative overflow-hidden" 
+        className="border-t pt-16 pb-12 px-4 sm:px-6 lg:px-8 font-poppins relative overflow-hidden w-full bg-white dark:bg-[#18181b] text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 transition-colors duration-300" 
         style={{
           background: `linear-gradient(120deg, ${COLORS.background} 0%, ${COLORS.surface} 100%)`,
           borderColor: COLORS.secondary,

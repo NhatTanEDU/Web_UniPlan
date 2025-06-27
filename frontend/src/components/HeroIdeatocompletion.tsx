@@ -129,9 +129,9 @@ const HeroIdeatocompletion = () => {
 
         <motion.button
           onClick={handleStartIdeatingClick}
-          className="mt-16 px-8 py-4 text-xl font-bold rounded-xl transition-all shadow-xl
-                             hover:bg-accent-darker hover:scale-105 active:scale-95 active:shadow-inner
-                             focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+          className="mt-12 xs:mt-16 px-6 xs:px-8 py-3 xs:py-4 text-lg xs:text-xl font-bold rounded-xl transition-all shadow-xl
+            hover:bg-accent-darker hover:scale-105 active:scale-95 active:shadow-inner
+            focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 w-full xs:w-auto min-w-[180px] max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
           style={{
             backgroundColor: COLORS.accent,
             color: COLORS.surface,
@@ -140,7 +140,7 @@ const HeroIdeatocompletion = () => {
           aria-label="Bắt đầu lên ý tưởng ngay"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.9, ease: "easeOut" }} 
+          transition={{ duration: 0.7, delay: 0.9, ease: "easeOut" }}
           viewport={{ once: true, amount: 0.5 }}
         >
           Bắt đầu lên ý tưởng ngay!

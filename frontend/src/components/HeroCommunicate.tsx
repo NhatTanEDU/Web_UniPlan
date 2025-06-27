@@ -43,8 +43,8 @@ const HeroCommunicate = () => {
         background: `linear-gradient(120deg, ${COLORS.surface} 0%, ${COLORS.background} 100%)`, 
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col-reverse lg:flex-row items-center gap-16 lg:gap-24 justify-between">
+      <div className="max-w-7xl xl:max-w-[1600px] 2xl:max-w-[1920px] mx-auto px-2 xs:px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex flex-col-reverse lg:flex-row items-center gap-10 md:gap-16 lg:gap-24 justify-between">
           {/* Visual bên phải (đổi vị trí để khác bố cục) */}
           <div className="lg:w-1/2 w-full flex justify-center lg:justify-start order-2 lg:order-1">
             <motion.div
@@ -53,17 +53,17 @@ const HeroCommunicate = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
               viewport={{ once: true, amount: 0.5 }}
-              className="relative rounded-2xl overflow-hidden shadow-2xl border w-full max-w-xl aspect-video lg:aspect-auto" 
+              className="relative rounded-2xl overflow-hidden shadow-2xl border w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl aspect-video lg:aspect-auto"
               style={{
-                borderColor: COLORS.primary, 
-                boxShadow: `0 12px 40px ${COLORS.textDark}40` 
+                borderColor: COLORS.primary,
+                boxShadow: `0 12px 40px ${COLORS.textDark}40`
               }}
             >
               <img
-                src={communicationImage} // <-- Sử dụng ảnh mới: Communication.png
+                src={communicationImage}
                 alt="Giao tiếp trong team"
                 loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-300" 
+                className="w-full h-full object-cover transition-transform duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
             </motion.div>
@@ -78,25 +78,25 @@ const HeroCommunicate = () => {
               viewport={{ once: true, amount: 0.5 }}
             >
               <h1
-                className="text-2xl md:text-3xl font-extrabold mb-3 uppercase tracking-wide"
+                className="text-xl xs:text-2xl md:text-3xl font-extrabold mb-2 sm:mb-3 uppercase tracking-wide"
                 style={{
-                  color: COLORS.accent, 
-                  textShadow: `1px 1px 0 ${COLORS.primary}55, 0 2px 4px ${COLORS.textDark}10` 
+                  color: COLORS.accent,
+                  textShadow: `1px 1px 0 ${COLORS.primary}55, 0 2px 4px ${COLORS.textDark}10`
                 }}
               >
                 GIAO TIẾP DỄ DÀNG
               </h1>
               <h2
-                className="text-4xl md:text-6xl font-bold leading-tight mb-6"
+                className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6 break-words"
                 style={{
                   color: COLORS.textDark,
-                  textShadow: `2px 2px 0 ${COLORS.secondary}, 0 5px 15px ${COLORS.textDark}20` 
+                  textShadow: `2px 2px 0 ${COLORS.secondary}, 0 5px 15px ${COLORS.textDark}20`
                 }}
               >
                 Kết nối liền mạch, <span style={{ color: COLORS.primary }}>phối hợp hiệu quả</span>
               </h2>
               <p
-                className="text-lg md:text-xl max-w-xl mx-auto lg:mx-0"
+                className="text-base xs:text-lg md:text-xl max-w-xl mx-auto lg:mx-0"
                 style={{
                   color: COLORS.textDark,
                   opacity: 0.9
@@ -106,25 +106,25 @@ const HeroCommunicate = () => {
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6"> 
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 sm:gap-6 pt-6">
               {features.map((feature, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.07 + 0.3, duration: 0.5, ease: "easeOut" }} 
+                  transition={{ delay: index * 0.07 + 0.3, duration: 0.5, ease: "easeOut" }}
                   viewport={{ once: true, amount: 0.5 }}
-                  className="flex flex-col items-center sm:items-start gap-3 bg-white rounded-xl shadow-lg border p-6 text-center sm:text-left
-                             hover:scale-105 hover:shadow-xl transition-all duration-300" 
+                  className="flex flex-col items-center sm:items-start gap-3 bg-white rounded-xl shadow-lg border p-4 sm:p-6 text-center sm:text-left
+                    hover:scale-105 hover:shadow-xl transition-all duration-300 min-w-[140px]"
                   style={{
-                    borderColor: COLORS.secondary, 
-                    color: COLORS.textDark 
+                    borderColor: COLORS.secondary,
+                    color: COLORS.textDark
                   }}
                 >
-                  <div className="mt-1" style={{ color: COLORS.primary }}>{feature.icon}</div> 
+                  <div className="mt-1" style={{ color: COLORS.primary }}>{feature.icon}</div>
                   <div>
-                    <h4 className="font-semibold text-lg mb-1">{feature.title}</h4>
-                    <p className="text-sm opacity-80">{feature.desc}</p> 
+                    <h4 className="font-semibold text-base sm:text-lg mb-1">{feature.title}</h4>
+                    <p className="text-xs sm:text-sm opacity-80">{feature.desc}</p>
                   </div>
                 </motion.div>
               ))}
@@ -132,9 +132,9 @@ const HeroCommunicate = () => {
 
             <motion.button
               onClick={handleStartChattingClick}
-              className="mt-10 px-8 py-4 text-xl font-bold rounded-xl transition-all shadow-xl
-                         hover:bg-accent-darker hover:scale-105 active:scale-95 active:shadow-inner
-                         focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+              className="mt-8 xs:mt-10 px-6 xs:px-8 py-3 xs:py-4 text-lg xs:text-xl font-bold rounded-xl transition-all shadow-xl
+                hover:bg-accent-darker hover:scale-105 active:scale-95 active:shadow-inner
+                focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 w-full xs:w-auto min-w-[180px] max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
               style={{
                 backgroundColor: COLORS.accent,
                 color: COLORS.surface,

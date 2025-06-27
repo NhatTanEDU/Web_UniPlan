@@ -121,9 +121,9 @@ const HeroProjectManagement = () => {
             {/* Nút Call To Action */}
             <motion.button
               onClick={handleExploreClick}
-              className="mt-10 px-8 py-4 text-xl font-bold rounded-xl transition-all shadow-xl
-                         hover:bg-accent-darker hover:scale-105 active:scale-95 active:shadow-inner
-                         focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+              className="mt-10 px-6 xs:px-8 py-3 xs:py-4 text-lg xs:text-xl font-bold rounded-xl transition-all shadow-xl
+                hover:bg-accent-darker hover:scale-105 active:scale-95 active:shadow-inner
+                focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 w-full xs:w-auto min-w-[180px] max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
               style={{
                 backgroundColor: COLORS.accent,
                 color: COLORS.surface,

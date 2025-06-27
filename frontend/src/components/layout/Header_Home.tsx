@@ -77,6 +77,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const notificationsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -304,16 +305,49 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
   
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {showMobileMenu && (
+          <motion.div 
+            className="fixed inset-0 z-[100] bg-black bg-opacity-40 flex justify-end md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="bg-white dark:bg-gray-900 w-64 h-full shadow-lg p-4 flex flex-col gap-2">
+              <button
+                className="self-end mb-2 text-gray-700 dark:text-gray-200 hover:text-red-500"
+                onClick={() => setShowMobileMenu(false)}
+                aria-label="Đóng menu"
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <Button onClick={handleStartClick} className="w-full mb-2">Bắt đầu</Button>
+              {!isPaid && (
+                <Button onClick={handleUpgradeClick} className="w-full mb-2">Nâng cấp</Button>
+              )}
+              <button onClick={handleAccountClick} className="w-full text-left px-2 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                <span>Tài khoản</span>
+              </button>
+              <button onClick={() => setShowLogoutConfirm(true)} className="w-full text-left px-2 py-2 rounded text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2">
+                <LogOut className="h-5 w-5" />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Main Header Row */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-        <div className="flex justify-between items-center h-[70px]">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-8 xl:px-12 2xl:px-16">
+        <div className="flex justify-between items-center h-[56px] sm:h-[70px]">
           {/* Logo (Left side) */}
           <div 
             className="flex-shrink-0 cursor-pointer"
             onClick={() => handleNavigate('/dashboard')}
           >
             <img
-              className="h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[68px] 2xl:h-[72px] w-auto"
+              className="h-8 sm:h-10 md:h-14 lg:h-16 xl:h-[68px] 2xl:h-[72px] w-auto"
               src={logo}
               alt="UniPlan Logo"
               onError={(e) => {
@@ -322,11 +356,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
               }}
             />
           </div>
-
-          {/* Đã loại bỏ SubscriptionBadge ở giữa để UI gọn gàng hơn */}
-
+          {/* Hamburger menu for mobile */}
+          <div className="flex md:hidden items-center ml-auto">
+            <button
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+              onClick={() => setShowMobileMenu(true)}
+              aria-label="Mở menu"
+            >
+              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="7" x2="24" y2="7"/><line x1="4" y1="14" x2="24" y2="14"/><line x1="4" y1="21" x2="24" y2="21"/></svg>
+            </button>
+          </div>
           {/* Right side - Buttons and User/Notifications */}
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 ml-auto">
+          <div className="hidden md:flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 ml-auto">
             {/* Development: Force refresh button */}
             {process.env.NODE_ENV === 'development' && (
               <motion.button
