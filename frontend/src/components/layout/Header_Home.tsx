@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Crown, Settings, LogOut, ReceiptText, Home } from 'lucide-react';
+import { Bell, Crown, Settings, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSubscription } from '../context/SubscriptionContext';
 import { useUserInfo } from '../../hooks/useUserInfo';
@@ -76,6 +76,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
   const notificationsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -165,21 +166,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
     handleNavigate('/account');
   };
 
-  const handleBillingClick = () => {
-    handleNavigate('/subscription/billing');
-  };
-  
   // Hàm xử lý đăng xuất hoàn toàn
   const handleLogout = () => {
-    // Hiển thị confirmation dialog
-    const confirmed = window.confirm(
-      'Bạn có chắc chắn muốn đăng xuất?\n\nTất cả dữ liệu phiên làm việc sẽ bị xóa.'
-    );
-    
-    if (!confirmed) {
-      return;
-    }
-    
     try {
       console.log('🚪 [Header_Home] Starting logout process...');
       
@@ -556,31 +544,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
                         <span>Tài khoản</span>
                       </motion.button>
 
-                      <motion.button
-                        onClick={handleBillingClick}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                        variants={itemVariants}
-                      >
-                        <ReceiptText className="h-4 w-4" />
-                        <span>Hóa đơn & Gói cước</span>
-                      </motion.button>
-                      
-                      <motion.button
-                        onClick={() => handleNavigate('/dashboard')}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2"
-                        variants={itemVariants}
-                      >
-                        <Home className="h-4 w-4" />
-                        <span>Trang chủ Dashboard</span>
-                      </motion.button>
-
                       <motion.hr 
                         className="my-2 border-gray-200 dark:border-gray-700"
                         variants={itemVariants} 
                       />
                       
                       <motion.button
-                        onClick={handleLogout}
+                        onClick={() => setShowLogoutConfirm(true)}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-2"
                         variants={itemVariants}
                       >
@@ -667,6 +637,33 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Logout Confirmation Popup */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-xs">
+            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Xác nhận đăng xuất</h3>
+            <p className="mb-4 text-gray-700 dark:text-gray-300">Bạn có chắc chắn muốn đăng xuất?<br />Tất cả dữ liệu phiên làm việc sẽ bị xóa.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Hủy
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  setShowLogoutConfirm(false);
+                  handleLogout();
+                }}
+              >
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
