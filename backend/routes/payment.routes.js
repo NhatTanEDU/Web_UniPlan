@@ -152,4 +152,88 @@ router.get('/plans', (req, res) => {
     });
 });
 
+/**
+ * @route   GET /api/payment/test-callback-success
+ * @desc    Test route để simulate callback thành công từ MoMo
+ * @access  Public
+ */
+router.get('/test-callback-success/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        console.log(`🧪 [Test Callback] Simulating success callback for order: ${orderId}`);
+        
+        const Payment = require('../models/payment.model');
+        const User = require('../models/user.model');
+        
+        // Tìm payment
+        const payment = await Payment.findOne({ momo_order_id: orderId })
+            .populate('user_id', 'email');
+            
+        if (!payment) {
+            return res.json({
+                success: false,
+                message: `Payment not found for orderId: ${orderId}`
+            });
+        }
+        
+        // Cập nhật trạng thái thanh toán thành công
+        payment.status = 'completed';
+        payment.momo_result_code = '0';
+        payment.completed_at = new Date();
+        await payment.save();
+        
+        // Nâng cấp subscription cho user
+        const user = await User.findById(payment.user_id);
+        if (user) {
+            const planDuration = payment.plan_type === 'monthly' ? 30 : 365;
+            const currentDate = new Date();
+            const endDate = new Date();
+            endDate.setDate(currentDate.getDate() + planDuration);
+            
+            user.subscription = {
+                plan: 'pro',
+                start_date: currentDate,
+                end_date: endDate,
+                is_active: true
+            };
+            
+            await user.save();
+            console.log(`✅ [Test Callback] User ${user.email} upgraded to Pro successfully`);
+        }
+        
+        res.json({
+            success: true,
+            message: `Payment ${orderId} marked as successful and user upgraded to Pro`,
+            data: {
+                orderId,
+                status: 'completed',
+                userEmail: payment.user_id.email
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ [Test Callback] Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during test callback',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * @route   GET /api/payment/test-local-callback
+ * @desc    Test callback local (không cần ngrok)
+ * @access  Public
+ */
+router.get('/test-local-callback', async (req, res) => {
+    const { orderId, resultCode = '0', message = 'success' } = req.query;
+    
+    console.log(`🧪 [Local Test] Callback with orderId: ${orderId}, resultCode: ${resultCode}`);
+    
+    // Gọi trực tiếp hàm handleMoMoReturn
+    req.query = { orderId, resultCode, message };
+    await paymentController.handleMoMoReturn(req, res);
+});
+
 module.exports = router;

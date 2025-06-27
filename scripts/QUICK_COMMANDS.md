@@ -138,6 +138,15 @@ node check-all-payments.js
 node check-user-exists.js admin1@gmail.com
 ```
 
+### 🧪 DEMO UPGRADE CHO MỤC ĐÍCH DEMO
+```bash
+# Fake nâng cấp user lên pro (bỏ qua MoMo)
+node one-command.js upgrade-fake tk7days@gmail.com yearly --confirm
+
+# Ví dụ cụ thể
+node one-command.js upgrade-fake testuser@example.com monthly --confirm
+```
+
 ---
 
 ## 🔥 WORKFLOW HOÀN CHỈNH

@@ -65,8 +65,9 @@ const app = express();
 const timeout = require('connect-timeout');
 
 // --- ENHANCED REQUEST TIMEOUT MIDDLEWARE ---
-const TIMEOUT_SECONDS = '15s';
-const TIMEOUT_MS = 15000; // 15 seconds in milliseconds
+// Read timeout settings from environment (defaults to 15s)
+const TIMEOUT_SECONDS = process.env.REQUEST_TIMEOUT || '15s';
+const TIMEOUT_MS = process.env.REQUEST_TIMEOUT_MS ? parseInt(process.env.REQUEST_TIMEOUT_MS, 10) : 15000; // milliseconds
 
 // 1. Đặt thời gian chờ
 app.use(timeout(TIMEOUT_SECONDS));
