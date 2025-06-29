@@ -11,6 +11,7 @@ import {
   BarChartOutlined, PieChartOutlined, ProjectOutlined, ReloadOutlined
 } from '@ant-design/icons';
 import ReactECharts from 'echarts-for-react';
+import GanttPageHeader from './GanttPageHeader';
 
 // Hàm helper để Việt hóa trạng thái
 const localizeStatus = (status: string) => {
@@ -707,7 +708,10 @@ export default function ProjectPortfolioGanttPage() {
   const completedProjects = allProjects.filter(p => (p.status === 'Completed')).length;
   const activeProjects = allProjects.filter(p => (p.status === 'Active' || p.status === 'In Progress')).length;
 
-  return (    <main style={{ width: "100%", height: "100%" }}>
+  return (
+    <main style={{ width: "100%", height: "100%" }}>
+      {/* Tiêu đề và phụ đề cố định đầu trang */}
+      <GanttPageHeader />
       {/* Tổng quan số lượng dự án */}
       <div style={{
         display: 'flex',
@@ -746,96 +750,6 @@ export default function ProjectPortfolioGanttPage() {
           Dự án đang hoạt động: <span style={{ color: '#10b981', fontWeight: 700, marginLeft: 4 }}>{activeProjects}</span>
         </div>
       </div>
-      
-      <div style={{
-        backgroundColor: "#fff",
-        borderBottom: "2px solid #e5e7eb",
-        padding: "16px 24px",
-        marginBottom: "16px"
-      }}>
-        {/* Phần tiêu đề và mô tả */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <div>
-            <h1 style={{
-              fontSize: "24px",
-              fontWeight: "bold",
-              color: "#1f2937",
-              margin: 0,
-              display: "flex",
-              alignItems: "center",
-              gap: "12px"
-            }}>
-              📊 Tổng quan Gantt - Quản lý Dự án
-            </h1>
-            <p style={{
-              fontSize: "14px",
-              color: "#6b7280",
-              margin: "8px 0 0 0"
-            }}>
-              Xem tổng quan tiến độ và trạng thái của tất cả dự án trong hệ thống
-            </p>
-          </div>
-          
-          {/* Nút chú thích - có thể ẩn/hiện */}
-          <Button 
-            type="text" 
-            icon={<InfoCircleOutlined />} 
-            onClick={() => setShowLegend(!showLegend)}
-            style={{ marginLeft: "8px", marginTop: "4px" }}
-          >
-            {showLegend ? "Ẩn chú thích" : "Hiện chú thích"}
-          </Button>
-        </div>
-
-        {/* Phần chú thích - có thể ẩn/hiện */}
-        {showLegend && (
-          <div style={{
-            marginTop: "16px",
-            padding: "12px",
-            backgroundColor: "#f9fafb",
-            borderRadius: "6px",
-            border: "1px solid #e5e7eb"
-          }}>
-            <div style={{ marginBottom: "8px", fontWeight: "500", fontSize: "14px" }}>Chú thích:</div>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-              gap: "12px",
-            }}>
-              {projectStatuses.map((status) => (
-                <div key={status.value} style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  fontSize: "14px",
-                }}>
-                  <div style={{ 
-                    backgroundColor: status.color, 
-                    width: "12px", 
-                    height: "12px", 
-                    borderRadius: "3px", 
-                    marginRight: "8px" 
-                  }} />
-                  {status.label}
-                </div>
-              ))}
-              
-              <div style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
-                <div style={{ backgroundColor: '#ff4d4f', width: '12px', height: '12px', borderRadius: '3px', marginRight: '8px' }} />
-                Quá hạn
-              </div>
-              
-              <div style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
-                <div style={{ backgroundColor: '#faad14', width: '12px', height: '12px', borderRadius: '3px', marginRight: '8px' }} />
-                Sắp hết hạn
-              </div>
-              
-              <div style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
-                <div style={{ backgroundColor: '#ff4d4f', width: '2px', height: '16px', marginRight: '8px' }} />
-                Ngày hiện tại
-              </div>
-            </div>
-          </div>
-        )}      </div>
       
       {/* Toolbar cho các điều khiển UI */}
       <div style={{ 
@@ -981,10 +895,6 @@ export default function ProjectPortfolioGanttPage() {
         .gantt-project-status-hoạt-động {
           background-color: #10b981 !important; /* Màu xanh lá cây cho 'Hoạt động' */
           border-color: #059669 !important;
-          color: white !important; /* Màu chữ trắng để dễ đọc */
-        }
-        .gantt-project-status-lên-kế-hoạch {
-          background-color: #f59e0b !important; /* Màu vàng cam cho 'Lên kế hoạch' */
           border-color: #d97706 !important;
           color: white !important;
         }

@@ -6,6 +6,8 @@ import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
 import { AlertCircle, Calendar, ArrowLeft, Kanban } from "lucide-react";
 import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask } from "../../../../services/kanbanApi";
+import styles from './GanttTab.module.css';
+import GanttTaskTooltip from './GanttTaskTooltip';
 
 // Định nghĩa cấu trúc của assigned_to sau khi được populate
 interface PopulatedAssignedToUser {
@@ -145,10 +147,12 @@ export default function GanttTab() {
     ];
     gantt.config.scale_height = 50;    gantt.templates.task_text = (start, end, task) => task.text;
     gantt.templates.task_class = (start, end, task) => {
+      if (task.is_overdue) return styles.taskOverdue;
+      if (task.is_approaching_deadline) return styles.taskApproaching;
       switch (task.status) {
-        case 'Hoàn thành': return "gantt-task-completed";
-        case 'Đang làm': return "gantt-task-in-progress";
-        default: return "gantt-task-todo";
+        case 'Hoàn thành': return styles.taskCompleted;
+        case 'Đang làm': return styles.taskInProgress;
+        default: return styles.taskTodo;
       }
     };    // ======================= CUSTOM TOOLTIP THAY THẾ =======================
     // Xóa tooltip template cũ và thay bằng event listener custom
@@ -325,11 +329,14 @@ export default function GanttTab() {
         )}
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        <div ref={ganttContainer} style={{ width: '100%', height: '500px' }} />
+        <div
+          ref={ganttContainer}
+          className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[600px] overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+        ></div>
       </div>
       {isModalOpen && editingTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-sm md:max-w-xl lg:max-w-2xl max-h-[90vh] overflow-y-auto mx-auto md:mx-0">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">Chỉnh sửa: {editingTask.title}</h3>
               <button 
@@ -477,117 +484,7 @@ export default function GanttTab() {
       </div>
 
       {/* CUSTOM TOOLTIP COMPONENT */}
-      {customTooltip.visible && customTooltip.content && (
-        <div
-          style={{
-            position: 'fixed',
-            left: `${customTooltip.x}px`,
-            top: `${customTooltip.y}px`,
-            zIndex: 999999,
-            pointerEvents: 'none',
-          }}
-        >          <div className="bg-gray-800 text-white border border-gray-600 rounded-xl p-4 shadow-2xl max-w-xs backdrop-blur-sm bg-opacity-95">
-            <div className="font-semibold text-base mb-3 border-b border-gray-600 pb-2 text-blue-300">
-              {customTooltip.content.text}
-            </div>
-            <div className="space-y-1.5 text-sm text-gray-200">
-              <div className="flex items-center gap-2">
-                <span className="text-blue-400">👤</span>
-                <span className="text-gray-300">Người thực hiện:</span> 
-                <span className="font-medium">{customTooltip.content.assignee || 'Chưa giao'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-400">📅</span>
-                <span className="text-gray-300">Bắt đầu:</span> 
-                <span className="font-medium">{new Date(customTooltip.content.start_date).toLocaleDateString('vi-VN')}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-red-400">📅</span>
-                <span className="text-gray-300">Kết thúc:</span> 
-                <span className="font-medium">{new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN')}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-400">📊</span>
-                <span className="text-gray-300">Trạng thái:</span> 
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  customTooltip.content.status === 'Hoàn thành' ? 'bg-green-600 text-white' :
-                  customTooltip.content.status === 'Đang làm' ? 'bg-yellow-600 text-white' :
-                  'bg-gray-600 text-white'
-                }`}>
-                  {customTooltip.content.status}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-purple-400">⚡</span>
-                <span className="text-gray-300">Ưu tiên:</span> 
-                <span className="font-medium">{customTooltip.content.priority || 'Thấp'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-indigo-400">📈</span>
-                <span className="text-gray-300">Tiến độ:</span> 
-                <div className="flex items-center gap-2">
-                  <div className="w-16 bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.round(customTooltip.content.progress * 100)}%` }}
-                    ></div>
-                  </div>
-                  <span className="font-medium text-blue-300">{Math.round(customTooltip.content.progress * 100)}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        /* CSS cho các trạng thái task */
-        .gantt-task-completed { 
-          background-color: #10b981 !important; 
-          border-color: #059669 !important; 
-          transition: all 0.3s ease;
-        }
-        .gantt-task-in-progress { 
-          background-color: #f59e0b !important; 
-          border-color: #d97706 !important; 
-          transition: all 0.3s ease;
-        }
-        .gantt-task-todo { 
-          background-color: #6b7280 !important; 
-          border-color: #4b5563 !important; 
-          transition: all 0.3s ease;
-        }
-        /* Thêm CSS cho task sắp hết hạn và quá hạn */
-        .gantt-task-overdue {
-            background-color: #ef4444 !important; /* Màu đỏ */
-            border-color: #dc2626 !important;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6) !important;
-        }
-        .gantt-task-approaching {
-            background-color: #facc15 !important; /* Màu vàng */
-            border-color: #eab308 !important;
-            box-shadow: 0 0 6px rgba(250, 204, 21, 0.4) !important;
-        }
-        .gantt-task-overdue .gantt_task_progress { background-color: #b91c1c !important; }
-        .gantt-task-approaching .gantt_task_progress { background-color: #a16207 !important; }
-        /* Style cho icon cảnh báo trong task_text */
-        .lucide-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            vertical-align: middle;
-            margin-right: 4px;
-        }
-        .gantt-warning-text {
-            font-size: 0.75em;
-            font-weight: 600;
-            margin-left: 4px;
-            vertical-align: middle;
-        }
-        .overdue-text { color: #dc2626; }
-        .approaching-text { color: #d97706; }
-        /* ...existing code... */
-      `}</style>
+      <GanttTaskTooltip visible={customTooltip.visible} x={customTooltip.x} y={customTooltip.y} content={customTooltip.content} />
     </div>
   );
 }
