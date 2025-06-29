@@ -37,7 +37,7 @@ export const projectApi = {
   getProject: async (projectId: string): Promise<Project> => {
     try {
       console.log("🔍 API: Getting project details for projectId:", projectId);
-      const response = await baseApi.get(`/api/projects/${projectId}`);
+      const response = await baseApi.get(`/projects/${projectId}`);
       console.log("🔍 API: Project response structure:", response.data);
       
       // Handle different response structures
