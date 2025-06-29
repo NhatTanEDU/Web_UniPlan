@@ -1,3 +1,7 @@
+// File này chứa các hàm gọi API liên quan đến dự án (project)
+// Được sử dụng để giao tiếp với backend lấy thông tin dự án, thành viên, v.v.
+// Đảm bảo endpoint KHÔNG có lặp '/api/api/'
+
 // Project API service for project-related operations
 import { baseApi } from "./baseApi";
 
