@@ -15,13 +15,28 @@ export function useTeam() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!teamId) return;
+    let isMounted = true;
+    setError(null); // Reset error khi teamId thay đổi
+    setTeam(null); // Reset team nếu muốn clear dữ liệu cũ
+    if (!teamId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     teamApi
       .getTeamById(teamId)
-      .then(res => setTeam(res.team))
-      .catch(err => setError(err.message || "Lấy thông tin team thất bại"))
-      .finally(() => setLoading(false));
+      .then(res => {
+        if (isMounted) setTeam(res.team);
+      })
+      .catch(err => {
+        if (isMounted) setError(err.message || "Lấy thông tin team thất bại");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, [teamId]);
 
   return { team, loading, error };

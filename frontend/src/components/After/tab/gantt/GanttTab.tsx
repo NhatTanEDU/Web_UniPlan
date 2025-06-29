@@ -16,25 +16,27 @@ interface PopulatedAssignedToUser {
 
 // Hàm chuyển đổi Kanban tasks thành format cho Gantt
 const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   return tasks.map((task, index) => {
     const startDate = task.start_date ? new Date(task.start_date) : new Date();
     let endDate = task.due_date ? new Date(task.due_date) : new Date();
-
     if (endDate <= startDate) {
       endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 1);
     }
-
     let progress = 0;
     switch (task.status) {
       case 'Hoàn thành': progress = 1; break;
       case 'Đang làm': progress = 0.5; break;
       default: progress = 0; break;
     }
-
-    // Ép kiểu task.assigned_to sang cấu trúc đã populate
     const assignedToData = task.assigned_to as unknown as (PopulatedAssignedToUser | null | undefined);
-
+    // Tính số ngày còn lại
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const isOverdue = diffDays < 0 && task.status !== 'Hoàn thành';
+    const isApproachingDeadline = diffDays >= 0 && diffDays <= 3 && task.status !== 'Hoàn thành';
     return {
       id: task._id || `task_${index}`,
       text: task.title,
@@ -43,10 +45,12 @@ const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
       progress,
       status: task.status,
       priority: task.priority,
-      assignee: assignedToData?.name || 'Chưa giao', // Truy cập name từ dữ liệu đã ép kiểu
-      assigned_to: assignedToData?._id, // Lấy _id từ dữ liệu đã ép kiểu cho trường 'assigned_to' của Gantt task
+      assignee: assignedToData?.name || 'Chưa giao',
+      assigned_to: assignedToData?._id,
       description: task.description,
-      color: task.color
+      color: task.color,
+      is_overdue: isOverdue,
+      is_approaching_deadline: isApproachingDeadline,
     };
   });
 };
@@ -553,82 +557,36 @@ export default function GanttTab() {
           border-color: #4b5563 !important; 
           transition: all 0.3s ease;
         }
-
-        /* Hiệu ứng hover cho các task */
-        .gantt-task-completed:hover { 
-          background-color: #059669 !important; 
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+        /* Thêm CSS cho task sắp hết hạn và quá hạn */
+        .gantt-task-overdue {
+            background-color: #ef4444 !important; /* Màu đỏ */
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6) !important;
         }
-        .gantt-task-in-progress:hover { 
-          background-color: #d97706 !important; 
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+        .gantt-task-approaching {
+            background-color: #facc15 !important; /* Màu vàng */
+            border-color: #eab308 !important;
+            box-shadow: 0 0 6px rgba(250, 204, 21, 0.4) !important;
         }
-        .gantt-task-todo:hover { 
-          background-color: #4b5563 !important; 
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3) !important;
+        .gantt-task-overdue .gantt_task_progress { background-color: #b91c1c !important; }
+        .gantt-task-approaching .gantt_task_progress { background-color: #a16207 !important; }
+        /* Style cho icon cảnh báo trong task_text */
+        .lucide-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            margin-right: 4px;
         }
-
-        /* Cải thiện giao diện tổng thể */
-        .gantt_task_line {
-          border-radius: 4px !important;
-          transition: all 0.3s ease !important;
+        .gantt-warning-text {
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 4px;
+            vertical-align: middle;
         }
-        
-        .gantt_task_line:hover {
-          cursor: pointer !important;
-        }        /* FORCE TOOLTIP HIỂN THỊ */
-        .gantt_tooltip {
-          z-index: 999999 !important;
-          position: fixed !important;
-          display: block !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-          pointer-events: none !important;
-          border: none !important;
-          padding: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          transform: none !important;
-        }
-
-        /* Đảm bảo tooltip container luôn hiển thị */
-        .gantt_tooltip > div {
-          display: block !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-
-        /* Override mọi style có thể ẩn tooltip */
-        .gantt_tooltip * {
-          visibility: visible !important;
-        }
-
-        /* Cải thiện grid */
-        .gantt_grid_scale {
-          background: #f8fafc !important;
-          border-bottom: 2px solid #e2e8f0 !important;
-        }
-        
-        .gantt_task_scale {
-          background: #f8fafc !important;
-          border-bottom: 2px solid #e2e8f0 !important;
-        }
-
-        /* Dark mode support */
-        .dark .gantt_grid_scale {
-          background: #1f2937 !important;
-          border-bottom: 2px solid #374151 !important;
-          color: #f9fafb !important;
-        }
-        
-        .dark .gantt_task_scale {
-          background: #1f2937 !important;
-          border-bottom: 2px solid #374151 !important;
-          color: #f9fafb !important;
-        }
+        .overdue-text { color: #dc2626; }
+        .approaching-text { color: #d97706; }
+        /* ...existing code... */
       `}</style>
     </div>
   );

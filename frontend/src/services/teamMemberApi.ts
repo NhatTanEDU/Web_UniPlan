@@ -80,7 +80,7 @@ class TeamMemberApi {  /**
    * - Lấy danh sách thành viên của team
    */
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {
-    const response = await baseApi.get(`/teams/${teamId}/members`);
+    const response = await baseApi.get(`/api/teams/${teamId}/members`);
     // Backend trả về { message, team, members, total }, chúng ta chỉ cần array members
     return response.data.members || [];
   }/**
@@ -88,7 +88,7 @@ class TeamMemberApi {  /**
    * - Thêm 1 thành viên mới vào team
    */
   async addMemberToTeam(teamId: string, data: AddMemberData): Promise<void> {
-    await baseApi.post(`/teams/${teamId}/members`, {
+    await baseApi.post(`/api/teams/${teamId}/members`, {
       user_id: data.userId, // Backend expects user_id not userId
       role: data.role
     });
@@ -117,14 +117,14 @@ class TeamMemberApi {  /**
     memberId: string,
     data: UpdateMemberRoleData
   ): Promise<void> {
-    await baseApi.put(`/teams/${teamId}/members/${memberId}`, data);
+    await baseApi.put(`/api/teams/${teamId}/members/${memberId}`, data);
   }
   /**
    * removeMember(teamId, memberId)
    * - Xóa 1 thành viên khỏi team
    */
   async removeMember(teamId: string, memberId: string): Promise<void> {
-    await baseApi.delete(`/teams/${teamId}/members/${memberId}`);
+    await baseApi.delete(`/api/teams/${teamId}/members/${memberId}`);
   }
 
   /**

@@ -144,7 +144,7 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
       sortOrder: filters?.sortOrder || 'desc'
     };
 
-    const backendResponse = await apiClient.get('/teams', { params }) as {
+    const backendResponse = await apiClient.get('/api/teams', { params }) as {
       teams: any[];
       pagination: any;
     };
@@ -174,7 +174,7 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
   },
   // Get team statistics
   getTeamStatistics: async (): Promise<TeamStatsData> => {
-    const response = await apiClient.get('/teams/statistics') as { statistics: TeamStatsData };
+    const response = await apiClient.get('/api/teams/statistics') as { statistics: TeamStatsData };
     return response.statistics; // Trả về chỉ phần statistics
   },
 
@@ -182,7 +182,7 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
   // Controller getTeamById trả về { team: teamData, members: memberArray, relatedProjects: projectArray }
   // Hook useTeam của bạn hiện chỉ lấy res.team, nên hàm này chỉ cần trả về team object đã map
   getTeamById: async (teamId: string): Promise<{ team: Team }> => {
-    const responseFromController = await apiClient.get(`/teams/${teamId}`) as { team: any, members: any[], relatedProjects: any[] };
+    const responseFromController = await apiClient.get(`/api/teams/${teamId}`) as { team: any, members: any[], relatedProjects: any[] };
     const backendTeamObject = responseFromController.team;
 
     const frontendTeamData: Team = {
@@ -209,7 +209,7 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
       description: teamData.description,
       type: teamData.type
     };
-    const response = await apiClient.post('/teams', backendData) as { team: any, message: string };
+    const response = await apiClient.post('/api/teams', backendData) as { team: any, message: string };
     // Map response.team lại cho khớp interface Team của frontend
     const createdTeamForFrontend: Team = {
         _id: response.team._id,
@@ -231,7 +231,7 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
     if (teamData.description !== undefined) backendData.description = teamData.description;
     if (teamData.type !== undefined) backendData.type = teamData.type;
 
-    const response = await apiClient.put(`/teams/${teamId}`, backendData) as { team: any, message: string };
+    const response = await apiClient.put(`/api/teams/${teamId}`, backendData) as { team: any, message: string };
     // Map response.team lại
      const updatedTeamForFrontend: Team = {
         _id: response.team._id,
@@ -247,13 +247,13 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
   },
 
   deleteTeam: async (teamId: string): Promise<{ message: string }> => {
-    return apiClient.delete(`/teams/${teamId}`);
+    return apiClient.delete(`/api/teams/${teamId}`);
   },
 
   // Các hàm API cho Team Members (URL giữ nguyên /teams/:teamId/members...)
   // Cần đảm bảo kiểu TeamMember trả về khớp với interface TeamMember ở trên
   getTeamMembers: async (teamId: string): Promise<{ members: TeamMember[] }> => {
-    const response = await apiClient.get(`/teams/${teamId}/members`) as { members: any[] }; // API trả về mảng member
+    const response = await apiClient.get(`/api/teams/${teamId}/members`) as { members: any[] }; // API trả về mảng member
     // teamMember.controller.js -> getTeamById trả về members đã populate user_id
     // Nếu API này (vd: riêng cho get members của team) cũng populate user_id thành object user:
     const mappedMembers: TeamMember[] = response.members.map(m => ({
@@ -270,7 +270,7 @@ export const teamApi = {  // Enhanced getTeams with filters and pagination
   // Các hàm API cho Team Projects (URL giữ nguyên /teams/:teamId/projects...)
   // Cần đảm bảo kiểu TeamProject trả về khớp với interface TeamProject ở trên
   getTeamProjects: async (teamId: string): Promise<{ projects: TeamProject[] }> => {
-    const response = await apiClient.get(`/teams/${teamId}/projects`) as { projects: any[] };
+    const response = await apiClient.get(`/api/teams/${teamId}/projects`) as { projects: any[] };
      const mappedProjects: TeamProject[] = response.projects.map(p => ({
         _id: p._id,
         project_name: p.project_name,

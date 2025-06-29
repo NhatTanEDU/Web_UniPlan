@@ -26,6 +26,8 @@ const localizeStatus = (status: string) => {
 interface Project {
   _id?: string; id?: string; text?: string; project_name?: string;
   start_date?: string | Date; end_date?: string | Date; status?: string;
+  is_overdue?: boolean; // Thêm trường này
+  is_approaching_deadline?: boolean; // Thêm trường này
   [key: string]: any;
 }
 
@@ -171,22 +173,24 @@ export default function ProjectPortfolioGanttPage() {
       },
     ];
     
-    // Template để kiểm soát màu chữ tên dự án
+    // CẬP NHẬT: Template để kiểm soát màu chữ tên dự án và hiển thị cảnh báo
     gantt.templates.task_text = function(start, end, task) {
-      const now = new Date();
-      const endDate = new Date(task.end_date || task.end || end);
-      const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      
-      let textColor = '';
-      if (diffDays < 0) {
-        // Đã hết hạn - chữ màu đỏ
-        textColor = 'color: #ff4d4f; font-weight: bold;';
-      } else if (diffDays <= 3) {
-        // Sắp hết hạn (<=3 ngày) - chữ màu vàng đậm
-        textColor = 'color: #faad14; font-weight: bold;';
-      }
-      
-      return `<span style="${textColor}">${task.text}</span>`;
+        const now = new Date();
+        const endDate = new Date(task.end_date || task.end || end);
+        const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        let textColor = '';
+        let warningIcon = '';
+        let warningText = '';
+        if (diffDays < 0) {
+            textColor = 'color: #ff4d4f; font-weight: bold;';
+            warningIcon = `<span class="lucide-icon text-red-500" title="Đã quá hạn!"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></span>`;
+            warningText = ` <span class="gantt-warning-text overdue-text">(Quá hạn)</span>`;
+        } else if (diffDays <= 3) {
+            textColor = 'color: #faad14; font-weight: bold;';
+            warningIcon = `<span class="lucide-icon text-yellow-500" title="Sắp hết hạn!"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></span>`;
+            warningText = ` <span class="gantt-warning-text approaching-text">(Sắp hết hạn)</span>`;
+        }
+        return `<span style="${textColor}">${warningIcon} ${task.text}${warningText}</span>`;
     };
     
     // Thêm class cho task line nếu sắp hết hạn hoặc đã hết hạn
@@ -496,7 +500,6 @@ export default function ProjectPortfolioGanttPage() {
   // Component hiển thị tooltip
   const TooltipComponent = () => {
     if (!customTooltip.visible || !customTooltip.content) return null;
-    
     return (
       <div
         style={{
@@ -536,6 +539,23 @@ export default function ProjectPortfolioGanttPage() {
             <p>
               <strong>Kết thúc:</strong> {customTooltip.content.end_date ? new Date(customTooltip.content.end_date).toLocaleDateString('vi-VN') : 'Chưa xác định'}
             </p>
+            {/* THÊM THÔNG BÁO TRONG TOOLTIP */}
+            {customTooltip.content.is_overdue && (
+                <p style={{ marginTop: '0.5rem', color: '#f87171', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                    <span className="lucide-icon" style={{ marginRight: 4 }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                    </span>
+                    Dự án đã quá hạn!
+                </p>
+            )}
+            {customTooltip.content.is_approaching_deadline && (
+                <p style={{ marginTop: '0.5rem', color: '#fbbf24', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                    <span className="lucide-icon" style={{ marginRight: 4 }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                    </span>
+                    Dự án sắp hết hạn!
+                </p>
+            )}
           </div>
         </div>
       </div>
@@ -669,7 +689,64 @@ export default function ProjectPortfolioGanttPage() {
     );
   };
 
+  // Tổng quan số lượng dự án
+  const totalProjects = allProjects.length;
+  const overdueProjects = allProjects.filter(p => {
+    const endDate = new Date(p.end_date || p.end);
+    const now = new Date();
+    const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays < 0 && (p.status !== 'Completed');
+  }).length;
+  const approachingProjects = allProjects.filter(p => {
+    const endDate = new Date(p.end_date || p.end);
+    const now = new Date();
+    const diffDays = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 3 && (p.status !== 'Completed');
+  }).length;
+  // Thêm số lượng dự án đã hoàn thành và đang hoạt động
+  const completedProjects = allProjects.filter(p => (p.status === 'Completed')).length;
+  const activeProjects = allProjects.filter(p => (p.status === 'Active' || p.status === 'In Progress')).length;
+
   return (    <main style={{ width: "100%", height: "100%" }}>
+      {/* Tổng quan số lượng dự án */}
+      <div style={{
+        display: 'flex',
+        gap: '24px',
+        alignItems: 'center',
+        padding: '16px 24px 0 24px',
+        background: '#fff',
+        borderBottom: '1px solid #e5e7eb',
+        marginBottom: 0
+      }}>
+        <div style={{ fontWeight: 600, fontSize: 18, color: '#222' }}>
+          Tổng số dự án: <span style={{ color: '#2563eb' }}>{totalProjects}</span>
+        </div>
+        <div style={{ fontWeight: 500, fontSize: 16, color: '#b91c1c', display: 'flex', alignItems: 'center' }}>
+          <span className="lucide-icon" style={{ marginRight: 4 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          </span>
+          Dự án đã hết hạn: <span style={{ color: '#ef4444', fontWeight: 700, marginLeft: 4 }}>{overdueProjects}</span>
+        </div>
+        <div style={{ fontWeight: 500, fontSize: 16, color: '#b45309', display: 'flex', alignItems: 'center' }}>
+          <span className="lucide-icon" style={{ marginRight: 4 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          </span>
+          Dự án sắp hết hạn: <span style={{ color: '#f59e0b', fontWeight: 700, marginLeft: 4 }}>{approachingProjects}</span>
+        </div>
+        <div style={{ fontWeight: 500, fontSize: 16, color: '#2563eb', display: 'flex', alignItems: 'center' }}>
+          <span className="lucide-icon" style={{ marginRight: 4 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle"><circle cx="12" cy="12" r="10"/><polyline points="9 12 12 15 17 10"/></svg>
+          </span>
+          Dự án đã hoàn thành: <span style={{ color: '#2563eb', fontWeight: 700, marginLeft: 4 }}>{completedProjects}</span>
+        </div>
+        <div style={{ fontWeight: 500, fontSize: 16, color: '#10b981', display: 'flex', alignItems: 'center' }}>
+          <span className="lucide-icon" style={{ marginRight: 4 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-play-circle"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          </span>
+          Dự án đang hoạt động: <span style={{ color: '#10b981', fontWeight: 700, marginLeft: 4 }}>{activeProjects}</span>
+        </div>
+      </div>
+      
       <div style={{
         backgroundColor: "#fff",
         borderBottom: "2px solid #e5e7eb",
@@ -1027,6 +1104,23 @@ export default function ProjectPortfolioGanttPage() {
         .gantt-task-expired {
           background-color: rgba(255, 0, 0, 0.7) !important; /* Màu đỏ nhạt cho hết hạn */
         }
+
+        /* Style cho icon cảnh báo trong task_text */
+        .lucide-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        .gantt-warning-text {
+            font-size: 0.75em; /* Kích thước nhỏ hơn */
+            font-weight: 600;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+        .overdue-text { color: #dc2626; }
+        .approaching-text { color: #d97706; }
       `}</style>
     </main>
   );

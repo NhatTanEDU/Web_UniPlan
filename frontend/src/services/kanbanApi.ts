@@ -92,7 +92,7 @@ export const kanbanApi = {
     name: string;
     description?: string;
   }): Promise<Kanban> => {
-    const response = await baseApi.post('/kanban', data);
+    const response = await baseApi.post('/api/kanban', data);
     return response.data;
   },
   // TÌM KANBAN THEO PROJECT ID - API MỚI
@@ -108,7 +108,7 @@ export const kanbanApi = {
     error?: string;
   }> => {
     try {
-      const response = await baseApi.get(`/kanban/project/${projectId}`);
+      const response = await baseApi.get(`/api/kanban/project/${projectId}`);
       
       if (response.status === 200) {
         return { 
@@ -146,7 +146,7 @@ export const kanbanApi = {
     tasks: KanbanTask[];
     project_name: string;
   }> => {
-    const response = await baseApi.get(`/kanban/${kanbanId}`);
+    const response = await baseApi.get(`/api/kanban/${kanbanId}`);
     return response.data;
   },
 
@@ -154,12 +154,12 @@ export const kanbanApi = {
     name?: string;
     description?: string;
   }): Promise<Kanban> => {
-    const response = await baseApi.put(`/kanban/${kanbanId}`, data);
+    const response = await baseApi.put(`/api/kanban/${kanbanId}`, data);
     return response.data;
   },
 
   deleteKanban: async (kanbanId: string): Promise<void> => {
-    await baseApi.delete(`/kanban/${kanbanId}`);
+    await baseApi.delete(`/api/kanban/${kanbanId}`);
   },
 
   // Task Operations
@@ -206,7 +206,7 @@ export const kanbanApi = {
   // Project Members for Task Assignment
   getProjectMembers: async (projectId: string): Promise<ProjectMember[]> => {
     console.log("🔍 API: Getting project members for projectId:", projectId);
-    const response = await baseApi.get(`/projects/${projectId}/members-for-assignment`);
+    const response = await baseApi.get(`/api/projects/${projectId}/members-for-assignment`);
     console.log("🔍 API: Project members response:", response.data);
     return response.data;
   },
@@ -287,7 +287,7 @@ export const kanbanApi = {
     end_date?: string;
     progress?: number;
   }): Promise<KanbanTask> => {
-    const response = await baseApi.put(`/projects/${projectId}/gantt-tasks/${taskId}`, data);
+    const response = await baseApi.put(`/api/projects/${projectId}/gantt-tasks/${taskId}`, data);
     return response.data.task;
   }
 };
