@@ -1,22 +1,7 @@
 // src/components/After/Sidebar.tsx
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Folder,
-  Users,
-  List,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Moon,
-  Sun,
-  MessageSquare,
-  BarChart,
-  Calendar,
-  Cpu,
-  DollarSign,
-} from "lucide-react";
+import { LayoutDashboard, Folder, Users, List, Calendar, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { Project } from "../../types/project";
 import { getProjects } from "../../services/api";
@@ -28,7 +13,7 @@ interface MenuItem {
 }
 
 const Sidebar: React.FC = () => {
-  const { role, setRole, userId } = useContext(AuthContext);
+  const { userId } = useContext(AuthContext);
   const [collapsed, setCollapsed] = useState(() => {
     const savedState = localStorage.getItem("sidebarCollapsed");
     return savedState ? JSON.parse(savedState) : false;
@@ -126,19 +111,12 @@ const Sidebar: React.FC = () => {
     localStorage.setItem("theme", newMode ? "dark" : "light");
   };
 
-  const handleChangeRole = (newRole: "admin" | "paid" | "free") => {
-    setRole(newRole);
-  };  const mainMenu: MenuItem[] = [
+  const mainMenu: MenuItem[] = [
     { icon: <LayoutDashboard size={20} />, label: "Dashboard", path: `/dashboard/${userId || ":userId"}` },
     { icon: <Folder size={20} />, label: "Dự án", path: "/projects" },
     { icon: <List size={20} />, label: "Nhân viên", path: "/employees" },
     { icon: <Users size={20} />, label: "Nhóm", path: "/teams" },
-    { icon: <Settings size={20} />, label: "Cài đặt", path: "/settings" },
-    { icon: <MessageSquare size={20} />, label: "Chat", path: "/chat" },
-    { icon: <BarChart size={20} />, label: "Báo cáo", path: "/reports" },
     { icon: <Calendar size={20} />, label: "Gantt", path: `/dashboard/${userId || ":userId"}?view=portfolio-gantt` },
-    { icon: <Cpu size={20} />, label: "AI Assistant", path: role === "free" ? "#" : "/ai-assistant" },
-    { icon: <DollarSign size={20} />, label: "Gói dịch vụ", path: "/pricingPage" },
   ];
 
   return (
@@ -147,7 +125,8 @@ const Sidebar: React.FC = () => {
         collapsed ? "w-20" : "w-64"
       }`}
     >
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      {/* Header - always visible */}
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
         <button
           onClick={toggleSidebar}
           className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out"
@@ -158,6 +137,7 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
+      {/* Main scrollable content */}
       <div className="flex-1 overflow-y-auto p-4">
         <nav className="space-y-1">
           {mainMenu.map((item, index) => {
@@ -186,7 +166,7 @@ const Sidebar: React.FC = () => {
             return (
               <Link
                 key={index}
-                to={item.path} // Sử dụng item.path gốc để điều hướng
+                to={item.path}
                 className={`flex items-center p-3 rounded-lg transition-all duration-200 ease-in-out ${
                   item.path === "#" ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100 dark:hover:bg-gray-700"
                 } ${
@@ -203,33 +183,39 @@ const Sidebar: React.FC = () => {
             );
           })}
         </nav>
-
-        {!collapsed && (
-          <div className="mt-8">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-              Dự án gần đây
+        {recentProjects.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+              {!collapsed && "Dự án gần đây"}
             </h3>
-            {projectError && (
-              <p className="text-red-500 text-xs mb-2">{projectError}</p>
-            )}
-            {/* Bỏ logic liên quan đến isPro */}
             <ul className="space-y-1">
               {recentProjects.map((project) => (
-                <li key={project._id} className="relative">
+                <li key={project._id}>
                   <Link
-                    to={`/project/${project._id}`}
-                    className="flex items-center justify-between p-2 rounded-lg text-sm transition-colors duration-200 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-700"
+                    to={`/projects/${project._id}`}
+                    className={`flex items-center p-3 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      collapsed ? "justify-center" : ""
+                    }`}
+                    onMouseEnter={(e) => handleMouseEnter(e, project.project_name)}
+                    onMouseLeave={handleMouseLeave}
                   >
-                    <span className="truncate flex-1">{project.project_name}</span>
+                    <Folder size={16} className="flex-shrink-0" />
+                    {!collapsed && <span className="ml-2 truncate">{project.project_name}</span>}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
         )}
+        {projectError && !collapsed && (
+          <div className="text-red-500 text-sm mt-4 p-2 rounded-md bg-red-100 dark:bg-red-900">
+            {projectError}
+          </div>
+        )}
       </div>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+      {/* Footer - always visible */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2 flex-shrink-0">
         <button
           onClick={toggleDarkMode}
           className={`flex items-center w-full p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ease-in-out ${
@@ -245,35 +231,6 @@ const Sidebar: React.FC = () => {
             </span>
           )}
         </button>
-
-        {(role === "free" || role === "paid") && !collapsed && (
-          <Link
-            to="/pricingPage"
-            className="block w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition-all hover:shadow-lg"
-          >
-            {role === "free" ? "Nâng cấp lên Pro" : "Nâng cấp lên Admin"}
-          </Link>
-        )}
-
-        {!collapsed && (
-          <div className="flex space-x-2">
-            {(["free", "paid", "admin"] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => handleChangeRole(r)}
-                className={`flex-1 text-center px-2 py-1 rounded-xl text-xs font-semibold transition-colors duration-200 ease-in-out ${
-                  r === "free"
-                    ? "bg-gray-500 hover:bg-gray-600"
-                    : r === "paid"
-                    ? "bg-green-500 hover:bg-green-600"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white`}
-              >
-                {r === "free" ? "Free" : r === "paid" ? "Paid" : "Admin"}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {showTooltip && collapsed && (
