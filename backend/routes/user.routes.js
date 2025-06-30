@@ -90,8 +90,12 @@ router.get('/', verifyToken, async (req, res) => {
 
 // Route lấy thông tin user hiện tại
 router.get('/me', verifyToken, async (req, res) => {
+    if (req.timedout) return; // Kiểm tra timeout NGAY ĐẦU
     try {
+        console.time('findUser');
         const user = await User.findById(req.user.id).select('-password');
+        console.timeEnd('findUser');
+        if (req.timedout) return; // Nếu đã timeout thì không gửi response nữa
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -104,6 +108,7 @@ router.get('/me', verifyToken, async (req, res) => {
             data: { user }
         });
     } catch (error) {
+        if (req.timedout) return; // Nếu đã timeout thì không gửi response nữa
         console.error('Error fetching user info:', error);
         res.status(500).json({
             success: false,
