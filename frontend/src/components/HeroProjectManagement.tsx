@@ -1,16 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
 
 import { COLORS } from "../constants/colors"; // Import COLORS
 import videoKanban from "../assets/video/Video_Demo_Kanban_Board_UniPlan.mp4"; // <-- Import video Kanban của bạn
-
-const features = [
-  "Tạo & quản lý dự án đa dạng",
-  "Phân quyền thành viên chi tiết",
-  "Theo dõi tiến độ & deadline thực tế",
-  "Báo cáo chuyên sâu, tức thì"
-];
 
 const HeroProjectManagement = () => {
   const handleExploreClick = () => {
@@ -65,7 +57,6 @@ const HeroProjectManagement = () => {
                   textShadow: `1px 1px 0 ${COLORS.surface}55, 0 2px 4px ${COLORS.textDark}10` // Shadow sáng hơn
                 }}
               >
-                QUẢN LÝ DỰ ÁN TOÀN DIỆN
               </h1>
               {/* Tiêu đề chính: Tối ưu mọi dự án, gia tăng hiệu suất */}
               <h2
@@ -87,36 +78,6 @@ const HeroProjectManagement = () => {
                 UniPlan đơn giản hóa lập kế hoạch, phân công và theo dõi tiến độ công việc, giúp bạn kiểm soát dự án dễ dàng và đạt mục tiêu nhanh hơn.
               </p>
             </motion.div>
-
-            {/* Danh sách tính năng (ít hơn, trực quan hơn) */}
-            <motion.ul
-              id="feature-list"
-              className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mt-8 text-left mx-auto lg:mx-0 max-w-md lg:max-w-none"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-              viewport={{ once: true, amount: 0.5 }}
-            >
-              {features.map((feature, index) => (
-                <motion.li
-                  key={index}
-                  className="flex items-start text-base"
-                  initial={{ opacity: 0, x: -15 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.08 + 0.3, duration: 0.3 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                >
-                  <CheckCircle
-                    className="w-5 h-5 mt-0.5 mr-2 flex-shrink-0"
-                    style={{ color: COLORS.accent }} // Vẫn là accent
-                    aria-hidden="true"
-                  />
-                  <span style={{ color: COLORS.surface }}> {/* Đổi màu text thành surface (trắng) */}
-                    {feature}
-                  </span>
-                </motion.li>
-              ))}
-            </motion.ul>
 
             {/* Nút Call To Action */}
             <motion.button

@@ -1,11 +1,11 @@
 // src/pages/Dashboard_before.tsx
 
 import React, { useRef } from "react";
-import HeroCommunicate from "../components/HeroCommunicate";
+// import HeroCommunicate from "../components/HeroCommunicate";
 import HeroProjectManagement from "../components/HeroProjectManagement";
 import HeroIdeatocompletion from "../components/HeroIdeatocompletion";
 import HeroGantt from "../components/HeroGantt";
-import HeroAIAssistant from "../components/HeroAI_Assistant";
+// import HeroAIAssistant from "../components/HeroAI_Assistant";
 import HeroDocumentManager from "../components/HerroDocument_Manager";
 import HeroPricing from "../components/HeroPricing";
 import HeroBanner from "../components/HeroBanner";
@@ -18,10 +18,9 @@ import { COLORS } from "../constants/colors";
 
 export default function Dashboard_before() {
   const refProjectManagement = useRef<HTMLElement | null>(null);
-  const refCommunicate = useRef<HTMLElement | null>(null);
   const refIdeaToCompletion = useRef<HTMLElement | null>(null);
   const refGantt = useRef<HTMLElement | null>(null);
-  const refAIAssistant = useRef<HTMLElement | null>(null);
+  // const refAIAssistant = useRef<HTMLElement | null>(null);
   const refDocumentManager = useRef<HTMLElement | null>(null);
   const refPricing = useRef<HTMLElement | null>(null);
   const refBanner = useRef<HTMLElement | null>(null);
@@ -33,18 +32,15 @@ export default function Dashboard_before() {
       case "project-management":
         ref = refProjectManagement;
         break;
-      case "communicate":
-        ref = refCommunicate;
-        break;
       case "idea-to-completion":
         ref = refIdeaToCompletion;
         break;
       case "gantt":
         ref = refGantt;
         break;
-      case "ai-assistant":
-        ref = refAIAssistant;
-        break;
+      // case "ai-assistant":
+      //   ref = refAIAssistant;
+      //   break;
       case "document-manager":
         ref = refDocumentManager;
         break;
@@ -95,11 +91,11 @@ export default function Dashboard_before() {
           </ScrollTrigger>
         </section>
 
-        <section ref={refCommunicate}>
-          <ScrollTrigger delay={0.4} direction="right" ease={[0.17, 0.67, 0.83, 0.67]} amount={0.1}> {/* amount nhỏ hơn */}
+        {/* <section ref={refCommunicate}>
+          <ScrollTrigger delay={0.4} direction="right" ease={[0.17, 0.67, 0.83, 0.67]} amount={0.1}> 
             <HeroCommunicate />
           </ScrollTrigger>
-        </section>
+        </section> */}
 
         <section ref={refIdeaToCompletion}>
           <ScrollTrigger delay={0.5} direction="up" ease="easeInOut" amount={0.1}> {/* amount nhỏ hơn */}
@@ -113,11 +109,11 @@ export default function Dashboard_before() {
           </ScrollTrigger>
         </section>
 
-        <section ref={refAIAssistant}>
-          <ScrollTrigger delay={0.7} direction="left" ease="easeOut" amount={0.1}> {/* amount nhỏ hơn */}
+        {/* <section ref={refAIAssistant}>
+          <ScrollTrigger delay={0.7} direction="left" ease="easeOut" amount={0.1}> 
             <HeroAIAssistant />
           </ScrollTrigger>
-        </section>
+        </section> */}
 
         <section ref={refDocumentManager}>
           <ScrollTrigger delay={0.8} direction="right" ease="easeOut" amount={0.1}> {/* amount nhỏ hơn */}

@@ -6,35 +6,41 @@ import { Link } from "react-router-dom";
 import { COLORS } from "../constants/colors"; 
 
 const plans = [
-  { 
-    name: "Cá nhân", 
-    price: "Miễn phí", 
-    priceDetail: "", // Thêm chi tiết giá nếu cần
-    featured: false,
-    description: "Bắt đầu hành trình dự án cá nhân.",
-    features: ["Quản lý 1 dự án", "100MB lưu trữ", "Tính năng cơ bản"],
-    buttonText: "Bắt đầu miễn phí",
-    link: "/register"
-  },
-  { 
-    name: "Nâng cao", 
-    price: "499.000đ", 
-    priceDetail: "/tháng", // Tách phần "/tháng" ra
-    featured: true, 
-    description: "Giải pháp toàn diện cho nhóm nhỏ.",
-    features: ["Không giới hạn dự án", "10GB lưu trữ", "Giao tiếp nhóm", "Trợ lý AI cơ bản", "Hỗ trợ ưu tiên"],
-    buttonText: "Đăng ký ngay",
-    link: "/register"
-  },
-  { 
-    name: "Doanh nghiệp", 
-    price: "Liên hệ", 
+  {
+    name: "Miễn phí",
+    price: "0đ",
     priceDetail: "",
     featured: false,
-    description: "Dành cho các tổ chức lớn, giải pháp tùy chỉnh.",
-    features: ["Tính năng nâng cao", "Lưu trữ không giới hạn", "Tích hợp tùy chỉnh", "Hỗ trợ 24/7", "Đào tạo đội ngũ"],
-    buttonText: "Liên hệ tư vấn",
-    link: "/contact" 
+    description: "Dành cho cá nhân trải nghiệm miễn phí.",
+    features: [],
+    buttonText: "Chọn gói",
+    link: "/register"
+  },
+  {
+    name: "1 Tháng",
+    price: "500.000đ",
+    priceDetail: "",
+    featured: true, // Nổi bật hơn
+    description: "Linh hoạt, phù hợp nhóm nhỏ. Nâng cấp để trải nghiệm đầy đủ tính năng!",
+    badge: "Phổ biến nhất",
+    badgeColor: COLORS.accent,
+    badgeTextColor: COLORS.surface,
+    features: [],
+    buttonText: "Nâng cấp",
+    link: "/register"
+  },
+  {
+    name: "1 Năm",
+    price: "3.000.000đ",
+    priceDetail: "",
+    featured: true, // Nổi bật nhất
+    description: "Tiết kiệm tới 50% so với trả tháng. Quản lý không giới hạn, hỗ trợ 24/7!",
+    badge: "Tiết kiệm 50%",
+    badgeColor: COLORS.primary,
+    badgeTextColor: COLORS.surface,
+    features: [],
+    buttonText: "Nâng cấp ngay",
+    link: "/register"
   },
 ];
 
@@ -55,19 +61,10 @@ export default function HeroPricing() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
             viewport={{ once: true, amount: 0.5 }}
-            className="max-w-4xl mx-auto space-y-6 mb-12 md:mb-16"
+            className="max-w-5xl mx-auto mb-4 md:mb-8"
           >
-            <h1 
-              className="text-2xl md:text-3xl font-extrabold mb-3 uppercase tracking-wide"
-              style={{
-                color: COLORS.primary,
-                textShadow: `1px 1px 0 ${COLORS.secondary}55, 0 2px 4px ${COLORS.textDark}10`
-              }}
-            >
-              LỰA CHỌN PHÙ HỢP
-            </h1>
             <h2 
-              className="text-4xl md:text-6xl font-bold leading-tight mb-6"
+              className="text-3xl xs:text-4xl md:text-7xl font-extrabold leading-tight drop-shadow-lg"
               style={{
                 color: COLORS.textDark,
                 textShadow: `2px 2px 0 ${COLORS.secondary}, 0 5px 15px ${COLORS.textDark}20`
@@ -75,19 +72,11 @@ export default function HeroPricing() {
             >
               Gói dịch vụ <span style={{ color: COLORS.accent }}>linh hoạt</span> cho mọi nhu cầu
             </h2>
-            <p
-              className="text-lg md:text-xl opacity-90"
-              style={{
-                color: COLORS.textDark,
-              }}
-            >
-              Chọn gói dịch vụ UniPlan phù hợp nhất với quy mô đội nhóm và mục tiêu quản lý dự án của bạn.
-            </p>
           </motion.div>
 
           {/* Các gói dịch vụ */}
           {/* THAY ĐỔI LỚN: Thêm `md:items-stretch` để các cột có chiều cao bằng nhau */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto md:items-stretch"> 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto md:items-stretch"> 
             {plans.map((plan, index) => (
               <motion.div
                 key={index}
@@ -109,35 +98,39 @@ export default function HeroPricing() {
                     : COLORS.background, 
                 }}
               >
-                {plan.featured && (
-                  <div
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 text-xs font-bold uppercase rounded-full shadow-md z-10"
-                    style={{ backgroundColor: COLORS.accent, color: COLORS.surface }}
-                  >
-                    Phổ biến nhất
-                  </div>
-                )}
-                <div className="p-8 pb-6 flex flex-col flex-grow"> {/* Thêm flex-grow để nội dung đẩy xuống dưới */}
+                <div className="relative p-8 pt-12 pb-6 flex flex-col flex-grow"> {/* Thêm pt-12 để badge không bị che */}
+                  {plan.badge && (
+                    <div
+                      className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 text-xs md:text-sm font-bold uppercase rounded-full shadow-md z-20 animate-fade-in-up whitespace-nowrap"
+                      style={{ backgroundColor: plan.badgeColor, color: plan.badgeTextColor, minWidth: 90, maxWidth: '90vw', textAlign: 'center' }}
+                    >
+                      {plan.badge}
+                    </div>
+                  )}
                   <h3
-                    className="text-2xl font-bold mb-3" 
-                    style={{ color: COLORS.textDark }}
+                    className={`text-2xl font-bold mb-3 ${plan.featured ? 'text-[color:#F18F01]' : ''}`}
+                    style={{ color: plan.featured ? COLORS.accent : COLORS.textDark }}
                   >
                     {plan.name}
                   </h3>
-                  <p className="text-sm mb-4" style={{ color: COLORS.textLight }}>{plan.description}</p> 
-                  <div className="my-6"> 
+                  <div className="my-6">
                     <span
-                      className="text-4xl font-extrabold" // Giảm kích thước font cho giá để tránh cắt chữ
-                      style={{ color: COLORS.primary }}
+                      className="text-4xl font-extrabold"
+                      style={{ color: plan.featured ? COLORS.accent : COLORS.primary }}
                     >
                       {plan.price}
                     </span>
-                    {plan.priceDetail && ( // Hiển thị chi tiết giá (ví dụ: /tháng)
+                    {plan.priceDetail && (
                       <span className="text-xl font-semibold ml-1" style={{ color: COLORS.textLight }}>
                         {plan.priceDetail}
                       </span>
                     )}
                   </div>
+                  {plan.description && (
+                    <div className="mb-6 text-base font-medium text-center" style={{ color: plan.featured ? COLORS.accent : COLORS.textDark, opacity: plan.featured ? 0.95 : 0.8 }}>
+                      {plan.description}
+                    </div>
+                  )}
                   
                   {/* Danh sách tính năng */}
                   <ul className="text-left space-y-2 mb-8 text-sm flex-grow"> {/* Thêm flex-grow để đẩy nút xuống dưới */}
@@ -156,7 +149,7 @@ export default function HeroPricing() {
                     to={plan.link} 
                     className="w-full font-semibold py-3 rounded-lg text-lg inline-block text-center // Đảm bảo py và text-lg thống nhất
                                transition-all duration-200 ease-in-out
-                               hover:scale-105 active:scale-95 active:shadow-inner" // Giữ hiệu ứng scale cho nút
+                               hover:scale-105 active:scale-95 active:shadow-inner"
                     style={{
                       backgroundColor: plan.featured ? COLORS.accent : COLORS.primary, 
                       color: COLORS.surface,
@@ -172,28 +165,7 @@ export default function HeroPricing() {
             ))}
           </div>
 
-          {/* CTA chuyển đến bảng chi tiết */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6, ease: "easeOut" }}
-            viewport={{ once: true, amount: 0.5 }}
-          >
-            <Link
-              to="/pricingPage"
-              className="px-8 py-4 text-xl font-bold rounded-xl
-                         transition-all duration-200 ease-in-out
-                         hover:bg-primary-darker hover:scale-105 active:scale-95 active:shadow-inner
-                         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              style={{
-                backgroundColor: COLORS.primary, 
-                color: COLORS.surface, 
-                boxShadow: `0 6px 20px ${COLORS.primary}60`
-              }}
-            >
-              Xem bảng tính năng chi tiết
-            </Link>
-          </motion.div>
+          {/* Đã xóa CTA chuyển đến bảng chi tiết */}
         </div>
       </section>
     </ScrollTrigger>
