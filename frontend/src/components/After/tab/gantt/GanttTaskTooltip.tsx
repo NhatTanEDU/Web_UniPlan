@@ -75,6 +75,42 @@ const GanttTaskTooltip: React.FC<GanttTaskTooltipProps> = ({ visible, x, y, cont
               <span className="font-medium text-blue-300">{Math.round(content.progress * 100)}%</span>
             </div>
           </div>
+          {/* CẢNH BÁO RỦI RO */}
+          {typeof content.riskLevel === 'number' && content.riskLevel > 0.7 && (
+            <div className="text-red-500 font-semibold mt-2 flex items-center">
+              <span className={styles.lucideIcon}>⚠️</span>
+              Cảnh báo: Công việc có nguy cơ trễ deadline!
+            </div>
+          )}
+          {typeof content.riskLevel === 'number' && content.riskLevel > 0.4 && content.riskLevel <= 0.7 && (
+            <div className="text-orange-400 font-semibold mt-2 flex items-center">
+              <span className={styles.lucideIcon}>⚠️</span>
+              Chú ý: Công việc sắp đến hạn, cần theo dõi!
+            </div>
+          )}
+          {typeof content.riskLevel === 'number' && (
+            <div className="mt-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className={`h-2.5 rounded-full ${
+                    content.riskLevel > 0.7
+                      ? 'bg-red-600'
+                      : content.riskLevel > 0.4
+                      ? 'bg-orange-500'
+                      : 'bg-green-500'
+                  }`}
+                  style={{ width: `${content.riskLevel * 100}%` }}
+                ></div>
+              </div>
+              <span className="text-xs">
+                {content.riskLevel > 0.7
+                  ? 'Cao - Cần ưu tiên xử lý'
+                  : content.riskLevel > 0.4
+                  ? 'Trung bình - Theo dõi'
+                  : 'Thấp'}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -40,7 +40,9 @@ const notificationSchema = new mongoose.Schema({
             'project_update',
             // System
             'system',
-            'feature_update'
+            'feature_update',
+            // AI risk warning
+            'task_risk_alert'
         ],
         required: true,
         index: true
@@ -181,4 +183,4 @@ notificationSchema.statics.cleanupExpired = function() {
     });
 };
 
-module.exports = mongoose.model('Notification', notificationSchema); 
+module.exports = mongoose.model('Notification', notificationSchema);

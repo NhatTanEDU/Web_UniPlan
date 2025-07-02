@@ -38,6 +38,8 @@ export interface KanbanTask {
   documentCount?: number;
   createdAt?: string;
   updatedAt?: string;
+  riskLevel?: number;   // Thêm dòng này
+  riskClass?: string;   // Thêm dòng này
 }
 
 export interface Kanban {
@@ -82,6 +84,23 @@ export interface ProjectMember {
   email: string;
   avatar?: string;
   role: string;
+}
+
+export interface TaskDependency {
+  _id: string;
+  source_task_id: {
+    _id: string;
+    title: string;
+    status: string;
+  };
+  target_task_id: {
+    _id: string;
+    title: string;
+    status: string;
+  };
+  dependency_type: string;
+  lag_days: number;
+  is_active: boolean;
 }
 
 // Kanban API Service
@@ -289,6 +308,71 @@ export const kanbanApi = {
   }): Promise<KanbanTask> => {
     const response = await baseApi.put(`/projects/${projectId}/gantt-tasks/${taskId}`, data);
     return response.data.task;
+  },
+
+  // Task Dependencies Operations
+  createTaskDependency: async (data: {
+    source_task_id: string;
+    target_task_id: string;
+    dependency_type?: string;
+  }) => {
+    const response = await baseApi.post('/kanban-tasks/dependencies', data);
+    return response.data;
+  },
+
+  getTaskDependencies: async (kanbanId: string): Promise<TaskDependency[]> => {
+    const response = await baseApi.get(`/kanban-tasks/${kanbanId}/dependencies`);
+    return response.data;
+  },
+
+  deleteTaskDependency: async (dependencyId: string) => {
+    const response = await baseApi.delete(`/kanban-tasks/dependencies/${dependencyId}`);
+    return response.data;
+  },
+
+  // Gantt Dependencies Operations
+  getGanttDependencies: async (projectId: string) => {
+    try {
+      // SỬA: Đúng endpoint là /gantt-dependencies
+      const response = await baseApi.get(`/projects/${projectId}/gantt-dependencies`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching gantt dependencies:', error);
+      // Trả về format mặc định thay vì throw
+      return { links: [] };
+    }
+  },
+
+  createGanttDependency: async (projectId: string, data: {
+    source: string | number;
+    target: string | number;
+    type?: string | number;
+    lag?: number;
+  }) => {
+    const payload = {
+      source: String(data.source),
+      target: String(data.target), 
+      type: typeof data.type === 'string' ? parseInt(data.type) : (data.type || 0),
+      lag: data.lag || 0
+    };
+    // SỬA: Đúng endpoint là /gantt-dependencies
+    const response = await baseApi.post(`/projects/${projectId}/gantt-dependencies`, payload);
+    return response.data;
+  },
+
+  deleteGanttDependency: async (projectId: string, dependencyId: string | number) => {
+    try {
+      // SỬA: Đúng endpoint là /gantt-dependencies
+      const response = await baseApi.delete(`/projects/${projectId}/gantt-dependencies/${String(dependencyId)}`);
+      return response.data;
+    } catch (error: any) {
+      // Không throw error nếu dependency không tồn tại
+      if (error.response?.status === 404) {
+        console.warn('Dependency not found, may have been already deleted');
+        return { message: 'Dependency not found' };
+      }
+      throw error;
+    }
   }
 };
 

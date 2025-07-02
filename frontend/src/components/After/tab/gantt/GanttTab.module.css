@@ -16,14 +16,11 @@
   transition: all 0.3s ease;
 }
 .taskOverdue {
-  background-color: #ef4444 !important;
-  border-color: #dc2626 !important;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6) !important;
+  border: 2px solid #ff0000 !important;
+  box-shadow: 0 0 8px #ff000088;
 }
 .taskApproaching {
-  background-color: #facc15 !important;
-  border-color: #eab308 !important;
-  box-shadow: 0 0 6px rgba(250, 204, 21, 0.4) !important;
+  border: 2px solid #ff9800 !important;
 }
 .taskOverdueProgress { background-color: #b91c1c !important; }
 .taskApproachingProgress { background-color: #a16207 !important; }

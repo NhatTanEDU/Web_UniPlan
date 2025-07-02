@@ -51,4 +51,7 @@ router.delete('/projects/:id', auth, projectController.softDeleteProject);
 // Khôi phục dự án
 router.put('/projects/:id/restore', auth, projectController.restoreProject);
 
+// Dependencies routes cho Gantt
+// ĐÃ XOÁ 3 DÒNG ROUTE TRÙNG LẶP ĐỂ TRÁNH LỖI 404
+
 module.exports = router;

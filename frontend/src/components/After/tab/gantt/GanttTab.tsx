@@ -1,5 +1,5 @@
 // src/components/After/tab/gantt/GanttTab.tsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { gantt } from 'dhtmlx-gantt';
 import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
@@ -9,55 +9,48 @@ import { kanbanApi, KanbanTask } from "../../../../services/kanbanApi";
 import styles from './GanttTab.module.css';
 import GanttTaskTooltip from './GanttTaskTooltip';
 
-// Định nghĩa cấu trúc của assigned_to sau khi được populate
+// Interface cho TaskDependency
+interface TaskDependency {
+  _id: string;
+  id?: string;
+  source_task_id: {
+    _id: string;
+    title: string;
+    status: string;
+  } | string;
+  target_task_id: {
+    _id: string;
+    title: string;
+    status: string;
+  } | string;
+  source: string;
+  target: string;
+  dependency_type: string;
+  type: number;
+  lag_days: number;
+  lag: number;
+  is_active: boolean;
+}
+
+// Đảm bảo các interface được khai báo ở đầu file
 interface PopulatedAssignedToUser {
   _id: string;
   name: string;
-  // email?: string; // Thêm nếu bạn cũng dùng email
+}
+interface GanttLink {
+  id: string;
+  source: string;
+  target: string;
+  type: string;
+  lag: number;
 }
 
-// Hàm chuyển đổi Kanban tasks thành format cho Gantt
-const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return tasks.map((task, index) => {
-    const startDate = task.start_date ? new Date(task.start_date) : new Date();
-    let endDate = task.due_date ? new Date(task.due_date) : new Date();
-    if (endDate <= startDate) {
-      endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + 1);
-    }
-    let progress = 0;
-    switch (task.status) {
-      case 'Hoàn thành': progress = 1; break;
-      case 'Đang làm': progress = 0.5; break;
-      default: progress = 0; break;
-    }
-    const assignedToData = task.assigned_to as unknown as (PopulatedAssignedToUser | null | undefined);
-    // Tính số ngày còn lại
-    const diffTime = endDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const isOverdue = diffDays < 0 && task.status !== 'Hoàn thành';
-    const isApproachingDeadline = diffDays >= 0 && diffDays <= 3 && task.status !== 'Hoàn thành';
-    return {
-      id: task._id || `task_${index}`,
-      text: task.title,
-      start_date: startDate,
-      end_date: endDate,
-      progress,
-      status: task.status,
-      priority: task.priority,
-      assignee: assignedToData?.name || 'Chưa giao',
-      assigned_to: assignedToData?._id,
-      description: task.description,
-      color: task.color,
-      is_overdue: isOverdue,
-      is_approaching_deadline: isApproachingDeadline,
-    };
-  });
-};
-
+// Đặt các state lên đầu function
 export default function GanttTab() {
+  // State đặt ở đầu function component
+  const [dependencies, setDependencies] = useState<TaskDependency[]>([]);
+  const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
+
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
   const ganttContainer = useRef<HTMLDivElement>(null);
@@ -79,6 +72,77 @@ export default function GanttTab() {
     y: number;
     content: any;
   }>({ visible: false, x: 0, y: 0, content: null });
+
+  // Đưa loadDependencies lên ngay sau khai báo state
+  const loadDependencies = useCallback(async (): Promise<TaskDependency[]> => {
+    if (!projectId) return [];
+    try {
+      setIsLoadingDependencies(true);
+      const result = await kanbanApi.getGanttDependencies(projectId);
+      console.log('Loaded dependencies from API:', result);
+      const dependencyArray = result.links || [];
+      const validDependencies = dependencyArray.filter((dep: any) => {
+        const isValid = dep.id && dep.source && dep.target;
+        if (!isValid) {
+          console.warn('Invalid dependency found:', dep);
+        }
+        return isValid;
+      });
+      setDependencies(validDependencies);
+      return validDependencies;
+    } catch (error) {
+      console.error('Error loading dependencies:', error);
+      setDependencies([]);
+      return [];
+    } finally {
+      setIsLoadingDependencies(false);
+    }
+  }, [projectId]);
+
+  const convertKanbanTasksToGantt = (tasks: KanbanTask[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return tasks.map((task, index) => {
+      const startDate = task.start_date ? new Date(task.start_date) : new Date();
+      let endDate = task.due_date ? new Date(task.due_date) : new Date();
+      if (endDate <= startDate) {
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 1);
+      }
+
+      let progress = 0;
+      switch (task.status) {
+        case 'Hoàn thành': progress = 1; break;
+        case 'Đang làm': progress = 0.5; break;
+        default: progress = 0; break;
+      }
+
+      const assignedToData = task.assigned_to as unknown as (PopulatedAssignedToUser | null | undefined);
+      const diffTime = endDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const isOverdue = diffDays < 0 && task.status !== 'Hoàn thành';
+      const isApproachingDeadline = diffDays >= 0 && diffDays <= 3 && task.status !== 'Hoàn thành';
+
+      return {
+        id: task._id || `task_${index}`,
+        text: task.title,
+        start_date: startDate,
+        end_date: endDate,
+        progress,
+        status: task.status,
+        priority: task.priority,
+        assignee: assignedToData?.name || 'Chưa giao',
+        assigned_to: assignedToData?._id,
+        description: task.description,
+        color: task.color,
+        is_overdue: isOverdue,
+        is_approaching_deadline: isApproachingDeadline,
+        riskLevel: task.riskLevel || 0,
+        riskClass: task.riskClass || '',
+      };
+    });
+  };
 
   // *** BẮT ĐẦU SỬA LỖI ***
 
@@ -147,6 +211,8 @@ export default function GanttTab() {
     ];
     gantt.config.scale_height = 50;    gantt.templates.task_text = (start, end, task) => task.text;
     gantt.templates.task_class = (start, end, task) => {
+      if (task.riskClass === 'high-risk') return styles.taskOverdue;
+      if (task.riskClass === 'medium-risk') return styles.taskApproaching;
       if (task.is_overdue) return styles.taskOverdue;
       if (task.is_approaching_deadline) return styles.taskApproaching;
       switch (task.status) {
@@ -195,14 +261,48 @@ export default function GanttTab() {
             setIsModalOpen(true);
         }
         return false;
-    });    gantt.init(ganttContainer.current);
+    });    // Handler tạo dependency
+    gantt.attachEvent("onAfterLinkAdd", async (id, link) => {
+      if (!projectId) return false;
+      try {
+        const newDep = await kanbanApi.createGanttDependency(projectId, {
+          source: String(link.source),
+          target: String(link.target),
+          type: Number(link.type) || 0,
+          lag: Number(link.lag) || 0
+        });
+        setDependencies(prev => [
+          ...prev,
+          { ...(newDep.dependency as TaskDependency) }
+        ]);
+        return true;
+      } catch (error) {
+        gantt.deleteLink(id);
+        setError('Không thể tạo phụ thuộc: ' + (error as any).message);
+        return false;
+      }
+    });
+    // Handler xóa dependency
+    gantt.attachEvent("onAfterLinkDelete", async (id, link) => {
+      if (!projectId) return true;
+      try {
+        await kanbanApi.deleteGanttDependency(projectId, String(id));
+        setDependencies(prev => prev.filter(dep => dep.id !== String(id)));
+        return true;
+      } catch (error) {
+        setError('Không thể xóa phụ thuộc: ' + (error as any).message);
+        return true;
+      }
+    });
+    
+    gantt.init(ganttContainer.current);
     setIsGanttInitialized(true);    // Hàm cleanup này chỉ chạy khi component bị unmount
     return () => {
       // Clear tooltip timeout khi cleanup
       if (tooltipTimeout) clearTimeout(tooltipTimeout);
       gantt.clearAll();
     };
-  }, []); // <-- THAY ĐỔI QUAN TRỌNG: Dependency rỗng để hook chỉ chạy 1 lần
+  }, [projectId]); // <-- THAY ĐỔI QUAN TRỌNG: Dependency rỗng để hook chỉ chạy 1 lần
 
   // *** KẾT THÚC SỬA LỖI ***
 
@@ -212,7 +312,6 @@ export default function GanttTab() {
       if (!projectId) setIsLoading(false);
       return;
     }
-
     const loadData = async () => {
       setIsLoading(true);
       setError('');
@@ -221,18 +320,28 @@ export default function GanttTab() {
           projectApi.getProject(projectId),
           kanbanApi.findKanbanByProject(projectId)
         ]);
-        
         setProjectInfo(project);
         if (kanbanResult.success && kanbanResult.found && kanbanResult.data) {
           setKanbanData(kanbanResult.data);
           setAllTasks(kanbanResult.data.tasks);
+          const loadedDependencies = await loadDependencies();
           const ganttTasks = convertKanbanTasksToGantt(kanbanResult.data.tasks);
-          // Bây giờ việc parse sẽ không bị clear ngay sau đó
-          gantt.parse({ data: ganttTasks, links: [] });
+          const ganttLinks: GanttLink[] = loadedDependencies.map((dep: TaskDependency) => ({
+            id: String(dep.id || dep._id),
+            source: String(dep.source || (typeof dep.source_task_id === 'string' ? dep.source_task_id : dep.source_task_id._id)),
+            target: String(dep.target || (typeof dep.target_task_id === 'string' ? dep.target_task_id : dep.target_task_id._id)),
+            type: String(dep.type ?? 0), // type là string
+            lag: Number(dep.lag || dep.lag_days || 0)
+          }));
+          gantt.parse({
+            data: ganttTasks,
+            links: ganttLinks
+          });
+          console.log('✅ Gantt loaded with dependencies:', ganttLinks.length);
         } else {
           setKanbanData(null);
           gantt.parse({ data: [], links: [] });
-          setError(kanbanResult.message || 'Không tìm thấy dữ liệu Kanban');
+          setError(kanbanResult.message || 'Không tìm thấy dữ liệu Gantt');
         }
       } catch (err: any) {
         setError(err.message || 'Có lỗi xảy ra khi tải dữ liệu');
@@ -240,23 +349,35 @@ export default function GanttTab() {
         setIsLoading(false);
       }
     };
-
     loadData();
-  }, [projectId, isGanttInitialized]);
+  }, [projectId, isGanttInitialized, loadDependencies]);
 
   // Các hàm reload, save và phần JSX còn lại được giữ nguyên
   // ... (Phần code còn lại của bạn)
   const reloadGanttData = async () => {
     if (!projectId) return;
-    
     try {
-      const kanbanResult = await kanbanApi.findKanbanByProject(projectId);
+      const [kanbanResult, loadedDependencies] = await Promise.all([
+        kanbanApi.findKanbanByProject(projectId),
+        loadDependencies()
+      ]);
       if (kanbanResult.success && kanbanResult.found && kanbanResult.data) {
         setKanbanData(kanbanResult.data);
         setAllTasks(kanbanResult.data.tasks);
         const ganttTasks = convertKanbanTasksToGantt(kanbanResult.data.tasks);
+        const ganttLinks: GanttLink[] = loadedDependencies.map((dep: TaskDependency) => ({
+          id: String(dep.id || dep._id),
+          source: String(dep.source || (typeof dep.source_task_id === 'string' ? dep.source_task_id : dep.source_task_id._id)),
+          target: String(dep.target || (typeof dep.target_task_id === 'string' ? dep.target_task_id : dep.target_task_id._id)),
+          type: String(dep.type ?? 0),
+          lag: Number(dep.lag || dep.lag_days || 0)
+        }));
         gantt.clearAll();
-        gantt.parse({ data: ganttTasks, links: [] });
+        gantt.parse({
+          data: ganttTasks,
+          links: ganttLinks
+        });
+        console.log('✅ Gantt reloaded with dependencies:', ganttLinks.length);
       }
     } catch (err: any) {
       setError('Không thể tải lại dữ liệu: ' + err.message);
@@ -278,17 +399,32 @@ export default function GanttTab() {
     }
   };
 
+  // Chú thích phụ thuộc Gantt
+  const GanttLegend = () => (
+    <div className="gantt-legend mb-4 p-3 bg-gray-50 border border-gray-200 rounded text-sm">
+      <b>Chú thích phụ thuộc:</b>
+      <ul className="list-disc pl-5 mt-1">
+        <li><b>FS</b> (<b>Finish-to-Start</b>): Công việc sau bắt đầu khi công việc trước kết thúc</li>
+        <li><b>SS</b> (<b>Start-to-Start</b>): Hai công việc bắt đầu cùng lúc</li>
+        <li><b>FF</b> (<b>Finish-to-Finish</b>): Hai công việc kết thúc cùng lúc</li>
+        <li><b>SF</b> (<b>Start-to-Finish</b>): Công việc trước bắt đầu thì công việc sau kết thúc</li>
+      </ul>
+    </div>
+  );
+
   if (!projectId) {
     return (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded m-4">
-            <AlertCircle size={20} className="inline-block mr-2" />
-            Không tìm thấy ID dự án. Vui lòng quay lại và chọn một dự án.
-        </div>
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded m-4">
+        <AlertCircle size={20} className="inline-block mr-2" />
+        Không tìm thấy ID dự án. Vui lòng quay lại và chọn một dự án.
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Chú thích phụ thuộc Gantt */}
+      <GanttLegend />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
           <Calendar size={28} />
@@ -323,6 +459,10 @@ export default function GanttTab() {
               </div>
               <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
                 Đang làm: {kanbanData.tasks.filter((t: any) => t.status === 'Đang làm').length}
+              </div>
+              <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                🔗 Phụ thuộc: {dependencies.length}
+                {isLoadingDependencies && <span className="text-gray-500">(đang tải...)</span>}
               </div>
             </div>
           </div>
@@ -458,7 +598,7 @@ export default function GanttTab() {
                   {isSaving ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Đang lưu...
+                      <span>Đang lưu...</span>
                     </>
                   ) : (
                     'Lưu thay đổi'
@@ -484,7 +624,14 @@ export default function GanttTab() {
       </div>
 
       {/* CUSTOM TOOLTIP COMPONENT */}
-      <GanttTaskTooltip visible={customTooltip.visible} x={customTooltip.x} y={customTooltip.y} content={customTooltip.content} />
+      {customTooltip.visible && customTooltip.content && (
+        <GanttTaskTooltip
+          visible={customTooltip.visible}
+          content={customTooltip.content}
+          x={customTooltip.x}
+          y={customTooltip.y}
+        />
+      )}
     </div>
   );
 }

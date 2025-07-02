@@ -3,6 +3,8 @@ const Kanban = require('../models/kanban.model');
 const ProjectMember = require('../models/projectMember.model');
 const Project = require('../models/project.model');
 const Counter = require('../models/counter.model');
+const Notification = require('../models/notification.model');
+const { predictTaskRisk } = require('../../services/ai.service');
 
 // Helper function to check user permissions for kanban tasks
 const canModifyTask = async (userId, kanbanId, requiredPermission = 'edit') => {
@@ -285,11 +287,33 @@ exports.createTask = async (req, res) => {
       await task.save();
       console.log('Created task:', task);
 
+      // AI risk prediction
+      const riskLevel = predictTaskRisk(task);
+      let riskClass = 'low';
+      if (riskLevel > 0.7) riskClass = 'high';
+      else if (riskLevel > 0.4) riskClass = 'medium';
+      // Gửi notification nếu rủi ro cao
+      if (riskLevel > 0.7 && task.assigned_to) {
+        await Notification.createNotification({
+          userId: task.assigned_to,
+          title: 'Cảnh báo rủi ro công việc',
+          message: `Công việc "${task.title}" có nguy cơ trễ hạn cao. Vui lòng kiểm tra và cập nhật tiến độ!`,
+          type: 'task_risk_alert',
+          priority: 'high',
+          project_id: kanban.project_id,
+          metadata: { taskId: task._id, riskLevel }
+        });
+      }
+
       // Populate thông tin assigned_to và created_by
       const populatedTask = await KanbanTask.findById(task._id)
         .populate('assigned_to', 'name email')
         .populate('created_by', 'name email')
-        .populate('documents'); // THÊM DÒNG NÀY
+        .populate('documents');
+      // Thêm riskLevel/riskClass vào response
+      const responseTask = populatedTask.toObject();
+      responseTask.riskLevel = riskLevel;
+      responseTask.riskClass = riskClass;
 
       // Emit socket event với toàn bộ danh sách task
       if (req.io) {
@@ -302,7 +326,7 @@ exports.createTask = async (req, res) => {
         req.io.to(kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
       }
 
-      return res.status(201).json(task);
+      return res.status(201).json(responseTask);
     }
 
     // Kiểm tra quyền thành viên
@@ -340,11 +364,34 @@ exports.createTask = async (req, res) => {
     await task.save();
     console.log('Created task:', task);
 
+    // AI risk prediction
+    const riskLevel = predictTaskRisk(task);
+    let riskClass = 'low';
+    if (riskLevel > 0.7) riskClass = 'high';
+    else if (riskLevel > 0.4) riskClass = 'medium';
+    // Gửi notification nếu rủi ro cao
+    if (riskLevel > 0.7 && task.assigned_to) {
+      await Notification.createNotification({
+        userId: task.assigned_to,
+        title: 'Cảnh báo rủi ro công việc',
+        message: `Công việc "${task.title}" có nguy cơ trễ hạn cao. Vui lòng kiểm tra và cập nhật tiến độ!`,
+        type: 'task_risk_alert',
+        priority: 'high',
+        project_id: kanban.project_id,
+        metadata: { taskId: task._id, riskLevel }
+      });
+    }
+
     // Populate thông tin assigned_to và created_by
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
       .populate('created_by', 'name email avatar')
       .populate('documents'); // THÊM DÒNG NÀY
+
+    // Thêm riskLevel/riskClass vào response
+    const responseTask = populatedTask.toObject();
+    responseTask.riskLevel = riskLevel;
+    responseTask.riskClass = riskClass;
 
     // Emit socket event với toàn bộ danh sách task
     if (req.io) {
@@ -357,7 +404,7 @@ exports.createTask = async (req, res) => {
       req.io.to(kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
     }
 
-    res.status(201).json(populatedTask);
+    res.status(201).json(responseTask);
   } catch (error) {
     console.error('Error creating task:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });
@@ -549,11 +596,33 @@ exports.updateTask = async (req, res) => {
     await task.save();
     console.log('Updated task:', task);
 
+    // AI risk prediction
+    const riskLevel = predictTaskRisk(task);
+    let riskClass = 'low';
+    if (riskLevel > 0.7) riskClass = 'high';
+    else if (riskLevel > 0.4) riskClass = 'medium';
+    // Gửi notification nếu rủi ro cao
+    if (riskLevel > 0.7 && task.assigned_to) {
+      await Notification.createNotification({
+        userId: task.assigned_to,
+        title: 'Cảnh báo rủi ro công việc',
+        message: `Công việc "${task.title}" có nguy cơ trễ hạn cao. Vui lòng kiểm tra và cập nhật tiến độ!`,
+        type: 'task_risk_alert',
+        priority: 'high',
+        project_id: kanban.project_id,
+        metadata: { taskId: task._id, riskLevel }
+      });
+    }
+
     // Populate thông tin assigned_to và created_by
     const populatedTask = await KanbanTask.findById(task._id)
       .populate('assigned_to', 'name email avatar')
       .populate('created_by', 'name email avatar')
-      .populate('documents'); // THÊM DÒNG NÀY
+      .populate('documents');
+    // Thêm riskLevel/riskClass vào response
+    const responseTask = populatedTask.toObject();
+    responseTask.riskLevel = riskLevel;
+    responseTask.riskClass = riskClass;
 
     // Emit socket event với toàn bộ danh sách task
     if (req.io) {
@@ -566,7 +635,7 @@ exports.updateTask = async (req, res) => {
       req.io.to(task.kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
     }
 
-    res.json(populatedTask);
+    res.json(responseTask);
   } catch (error) {
     console.error('Error updating task:', error);
     res.status(500).json({ message: 'Lỗi server', error: error.message });

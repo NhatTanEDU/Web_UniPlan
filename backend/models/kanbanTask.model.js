@@ -58,7 +58,10 @@ const kanbanTaskSchema = new mongoose.Schema({
   documents: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Document'
-  }]
+  }],
+  // Thêm trường AI risk
+  riskLevel: { type: Number, default: 0 },
+  riskClass: { type: String, default: '' }
 }, {
   timestamps: true
 });
@@ -69,4 +72,4 @@ kanbanTaskSchema.index({ kanban_id: 1, is_pinned: -1, order: 1 }); // Cho việc
 
 const KanbanTask = mongoose.model('KanbanTask', kanbanTaskSchema);
 
-module.exports = KanbanTask; 
+module.exports = KanbanTask;

@@ -1778,7 +1778,6 @@ exports.autoScheduleGanttTasks = async (req, res) => {
         user_id: userId,
         is_active: true
       });
-
       if (projectMember && ['Quản trị viên', 'Biên tập viên'].includes(projectMember.role_in_project)) {
         hasEditPermission = true;
       } else if (project.team_id) {
@@ -1788,7 +1787,6 @@ exports.autoScheduleGanttTasks = async (req, res) => {
           user_id: userId,
           is_active: true
         });
-        
         if (teamMember && ['admin', 'editor'].includes(teamMember.role.toLowerCase())) {
           hasEditPermission = true;
         }
@@ -1815,104 +1813,148 @@ exports.autoScheduleGanttTasks = async (req, res) => {
       is_active: true
     });
 
-    // Tạo graph và thực hiện topological sort
-    const graph = new Map();
-    const inDegree = new Map();
-    
-    // Khởi tạo graph
+    // Tạo map để truy cập task nhanh bằng ID
+    const taskMap = new Map(tasks.map(task => [task._id.toString(), task]));
+
+    // Tạo graph và inDegree
+    const graph = new Map(); // key: source_task_id, value: array of { target, type, lag }
+    const inDegree = new Map(); // key: task_id, value: count of incoming dependencies
     tasks.forEach(task => {
       const taskId = task._id.toString();
       graph.set(taskId, []);
       inDegree.set(taskId, 0);
     });
-    
-    // Xây dựng graph từ dependencies
     dependencies.forEach(dep => {
       const source = dep.source_task_id.toString();
       const target = dep.target_task_id.toString();
-      
-      if (graph.has(source) && graph.has(target)) {
-        graph.get(source).push(target);
+      if (taskMap.has(source) && taskMap.has(target)) {
+        graph.get(source).push({
+          target: target,
+          type: dep.dependency_type, // 'finish-to-start', ...
+          lag: dep.lag_days || 0
+        });
         inDegree.set(target, inDegree.get(target) + 1);
       }
     });
-    
-    // Topological sort
+
+    // Topological sort (Kahn's algorithm)
     const queue = [];
-    const sortedTasks = [];
-    
-    // Tìm các tasks không có dependency (in-degree = 0)
     inDegree.forEach((degree, taskId) => {
-      if (degree === 0) {
-        queue.push(taskId);
-      }
+      if (degree === 0) queue.push(taskId);
     });
-    
+    const sortedTasks = [];
     while (queue.length > 0) {
       const currentTaskId = queue.shift();
       sortedTasks.push(currentTaskId);
-      
-      // Xử lý các tasks phụ thuộc
       const dependentTasks = graph.get(currentTaskId) || [];
-      dependentTasks.forEach(dependentTaskId => {
-        inDegree.set(dependentTaskId, inDegree.get(dependentTaskId) - 1);
-        if (inDegree.get(dependentTaskId) === 0) {
-          queue.push(dependentTaskId);
+      dependentTasks.forEach(dep => {
+        inDegree.set(dep.target, inDegree.get(dep.target) - 1);
+        if (inDegree.get(dep.target) === 0) {
+          queue.push(dep.target);
         }
       });
     }
-    
-    // Tự động sắp xếp thời gian dựa trên thứ tự sorted
-    let currentDate = new Date();
-    const updatedTasks = [];
-    
-    for (const taskId of sortedTasks) {
-      const task = tasks.find(t => t._id.toString() === taskId);
-      if (!task) continue;
-      
-      // Tính toán thời gian mới
+
+    // Khởi tạo ngày bắt đầu/kết thúc sớm nhất cho mỗi task
+    const earliestStartDates = new Map();
+    const earliestEndDates = new Map();
+    tasks.forEach(task => {
+      const initialStartDate = task.start_date ? new Date(task.start_date) : new Date(project.start_date || new Date());
+      initialStartDate.setHours(0,0,0,0);
+      earliestStartDates.set(task._id.toString(), initialStartDate);
       const taskDuration = task.due_date && task.start_date 
-        ? Math.ceil((new Date(task.due_date) - new Date(task.start_date)) / (1000 * 60 * 60 * 24)) 
-        : 1; // Default 1 ngày
-      
-      const newStartDate = new Date(currentDate);
-      const newEndDate = new Date(currentDate);
+        ? Math.ceil((new Date(task.due_date).getTime() - new Date(task.start_date).getTime()) / (1000 * 60 * 60 * 24)) 
+        : 1;
+      const initialEndDate = new Date(initialStartDate);
+      initialEndDate.setDate(initialEndDate.getDate() + Math.max(taskDuration, 1));
+      earliestEndDates.set(task._id.toString(), initialEndDate);
+    });
+
+    // Lặp qua các task theo thứ tự topological
+    let head = 0;
+    while (head < sortedTasks.length) {
+      const currentTaskId = sortedTasks[head++];
+      const currentTask = taskMap.get(currentTaskId);
+      if (!currentTask) continue;
+      let currentTaskEarliestStart = earliestStartDates.get(currentTaskId);
+      let currentTaskEarliestEnd = earliestEndDates.get(currentTaskId);
+      const dependentTasks = graph.get(currentTaskId) || [];
+      for (const dep of dependentTasks) {
+        const dependentTask = taskMap.get(dep.target);
+        if (!dependentTask) continue;
+        let potentialStartDateForDependent;
+        if (dep.type === 'finish-to-start') {
+          potentialStartDateForDependent = new Date(currentTaskEarliestEnd);
+          potentialStartDateForDependent.setDate(potentialStartDateForDependent.getDate() + (dep.lag || 0));
+        } else if (dep.type === 'start-to-start') {
+          potentialStartDateForDependent = new Date(currentTaskEarliestStart);
+          potentialStartDateForDependent.setDate(potentialStartDateForDependent.getDate() + (dep.lag || 0));
+        } else if (dep.type === 'finish-to-finish') {
+          const sourceFinishDate = new Date(currentTaskEarliestEnd);
+          sourceFinishDate.setDate(sourceFinishDate.getDate() + (dep.lag || 0));
+          const dependentTaskDuration = dependentTask.due_date && dependentTask.start_date
+            ? Math.ceil((new Date(dependentTask.due_date).getTime() - new Date(dependentTask.start_date).getTime()) / (1000 * 60 * 60 * 24))
+            : 1;
+          potentialStartDateForDependent = new Date(sourceFinishDate);
+          potentialStartDateForDependent.setDate(potentialStartDateForDependent.getDate() - Math.max(dependentTaskDuration, 1));
+        } else if (dep.type === 'start-to-finish') {
+          const sourceStartDate = new Date(currentTaskEarliestStart);
+          sourceStartDate.setDate(sourceStartDate.getDate() + (dep.lag || 0));
+          const dependentTaskDuration = dependentTask.due_date && dependentTask.start_date
+            ? Math.ceil((new Date(dependentTask.due_date).getTime() - new Date(dependentTask.start_date).getTime()) / (1000 * 60 * 60 * 24))
+            : 1;
+          potentialStartDateForDependent = new Date(sourceStartDate);
+          potentialStartDateForDependent.setDate(potentialStartDateForDependent.getDate() - Math.max(dependentTaskDuration, 1));
+        } else {
+          potentialStartDateForDependent = new Date(currentTaskEarliestEnd);
+          potentialStartDateForDependent.setDate(potentialStartDateForDependent.getDate() + (dep.lag || 0));
+        }
+        const existingDependentTaskStartDate = earliestStartDates.get(dependentTask._id.toString());
+        if (potentialStartDateForDependent > existingDependentTaskStartDate) {
+          earliestStartDates.set(dependentTask._id.toString(), potentialStartDateForDependent);
+        }
+      }
+    }
+
+    // Cập nhật ngày tháng của tất cả các task dựa trên earliestStartDates và duration
+    const updatedTasks = [];
+    for (const taskId of sortedTasks) {
+      const task = taskMap.get(taskId);
+      if (!task) continue;
+      let newStartDate = earliestStartDates.get(taskId) || new Date(task.start_date || project.start_date || new Date());
+      newStartDate.setHours(0,0,0,0);
+      const taskDuration = task.due_date && task.start_date 
+        ? Math.ceil((new Date(task.due_date).getTime() - new Date(task.start_date).getTime()) / (1000 * 60 * 60 * 24)) 
+        : 1;
+      let newEndDate = new Date(newStartDate);
       newEndDate.setDate(newEndDate.getDate() + Math.max(taskDuration, 1));
-      
-      // Cập nhật task
       task.start_date = newStartDate;
       task.due_date = newEndDate;
       await task.save();
-      
       updatedTasks.push({
         id: task._id.toString(),
         title: task.title,
         start_date: newStartDate,
-        due_date: newEndDate
+        due_date: newEndDate,
+        progress: task.progress,
+        status: task.status
       });
-      
-      // Chuẩn bị cho task tiếp theo
-      currentDate = new Date(newEndDate);
-      currentDate.setDate(currentDate.getDate() + 1); // 1 ngày buffer
     }
 
     console.log(`✅ Auto-scheduled ${updatedTasks.length} tasks for project ${projectId}`);
-    
-    // Emit socket event
     if (req.io) {
       req.io.to(projectId.toString()).emit('gantt:auto_scheduled', {
         projectId,
         updatedTasks: updatedTasks.length,
-        message: 'Lịch trình đã được tự động sắp xếp'
+        message: 'Lịch trình đã được tự động sắp xếp',
+        tasks: updatedTasks
       });
     }
-
     res.json({
       message: `Tự động sắp xếp thành công ${updatedTasks.length} công việc`,
       updatedTasks: updatedTasks.length,
       tasks: updatedTasks
     });
-
   } catch (error) {
     console.error('Error auto-scheduling Gantt tasks:', error);
     res.status(500).json({ 
