@@ -388,7 +388,9 @@ const subscriptionController = {
             res.status(200).json(notifications);
         } catch (error) {
             console.error("Error in getNotifications controller:", error);
-            res.status(500).json({ message: "Lỗi khi lấy danh sách thông báo.", error: error.message });
+            if (!res.headersSent) {
+                res.status(500).json({ message: "Lỗi khi lấy danh sách thông báo.", error: error.message });
+            }
         }
     },    /**
      * @desc Đánh dấu một thông báo là đã đọc

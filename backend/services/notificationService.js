@@ -30,9 +30,11 @@ class NotificationService {
             if (!userId) {
                 throw new Error('User ID is required to get notifications.');
             }
+            // Thêm timeout cho truy vấn
             const notifications = await Notification.find({ userId })
                 .sort({ createdAt: -1 })
-                .limit(50); // Giới hạn 50 thông báo mới nhất
+                .limit(50)
+                .maxTimeMS(5000); // Giới hạn 50 thông báo mới nhất, timeout 5s
             return notifications;
         } catch (error) {
             console.error('❌ Error in getNotifications service:', error);

@@ -174,7 +174,13 @@ exports.createTask = async (req, res) => {
     }
 
     // Lấy thông tin kanban
-    const kanban = await Kanban.findById(kanban_id);
+    let kanban;
+    try {
+      kanban = await Kanban.findById(kanban_id).maxTimeMS(5000);
+    } catch (err) {
+      console.error('[TASK] Timeout or error khi truy vấn Kanban:', err);
+      return res.status(500).json({ message: 'Lỗi truy vấn Kanban', error: err.message });
+    }
     if (!kanban) {
       return res.status(404).json({ message: 'Không tìm thấy Kanban' });
     }
@@ -184,30 +190,37 @@ exports.createTask = async (req, res) => {
       // Kiểm tra null/undefined safety
       const isCreator = project && project.created_by && 
                        project.created_by.toString() === assigned_to.toString();
-      
       if (!isCreator) {
         let hasAccess = false;
-        
         // Kiểm tra trong ProjectMember trước
-        const projectMember = await ProjectMember.findOne({
-          project_id: kanban.project_id,
-          user_id: assigned_to,
-          is_active: true
-        });
-
+        let projectMember;
+        try {
+          projectMember = await ProjectMember.findOne({
+            project_id: kanban.project_id,
+            user_id: assigned_to,
+            is_active: true
+          }).maxTimeMS(5000);
+        } catch (err) {
+          console.error('[TASK] Timeout or error khi truy vấn ProjectMember:', err);
+          return res.status(500).json({ message: 'Lỗi truy vấn thành viên dự án', error: err.message });
+        }
         if (projectMember) {
           hasAccess = true;
         }
-        
         // Nếu không có trong ProjectMember và project có team_id, kiểm tra TeamMember
         if (!hasAccess && project.team_id) {
           const TeamMember = require('../models/teamMember.model');
-          const teamMember = await TeamMember.findOne({
-            team_id: project.team_id,
-            user_id: assigned_to,
-            is_active: true
-          });
-          
+          let teamMember;
+          try {
+            teamMember = await TeamMember.findOne({
+              team_id: project.team_id,
+              user_id: assigned_to,
+              is_active: true
+            }).maxTimeMS(5000);
+          } catch (err) {
+            console.error('[TASK] Timeout or error khi truy vấn TeamMember:', err);
+            return res.status(500).json({ message: 'Lỗi truy vấn thành viên team', error: err.message });
+          }
           if (teamMember) {
             hasAccess = true;
             console.log(`📋 User ${assigned_to} found in team ${project.team_id}, allowing assignment`);
@@ -252,7 +265,6 @@ exports.createTask = async (req, res) => {
             }
           }
         }
-
         if (!hasAccess) {
           return res.status(400).json({ 
             message: 'Người được giao phải là thành viên của dự án hoặc thành viên của team được gán dự án' 
@@ -306,10 +318,17 @@ exports.createTask = async (req, res) => {
       }
 
       // Populate thông tin assigned_to và created_by
-      const populatedTask = await KanbanTask.findById(task._id)
-        .populate('assigned_to', 'name email')
-        .populate('created_by', 'name email')
-        .populate('documents');
+      let populatedTask;
+      try {
+        populatedTask = await KanbanTask.findById(task._id)
+          .populate('assigned_to', 'name email')
+          .populate('created_by', 'name email')
+          .populate('documents')
+          .maxTimeMS(5000);
+      } catch (err) {
+        console.error('[TASK] Timeout or error khi populate KanbanTask:', err);
+        return res.status(500).json({ message: 'Lỗi truy vấn task', error: err.message });
+      }
       // Thêm riskLevel/riskClass vào response
       const responseTask = populatedTask.toObject();
       responseTask.riskLevel = riskLevel;
@@ -317,13 +336,21 @@ exports.createTask = async (req, res) => {
 
       // Emit socket event với toàn bộ danh sách task
       if (req.io) {
-        const allTasksInKanban = await KanbanTask.find({ kanban_id })
-          .populate('assigned_to', 'name email avatar')
-          .populate('created_by', 'name email avatar')
-          .populate('documents') // THÊM DÒNG NÀY
-          .sort({ is_pinned: -1, order: 1 });
-
-        req.io.to(kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
+        let allTasksInKanban;
+        try {
+          allTasksInKanban = await KanbanTask.find({ kanban_id })
+            .populate('assigned_to', 'name email avatar')
+            .populate('created_by', 'name email avatar')
+            .populate('documents')
+            .sort({ is_pinned: -1, order: 1 })
+            .maxTimeMS(5000);
+        } catch (err) {
+          console.error('[TASK] Timeout or error khi lấy toàn bộ task Kanban:', err);
+          // Không emit nếu lỗi
+        }
+        if (allTasksInKanban) {
+          req.io.to(kanban_id.toString()).emit('kanban:updated', allTasksInKanban);
+        }
       }
 
       return res.status(201).json(responseTask);
@@ -407,7 +434,9 @@ exports.createTask = async (req, res) => {
     res.status(201).json(responseTask);
   } catch (error) {
     console.error('Error creating task:', error);
-    res.status(500).json({ message: 'Lỗi server', error: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Lỗi server', error: error.message });
+    }
   }
 };
 
