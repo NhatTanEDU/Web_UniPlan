@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" version="27.2.0">
+  <diagram name="Use Case - Upload File Nhóm" id="upload-file-usecase">
+    <mxGraphModel dx="1162" dy="422" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <!-- Actor: Người dùng -->
+        <mxCell id="2" value="Người dùng" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="80" y="350" width="30" height="60" as="geometry" />
+        </mxCell>
+        <!-- Actor: Quản trị viên -->
+        <mxCell id="18" value="Quản trị viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="80" y="450" width="30" height="60" as="geometry" />
+        </mxCell>
+        <!-- System Boundary (Swimlane) -->
+        <mxCell id="3" value="Quản lý tài liệu nhóm" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="80" width="600" height="600" as="geometry">
+            <mxRectangle x="200" y="80" width="140" height="26" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <!-- Use Cases (all as main, no nested includes) -->
+        <mxCell id="4" value="Tải lên file cho nhóm" style="ellipse;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+          <mxGeometry x="220" y="120" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="Chọn file để tải lên" style="ellipse;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+          <mxGeometry x="420" y="60" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="Kiểm tra quyền thành viên" style="ellipse;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+          <mxGeometry x="420" y="140" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="Kiểm tra định dạng &amp; dung lượng" style="ellipse;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+          <mxGeometry x="420" y="220" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="Lưu file vào hệ thống" style="ellipse;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+          <mxGeometry x="420" y="300" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="Thông báo kết quả" style="ellipse;whiteSpace=wrap;html=1;" parent="3" vertex="1">
+          <mxGeometry x="420" y="380" width="180" height="60" as="geometry" />
+        </mxCell>
+        <!-- Associations (actors to main use case) -->
+        <mxCell id="10" value="" style="endArrow=none;html=1;rounded=0;" parent="1" source="2" target="4" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="" style="endArrow=none;html=1;rounded=0;" parent="1" source="18" target="4" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- <<include>> relationships: all from main use case to each sub use case -->
+        <mxCell id="12" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" parent="1" source="4" target="5" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" parent="1" source="4" target="6" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" parent="1" source="4" target="7" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" parent="1" source="4" target="8" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="&lt;&lt;include&gt;&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" parent="1" source="4" target="9" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
