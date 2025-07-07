@@ -1,12 +1,5 @@
 // src/services/documentApi.ts
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/documents';
-
-// Hàm để lấy token từ localStorage
-const getAuthToken = (): string | null => {
-    return localStorage.getItem('token');
-};
+import baseApi from './baseApi';
 
 // Interface cho Document
 export interface Document {
@@ -48,6 +41,21 @@ export interface DocumentListResponse {
 }
 
 /**
+ * Lấy tài liệu theo project ID
+ * @param projectId - ID của project
+ * @returns Promise<DocumentListResponse>
+ */
+export const getDocumentsByProject = async (projectId: string): Promise<DocumentListResponse> => {
+    try {
+        const response = await baseApi.get(`/documents?projectId=${projectId}`);
+        return response.data;
+    } catch (error: any) {
+        console.error("Lỗi khi lấy tài liệu theo dự án:", error.response?.data || error.message);
+        throw error.response?.data || new Error('Không thể lấy danh sách tài liệu');
+    }
+};
+
+/**
  * Tải một file lên, liên kết với một task cụ thể.
  * @param file - File người dùng chọn
  * @param taskId - ID của task liên quan
@@ -68,13 +76,10 @@ export const uploadDocumentForTask = async (
     if (projectId) formData.append('projectId', projectId);
     if (teamId) formData.append('teamId', teamId);
 
-    const token = getAuthToken();
-
     try {
-        const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
+        const response = await baseApi.post('/documents/upload', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'multipart/form-data'
             }
         });
         return response.data;
@@ -90,11 +95,8 @@ export const uploadDocumentForTask = async (
  * @returns Promise<Document[]>
  */
 export const getDocumentsByTaskId = async (taskId: string): Promise<Document[]> => {
-    const token = getAuthToken();
     try {
-        const response = await axios.get(`${API_BASE_URL}?taskId=${taskId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await baseApi.get(`/documents?taskId=${taskId}`);
         return response.data.data;
     } catch (error: any) {
         console.error("Lỗi khi lấy tài liệu:", error.response?.data || error.message);
@@ -108,11 +110,8 @@ export const getDocumentsByTaskId = async (taskId: string): Promise<Document[]> 
  * @returns Promise<Document[]>
  */
 export const getDocumentsByProjectId = async (projectId: string): Promise<Document[]> => {
-    const token = getAuthToken();
     try {
-        const response = await axios.get(`${API_BASE_URL}?projectId=${projectId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await baseApi.get(`/documents?projectId=${projectId}`);
         return response.data.data;
     } catch (error: any) {
         console.error("Lỗi khi lấy tài liệu project:", error.response?.data || error.message);
@@ -126,11 +125,8 @@ export const getDocumentsByProjectId = async (projectId: string): Promise<Docume
  * @returns Promise<Document[]>
  */
 export const getDocumentsByTeamId = async (teamId: string): Promise<Document[]> => {
-    const token = getAuthToken();
     try {
-        const response = await axios.get(`${API_BASE_URL}?teamId=${teamId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await baseApi.get(`/documents?teamId=${teamId}`);
         return response.data.data;
     } catch (error: any) {
         console.error("Lỗi khi lấy tài liệu team:", error.response?.data || error.message);
@@ -144,11 +140,8 @@ export const getDocumentsByTeamId = async (teamId: string): Promise<Document[]> 
  * @returns Promise<any>
  */
 export const deleteDocumentById = async (documentId: string): Promise<any> => {
-    const token = getAuthToken();
     try {
-        const response = await axios.delete(`${API_BASE_URL}/${documentId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await baseApi.delete(`/documents/${documentId}`);
         return response.data;
     } catch (error: any) {
         console.error("Lỗi khi xóa tài liệu:", error.response?.data || error.message);
@@ -163,11 +156,8 @@ export const deleteDocumentById = async (documentId: string): Promise<any> => {
  * @returns Promise<DocumentListResponse>
  */
 export const getAllDocuments = async (page: number = 1, limit: number = 10): Promise<DocumentListResponse> => {
-    const token = getAuthToken();
     try {
-        const response = await axios.get(`${API_BASE_URL}?page=${page}&limit=${limit}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await baseApi.get(`/documents?page=${page}&limit=${limit}`);
         return response.data;
     } catch (error: any) {
         console.error("Lỗi khi lấy tất cả tài liệu:", error.response?.data || error.message);

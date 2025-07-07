@@ -175,27 +175,27 @@ const teamsEnhancedApi = {
 
   // Basic Teams API (fallback when enhanced search is not available)
   getTeams: async () => {
-    const response = await api.get('/api/teams');
+    const response = await api.get('/teams');
     return response.data;
   },
 
   getTeamById: async (teamId: string) => {
-    const response = await api.get(`/api/teams/${teamId}`);
+    const response = await api.get(`/teams/${teamId}`);
     return response.data;
   },
 
   createTeam: async (teamData: any) => {
-    const response = await api.post('/api/teams', teamData);
+    const response = await api.post('/teams', teamData);
     return response.data;
   },
 
   updateTeam: async (teamId: string, teamData: any) => {
-    const response = await api.put(`/api/teams/${teamId}`, teamData);
+    const response = await api.put(`/teams/${teamId}`, teamData);
     return response.data;
   },
 
   deleteTeam: async (teamId: string) => {
-    const response = await api.delete(`/api/teams/${teamId}`);
+    const response = await api.delete(`/teams/${teamId}`);
     return response.data;
   },
 };

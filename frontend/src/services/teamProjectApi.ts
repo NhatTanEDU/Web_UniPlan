@@ -40,7 +40,7 @@ export interface AssignProjectData {
 export const teamProjectApi = {
   // Get all projects for a team
   getTeamProjects: async (teamId: string): Promise<{ projects: TeamProject[], total: number }> => {
-    const response = await baseApi.get(`/api/teams/${teamId}/projects`);
+    const response = await baseApi.get(`/teams/${teamId}/projects`);
     return response.data;
   },
   // Get available projects (not assigned to any team or user has access)
@@ -51,13 +51,13 @@ export const teamProjectApi = {
 
   // Assign existing project to team
   assignProjectToTeam: async (teamId: string, projectId: string): Promise<TeamProject> => {
-    const response = await baseApi.post(`/api/teams/${teamId}/projects`, { project_id: projectId });
+    const response = await baseApi.post(`/teams/${teamId}/projects`, { project_id: projectId });
     return response.data.project;
   },
 
   // Remove project from team
   removeProjectFromTeam: async (teamId: string, projectId: string): Promise<void> => {
-    await baseApi.delete(`/api/teams/${teamId}/projects/${projectId}`);
+    await baseApi.delete(`/teams/${teamId}/projects/${projectId}`);
   },
 
   // Create new project and assign to team
