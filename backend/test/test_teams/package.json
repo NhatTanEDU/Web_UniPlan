@@ -1,0 +1,41 @@
+{
+  "name": "uniplan-test-teams",
+  "version": "1.0.0",
+  "description": "Hệ thống test tự động cho chức năng Teams của UniPlan",
+  "main": "src/mainTestSystem.js",
+  "scripts": {
+    "start": "node src/mainTestSystem.js",
+    "test": "node src/mainTestSystem.js",
+    "menu1": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeMenu1();\"",
+    "menu2": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeMenu2();\"",
+    "menu3": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeMenu3();\"",
+    "menu4": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeMenu4();\"",
+    "menu5": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeMenu5();\"",
+    "menu6": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeMenu6();\"",
+    "auto-run": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.executeAutoRun();\"",
+    "stats": "node -e \"const MainSystem = require('./src/mainTestSystem'); const system = new MainSystem(); system.viewStatistics();\""
+  },
+  "keywords": [
+    "uniplan",
+    "teams",
+    "test",
+    "automation",
+    "nodejs"
+  ],
+  "author": "UniPlan Development Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uniplan/test-teams"
+  },
+  "bugs": {
+    "url": "https://github.com/uniplan/test-teams/issues"
+  },
+  "homepage": "https://uniplan.vn"
+}

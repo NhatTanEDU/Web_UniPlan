@@ -1,0 +1,145 @@
+<mxfile host="app.diagrams.net" version="27.2.0">
+  <diagram name="Professional Use Case Specification" id="nangcapgoi_spec">
+    <mxGraphModel dx="1138" dy="408" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="spec-container-upgrade" value="" style="rounded=0;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;fillColor=none;verticalAlign=top;align=left;spacingLeft=10;spacingTop=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="740" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="title-upgrade" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Đặc tả use case 'Nâng cấp gói dịch vụ'&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;fontFamily=Helvetica;" parent="spec-container-upgrade" vertex="1">
+          <mxGeometry width="740" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="table-info" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-upgrade" vertex="1">
+          <mxGeometry y="40" width="740" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row1" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r1c1" value="&lt;b&gt;Tên use case&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row1" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r1c2" value="Nâng cấp gói dịch vụ" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row1" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="30" width="740" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r2c1" value="&lt;b&gt;Mô tả sơ lược&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row2" vertex="1">
+          <mxGeometry width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r2c2" value="Chức năng này cho phép người dùng nâng cấp gói dịch vụ của mình để sử dụng nhiều tính năng cao cấp hơn trong hệ thống UniPlan." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row2" vertex="1">
+          <mxGeometry x="220" width="520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row3" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="80" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r3c1" value="&lt;b&gt;Actor chính&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row3" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r3c2" value="Người dùng" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row3" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row4" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="110" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r4c1" value="&lt;b&gt;Actor phụ&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row4" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r4c2" value="Hệ thống Thanh toán (VD: MoMo)" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row4" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row5" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="140" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r5c1" value="&lt;b&gt;Tiền điều kiện (Pre-condition)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row5" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r5c2" value="Người dùng đã đăng nhập vào hệ thống và có tài khoản hoạt động." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row5" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row6" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="170" width="740" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r6c1" value="&lt;b&gt;Hậu điều kiện (Post-condition)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row6" vertex="1">
+          <mxGeometry width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r6c2" value="&lt;b&gt;Thành công:&lt;/b&gt; Gói dịch vụ của người dùng được nâng cấp, quyền truy cập được cập nhật.&lt;br&gt;&lt;b&gt;Thất bại:&lt;/b&gt; Gói dịch vụ không thay đổi, hiển thị thông báo lỗi." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row6" vertex="1">
+          <mxGeometry x="220" width="520" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="table-mainflow-upgrade" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-upgrade" vertex="1">
+          <mxGeometry y="290" width="740" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-title-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-mainflow-upgrade" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-title-cell" value="&lt;b&gt;Dòng sự kiện chính (main flow)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-title-row" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-header-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=#f5f5f5;" parent="table-mainflow-upgrade" vertex="1">
+          <mxGeometry y="30" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-h1" value="&lt;b&gt;Actor&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-header-row" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-h2" value="&lt;b&gt;System&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-header-row" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-content-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-mainflow-upgrade" vertex="1">
+          <mxGeometry y="60" width="740" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-r1c1" value="1. Yêu cầu nâng cấp gói dịch vụ.&lt;br&gt;2. Xem danh sách các gói dịch vụ có sẵn.&lt;br&gt;3. Chọn gói muốn nâng cấp.&lt;br&gt;4. Xác nhận thông tin và yêu cầu thanh toán.&lt;br&gt;5. Thực hiện thanh toán qua hệ thống bên thứ ba." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="mainflow-content-row" vertex="1">
+          <mxGeometry width="370" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-r1c2" value="1. &lt;i&gt;Include: Xem các gói dịch vụ&lt;/i&gt; hiển thị danh sách.&lt;br&gt;2. &lt;i&gt;Include: Chọn gói và tạo yêu cầu thanh toán&lt;/i&gt;.&lt;br&gt;3. &lt;i&gt;Include: Hiển thị thông báo&lt;/i&gt; xác nhận.&lt;br&gt;4. Chuyển hướng đến hệ thống thanh toán.&lt;br&gt;5. &lt;i&gt;Include: Xác thực kết quả thanh toán&lt;/i&gt;.&lt;br&gt;6. &lt;i&gt;Include: Cập nhật trạng thái gói cho người dùng&lt;/i&gt;.&lt;br&gt;7. &lt;i&gt;Include: Hiển thị thông báo&lt;/i&gt; thành công." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="mainflow-content-row" vertex="1">
+          <mxGeometry x="370" width="370" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="table-exceptionflow-upgrade" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-upgrade" vertex="1">
+          <mxGeometry y="550" width="740" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-title-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-upgrade" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-title-cell" value="&lt;b&gt;Dòng sự kiện thay thế &amp;amp; ngoại lệ (alternative &amp;amp; exception flow)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-title-row" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-header-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=#f5f5f5;" parent="table-exceptionflow-upgrade" vertex="1">
+          <mxGeometry y="30" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-h1" value="&lt;b&gt;Điều kiện ngoại lệ&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-header-row" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-h2" value="&lt;b&gt;Hành động của hệ thống&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-header-row" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row1" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-upgrade" vertex="1">
+          <mxGeometry y="60" width="740" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r1c1" value="&lt;b&gt;5a. Thanh toán thất bại&lt;/b&gt;&lt;br&gt;Tại bước 5 của luồng chính, nếu quá trình thanh toán gặp lỗi hoặc bị từ chối." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row1" vertex="1">
+          <mxGeometry width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r1c2" value="1. Hệ thống nhận thông báo thanh toán thất bại.&lt;br&gt;2. &lt;i&gt;Include: Hiển thị thông báo&lt;/i&gt; lỗi thanh toán.&lt;br&gt;3. Quay lại bước 4 của luồng chính để người dùng thử lại." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row1" vertex="1">
+          <mxGeometry x="370" width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-upgrade" vertex="1">
+          <mxGeometry y="190" width="740" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r2c1" value="&lt;b&gt;6a. Lỗi hệ thống&lt;/b&gt;&lt;br&gt;Tại bước 6 của luồng chính, nếu hệ thống không thể cập nhật trạng thái gói dịch vụ." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row2" vertex="1">
+          <mxGeometry width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r2c2" value="1. Hệ thống ghi log lỗi và gửi thông báo cho admin.&lt;br&gt;2. &lt;i&gt;Include: Hiển thị thông báo&lt;/i&gt; lỗi hệ thống cho người dùng.&lt;br&gt;3. Hoàn tiền nếu đã thanh toán thành công." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row2" vertex="1">
+          <mxGeometry x="370" width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row3" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-upgrade" vertex="1">
+          <mxGeometry y="320" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r3c1" value="&lt;b&gt;4a. Hủy bỏ giao dịch&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row3" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r3c2" value="1. Use case kết thúc, quay về trang chính." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row3" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

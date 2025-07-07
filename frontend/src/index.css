@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+
+/* Hiệu ứng hover cho menu điều hướng */
+
+@layer components {
+    .menu-hover-effect {
+        @apply relative hover: text-primary transition duration-300;
+    }
+    .menu-hover-effect::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        height: 2px;
+        width: 0%;
+        background-color: #D4AF37;
+        /* Màu vàng ánh kim */
+        transition: width 0.3s ease-in-out;
+    }
+    .menu-hover-effect:hover::after {
+        width: 100%;
+    }
+}

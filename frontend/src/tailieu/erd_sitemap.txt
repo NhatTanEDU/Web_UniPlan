@@ -1,0 +1,2426 @@
+UniPlan mô tả Sitemap (Tree Structure)
+Sơ đồ Sitemap trước khi đăng nhập 
+title Sitemap Dashboard_Before
+// Nodes
+Dashboard before [shape: oval, icon: home]
+Register(Header) [icon: user-plus] 
+Login [icon: log-in]
+Forgot password [icon: help-circle]
+Reset request [icon: mail]
+Reset password [icon: lock]
+Login after reset [icon: log-in]
+Pricing (Header) [icon: dollar-sign]
+Support (Header) [icon: life-buoy]
+Pricing Page [icon: file-text]
+
+// Relationships
+Dashboard before > Register(Header) 
+Register(Header) > Login
+Login > Forgot password
+Forgot password > Reset request
+Reset request > Reset password
+Reset password > Login after reset
+
+Dashboard before > Pricing (Header)
+Pricing (Header) > Pricing Page
+
+Dashboard before > Support (Header)
+Support (Header) > Support
+
+Dashboard before > HeroPricing ( Hero Sections)  > Pricing Page
+
+
+
+Cấu trúc và nội dung sitemap
+Sitemap
+Dashboard_before (Landing Page)
+├── Header
+│   ├── Tính năng (Dropdown)
+│   ├── Công cụ (Dropdown)
+│   ├── Giá cả (/pricingPage)
+│   ├── Hỗ trợ (/support)
+│   └── Bắt đầu miễn phí → /register
+│
+├── Hero Sections (scroll đến từng phần)
+│   ├── HeroProjectManagement
+│   ├── HeroCommunicate
+│   ├── HeroIdeatocompletion
+│   ├── HeroGantt
+│   ├── HeroAIAssistant
+│   ├── HeroDocumentManager
+│   └── HeroPricing
+│
+├── Footer
+│   ├── Về UniPlan (/about)
+│   ├── Blog (/blog)
+│   ├── Chính sách bảo mật (/privacy-policy)
+│   ├── Điều khoản sử dụng (/terms-of-use)
+│   └── Liên hệ (email, social links)
+│
+├── TopButton
+│
+└── Other Pages
+    ├── Đăng ký (/register)
+    ├── Đăng nhập (/login)
+    ├── Quên mật khẩu (/forgot-password)
+    ├── Gửi yêu cầu reset (/reset-request)
+└── Đặt lại mật khẩu (/reset-password)
+
+// Title
+ Dashboard_After
+
+// Title
+title Sitemap Dashboard_After
+
+// Nodes
+Dashboard_After [shape: oval, icon: home]
+Projects [icon: folder]
+Chat [icon: message-square]
+Gantt [icon: calendar]
+Documents [icon: file]
+Reports [icon: bar-chart]
+AI_Assistant_PRO [label: "AI Assistant (PRO)", icon: cpu]
+Settings [icon: settings]
+Upgrade_Plan [label: "Upgrade Plan", icon: dollar-sign]
+
+
+// Relationships
+Dashboard_After > Projects
+Dashboard_After > Chat
+Dashboard_After > Gantt
+Dashboard_After > Documents
+Dashboard_After > Reports
+Dashboard_After > AI_Assistant_PRO
+Dashboard_After > Settings
+Dashboard_After > Upgrade_Plan
+
+Phác Thảo Dasboard sau khi đăng nhập
+
++----------------------------------------------------------------------------------------------------+
+| HEADER                                                                                             |
+| [Logo] [Search: "Tìm kiếm dự án, task..."]  [+ Tạo mới ▼] [🔔 Thông báo] [👤 User Menu ▼]       |
+|                                          - Tạo dự án mới     -Thông báo hệ thống   - Thông tin cá nhân  
+ - tạo nhóm mới      -Thông báo dự án      -  cài đặt tài khoản   
+                                           - tạo tài liệu mới  -thông báo nhóm       -	đăng xuất	|
+|					 						 - Tạo task mới      -                                     |
++----------------------------------------------------------------------------------------------------+
+| SUB-NAVIGATION (BREADCRUMB)                                                                        |
+| Dashboard > [Section chính] > [Sub-section] > [Tên dự án/nhóm]                                     |
++---------------+------------------------------------------------------------------------------------+
+| SIDEBAR       | MAIN CONTENT AREA                                                                  |
+|               |                                                                                    |
+| 📂 Dự án      |                                                                  
+| [+ Tạo mới]   |            
+| - Dự án A     |                                                                                    |
+| - Dự án B     | +-------------------------+  +-------------------------+                            |
+| [Xem tất cả]  | | WIDGET: TỔNG QUAN       |  | WIDGET: LỊCH BIỂU       |                            |
+|               | |                         |  |                         |                            |
+| 💬 Chat       | | 👋 Chào [Tên user]!     |  | 📆 Sự kiện sắp tới      |                            |
+| [Tìm kiếm]    | | - Dự án: 5              |  | - 24/04: Họp dự án     |                            |
+| - Nhóm X      | | - Task đang làm: 10     |  | - 26/04: Deadline task |                            |
+| - Nhóm Y      | | - Sắp hạn: 3            |  | [Kéo thả để chỉnh]      |                            |
+|               | | - Tiến độ: 80%          |  |                         |                            |
+| 📊 Báo cáo     | | [Xem chi tiết]          |  |                         |                            |
+| [Xem tất cả]  | +-------------------------+  +-------------------------+                            |
+|               |                                                                                    |
+| 📄 Tài liệu    | +-------------------------+  +-------------------------+                            |
+| [Tải lên]     | | WIDGET: HOẠT ĐỘNG       |  | WIDGET: THÀNH VIÊN     |                            |
+| - Doc 1       | |                         |  |                         |                            |
+| - PDF 2       | | - Minh hoàn thành task  |  | - 👤 [Bạn] - Online     |                            |
+| [Quan trọng]  | | - Hà thêm tài liệu      |  | - 👤 Minh - Offline     |                            |
+|               | | - Bạn được assign task  |  | - 👤 Hà - Đang bận      |                            |
+| 📅 Gantt      | | [Filter: Dự án/Nhóm]    |  | [Mời thêm +]            |                            |
+| [Tạo task]    | +-------------------------+  +-------------------------+                            |
+| - Tuần        |                                                                                    |
+| - Tháng       | +-------------------------+  +-------------------------+                            |
+|               | | WIDGET: QUẢN LÝ TASK    |  | WIDGET: TÙY CHỈNH       |                            |
+| 🤖 AI [PRO]   | |                         |  |                         |                            |
+| - Dự đoán     | | ⚠️ Quá hạn: 2           |  | [Thêm widget +]         |                            |
+| - Gợi ý       | | ⏳ Sắp hạn: 5           |  | - Biểu đồ burn-down     |                            |
+|               | | ✅ Hoàn thành: 15       |  | - Thống kê task         |                            |
+| 💎 Gói dịch vụ | | [Xem chi tiết]          |  | - Time tracking         |                            |
+| [Pro/Free]    | +-------------------------+  +-------------------------+                            |
+| [Nâng cấp]    |                                                                                    |
+|               | +-------------------------+                                                        |
+| ⚙️ Cài đặt     | | WIDGET: HIỆU SUẤT       |                                                        |
+| - Theme       | |                         |                                                        |
+| - Thông báo   | | 📊 Tiến độ: 85% (↑5%)   |                                                        |
+|               | | [Tooltip: Chi tiết]     |                                                        |
+| DỰ ÁN GẦN ĐÂY | +-------------------------+                                                        |
+| - Dự án A: 90%|                                                                                    |
+| - Dự án B: 60%|                                                                                    |
+| [🌙/☀️ Theme] |                                                                                    |
++---------------+------------------------------------------------------------------------------------+
+| FOOTER                                                                                             |
+| © 2025 xAI | [Giới thiệu] [Chính sách] [Trợ giúp] [Liên hệ] | [Phản hồi] | [🌐 FB Twitter LinkedIn] |
++----------------------------------------------------------------------------------------------------+
+CẤU TRÚC GIAO DIỆN ỨNG DỤNG DASBOARD AFTER
+1. HEADER
+1.1. Tạo mới ▼
+Dropdown với các tùy chọn: 
+oTạo dự án mới (mở popup nhập tên dự án)
+oTạo nhóm mới
+oTạo tài liệu mới
+oTạo task mới
+1.2. 🔔 Thông báo
+Hiển thị danh sách thông báo chưa đọc, phân loại: 
+oThông báo hệ thống: Nâng cấp, bảo trì
+oThông báo dự án: Assign task, mention
+oThông báo nhóm
+Hiệu ứng "new" cho thông báo chưa đọc
+1.3. 👤 User Menu ▼
+Thông tin cá nhân
+Cài đặt tài khoản
+Đăng xuất
+2. SUB-NAVIGATION (BREADCRUMB)
+Cấu trúc: Dashboard > [Section chính] > [Sub-section] > [Chi tiết]
+Tính năng: 
+oTự động cập nhật theo context người dùng
+oClick vào từng phần để navigate ngược lại
+oHiển thị tên dự án/nhóm đang làm việc
+3. SIDEBAR
+3.1. 📂 Dự án
+Danh sách dự án ▼: 
+oHiển thị 5 dự án gần đây nhất
+oNút "Xem tất cả" mở trang quản lý dự án
+oBộ lọc theo: 
+Trạng thái: Active, Archived
+Thời gian: Tuần này, Tháng này
+Độ ưu tiên
+oTạo mới: Mở popup tạo dự án nhanh
+3.2. 💬 Chat
+Danh sách nhóm chat ▼: 
+oHiển thị nhóm chat gần đây 
+oThanh tìm kiếm chat nhanh
+oTrạng thái online/offline của thành viên
+Hành động: Click vào nhóm để mở chat panel bên phải
+3.3. 📊 Báo cáo
+Báo cáo nhanh: 
+oTiến độ dự án
+oNăng suất cá nhân
+Nút "Xem tất cả": Mở trang báo cáo đầy đủ
+3.4. 📄 Tài liệu
+Tài liệu gần đây: 
+oHiển thị 5 file mới nhất
+oIcon phân loại: doc, pdf, excel...
+oNút "Tải lên" nhanh
+Tài liệu quan trọng: Được gắn sao
+3.5. 📅 Gantt
+Xem lịch biểu tổng quan
+Toggle hiển thị theo: 
+oTuần/Tháng/Quý
+oDự án/Nhóm
+Nút "Tạo mới": Tạo task trực tiếp trên timeline
+3.6. 🤖 AI [PRO]
+Tính năng AI (chỉ dành cho tài khoản Premium): 
+oDự đoán tiến độ
+oGợi ý phân công task
+oTối ưu lịch trình
+3.7. ⚙️ Cài đặt
+1.Giao diện: 
+oTheme: Sáng/Tối/Hệ thống
+oMật độ hiển thị: Compact/Medium/Comfortable
+oFont chữ
+2.Thông báo: 
+oCài đặt loại thông báo nhận
+oÂm báo/thông báo push
+3.Bảo mật: 
+oĐổi mật khẩu
+oXác thực 2 yếu tố
+4.Ngôn ngữ: Tiếng Việt/English
+3.8. 💎 Gói dịch vụ
+Hiển thị gói hiện tại
+Nút nâng cấp (nếu dùng Free)
+Thông tin hạn sử dụng
+3.9. Dự án gần đây
+Hiển thị 3-5 dự án truy cập gần nhất
+Progress bar tiến độ
+4. MAIN CONTENT AREA
+4.1. Widget: Lịch biểu
+Hiển thị các sự kiện sắp tới
+Kéo thả để thay đổi thời gian
+Tích hợp với Google Calendar
+4.2. Widget: Hoạt động gần đây
+Feed hoạt động theo thời gian thực
+Loại activity: 
+oThay đổi trạng thái task
+oComment mới
+oFile upload
+oThành viên mới
+Có thể filter theo loại activity
+4.3. Widget: Thành viên nhóm
+Hiển thị avatar và trạng thái
+Chỉ Admin(người tạo widget ở tuy chỉnh widget đầu tiên là Admin): 
+oNút "Mời thêm"
+oNút chỉnh sửa vai trò
+oNút xóa thành viên
+Hiển thị role: Admin, Member
+4.4. Widget: Tổng quan
+1.Phần chào mừng: 
+oHiển thị tên người dùng + avatar
+oThông điệp thay đổi theo thời gian: Sáng/Chiều/Tối
+2.Thống kê dự án: 
+oSố lượng dự án tham gia
+oChi tiết từng dự án: Tên + % hoàn thành
+oClick vào tên dự án để đi đến dự án
+3.Quản lý task: 
+oPhân loại task theo trạng thái
+oMàu sắc cảnh báo cho task sắp hạn/quá hạn
+oNút "Xem chi tiết" mở bảng task đầy đủ
+4.Biểu đồ hiệu suất: 
+oProgress bar trực quan
+oSo sánh với tuần trước (↑↓ %)
+oTooltip khi hover hiển thị số liệu cụ thể
+5.Thông báo nổi bật: 
+oHiển thị 2-3 thông báo quan trọng nhất
+oIcon phân loại: mention, hệ thống, nhắc nhở
+oHiệu ứng "new" cho thông báo chưa đọc
+6.Tùy chọn mở rộng (góc trên bên phải widget): 
+o🔄 Cập nhật ngay
+o⚙️ Tùy chỉnh thông số hiển thị
+o📌 Ghim widget
+o✖️ Đóng widget
+4.5. Widget: Tùy chỉnh
+Cho phép thêm các widget: 
+oBiểu đồ burn-down
+oThống kê task
+oTime tracking
+oCustom report
+Kéo thả để sắp xếp layout
+Lưu ý các widget có thể chỉnh màu cho widget
+5. TÌNH HUỐNG ĐẶC BIỆT
+1.Khi không có dự án: 
+oHiển thị nút "+ Tạo dự án đầu tiên"
+oGợi ý các template dự án mẫu
+2.Khi có task quá hạn: 
+oĐổi màu cảnh báo đỏ
+oHiệu ứng nhấp nháy nhẹ (có thể tắt)
+3.Khi đạt 100% tiến độ: 
+oHiệu ứng confetti mini
+oThông điệp chúc mừng
+6. DATA BINDING
+Real-time update: 
+oTự động cập nhật mỗi 5 phút
+oCập nhật ngay lập tức khi có thay đổi trạng thái task
+7. PERSONALIZATION
+Lưu cấu hình hiển thị vào LocalStorage
+Nhớ vị trí widget sau khi kéo thả
+TÓM TẮT CÁC GÓP Ý CHÍNH:
+1. Hoàn thiện sơ đồ cấu trúc giao diện: 
+Sơ đồ đã được thiết kế lại để phản ánh đầy đủ CẤU TRÚC GIAO DIỆN ỨNG DỤNG, bao gồm Header, Sub-navigation, Sidebar, Main Content Area, và Footer.
+Đảm bảo tất cả thành phần được liệt kê chính xác: 
+oHeader: Logo, Search Bar, Tạo mới (dropdown), Thông báo, User Menu.
+oSub-navigation: Breadcrumb với cấu trúc 4 cấp (Dashboard > Section chính > Sub-section > Chi tiết).
+oSidebar: 9 mục (Dự án, Chat, Báo cáo, Tài liệu, Gantt, AI [PRO], Cài đặt, Gói dịch vụ, Dự án gần đây).
+oMain Content Area: Navigation Tabs và 6 widget (Tổng quan, Lịch biểu, Hoạt động gần đây, Thành viên nhóm, Quản lý task, Tùy chỉnh).
+oFooter: Bản quyền, liên kết (Giới thiệu, Chính sách, Trợ giúp, Phản hồi, mạng xã hội).
+  Thể hiện các tính năng và tình huống đặc biệt: 
+Widget Quản lý task: Hiển thị trạng thái task (quá hạn: ⚠️, sắp hạn: ⏳, hoàn thành: ✅) để phản ánh cảnh báo.
+Widget Thành viên nhóm: Bao gồm hành động dành cho Admin (Mời thêm, Chỉnh vai trò).
+Widget Hiệu suất: Thể hiện progress bar và so sánh tuần trước (ví dụ: ↑5%) với tooltip chi tiết.
+Tình huống đặc biệt: 
+oKhi không có dự án: Hiển thị nút "+ Tạo dự án đầu tiên" và gợi ý template.
+oTask quá hạn: Màu đỏ và hiệu ứng nhấp nháy (có thể tắt).
+oĐạt 100% tiến độ: Hiệu ứng confetti và thông điệp chúc mừng.
+Entity Relationship Diagram (ERD) - UniPlan (Cập nhật đầy đủ)
+Hình ERD full
+https://app.eraser.io/workspace/NEANLRPGn56PGSxWL7vr?origin=share
+
+title Project Management & Collaboration Platform Data Model
+colorMode pastel
+// title
+title Project Management & Collaboration Platform Data Model
+
+// define tables
+USERS [icon: user, color: yellow]{
+  _id string pk
+  name string
+  email string
+  password string
+  role string
+  current_plan_type string
+  online_status string
+  created_at date
+  updated_at date
+}
+
+USER_SETTINGS [icon: settings, color: orange]{
+  _id string pk
+  user_id string
+  theme string
+  display_density string
+  font string
+  language string
+  notification_types array
+  sound_enabled boolean
+  created_at date
+  updated_at date
+}
+
+PAYMENTS [icon: credit-card, color: green]{
+  _id string pk
+  user_id string
+  plan_type string
+  amount number
+  payment_date date
+  transaction_id string
+}
+
+NOTIFICATIONS [icon: bell, color: orange]{
+  _id string pk
+  user_id string
+  type string
+  content string
+  sent_at date
+  is_read boolean
+}
+
+CONTACT_REQUESTS [icon: mail, color: red]{
+  _id string pk
+  user_id string
+  email string
+  content string
+  created_at date
+}
+
+PROJECTS [icon: folder, color: blue]{
+  _id string pk
+  project_name string
+  description string
+  start_date date
+  end_date date
+  status string
+  priority string
+  is_deleted boolean
+  created_at date
+  updated_at date
+}
+
+PROJECT_MEMBERS [icon: users, color: lightblue]{
+  _id string pk
+  project_id string
+  user_id string
+  role_in_project string
+  joined_at date
+  is_active boolean
+  approval_status boolean
+}
+
+TASKS [icon: check-square, color: purple]{
+  _id string pk
+  project_id string
+  assigned_to string
+  title string
+  description string
+  status string
+  priority string
+  due_date date
+  time_spent number
+  is_deleted boolean
+  created_at date
+  updated_at date
+}
+
+TASK_COMMENTS [icon: message-circle, color: teal]{
+  _id string pk
+  task_id string
+  user_id string
+  content string
+  created_at date
+}
+
+TIME_TRACKING [icon: clock, color: gray]{
+  _id string pk
+  task_id string
+  user_id string
+  start_time date
+  end_time date
+  duration number
+  created_at date
+}
+
+CHAT_ROOMS [icon: message-square, color: blue]{
+  _id string pk
+  project_id string
+  room_name string
+  created_at date
+}
+
+CHAT_MESSAGES [icon: message-square, color: green]{
+  _id string pk
+  room_id string
+  sender_id string
+  message_content string
+  timestamp date
+}
+
+REPORTS [icon: file-text, color: orange]{
+  _id string pk
+  project_id string
+  report_type string
+  generated_by string
+  created_at date
+  file_path string
+}
+
+FILES [icon: paperclip, color: gray]{
+  _id string pk
+  project_id string
+  uploaded_by string
+  file_name string
+  file_size number
+  file_type string
+  is_shared boolean
+  is_deleted boolean
+  created_at date
+}
+
+TEAMS [icon: users, color: pink]{
+  _id string pk
+  team_name string
+  description string
+  created_by string
+  created_at date
+  updated_at date
+}
+
+TEAM_MEMBERS [icon: user-plus, color: lightgreen]{
+  _id string pk
+  team_id string
+  user_id string
+  role string
+  joined_at date
+  is_active boolean
+  approval_status boolean
+}
+
+BLOG_POSTS [icon: edit, color: purple]{
+  _id string pk
+  title string
+  content string
+  author_id string
+  created_at date
+  updated_at date
+  status string
+  view_count number
+}
+
+BLOG_COMMENTS [icon: message-circle, color: yellow]{
+  _id string pk
+  post_id string
+  user_id string
+  content string
+  created_at date
+  parent_comment_id string
+}
+
+AI_FEATURES [icon: cpu, color: blue]{
+  _id string pk
+  user_id string
+  feature_name string
+  executed_at date
+  result_summary string
+}
+
+DATA_SOURCES [icon: database, color: green]{
+  _id string pk
+  name string
+  type string
+  connection_string string
+  created_by string
+  created_at date
+  updated_at date
+  is_active boolean
+}
+
+// define relationships
+USER_SETTINGS.user_id - USERS._id
+PAYMENTS.user_id > USERS._id
+NOTIFICATIONS.user_id > USERS._id
+CONTACT_REQUESTS.user_id > USERS._id
+PROJECT_MEMBERS.project_id > PROJECTS._id
+PROJECT_MEMBERS.user_id > USERS._id
+TASKS.project_id > PROJECTS._id
+TASKS.assigned_to > USERS._id
+TASK_COMMENTS.task_id > TASKS._id
+TASK_COMMENTS.user_id > USERS._id
+TIME_TRACKING.task_id > TASKS._id
+TIME_TRACKING.user_id > USERS._id
+CHAT_ROOMS.project_id > PROJECTS._id
+CHAT_MESSAGES.room_id > CHAT_ROOMS._id
+CHAT_MESSAGES.sender_id > USERS._id
+REPORTS.project_id > PROJECTS._id
+REPORTS.generated_by > USERS._id
+FILES.project_id > PROJECTS._id
+FILES.uploaded_by > USERS._id
+TEAMS.created_by > USERS._id
+TEAM_MEMBERS.team_id > TEAMS._id
+TEAM_MEMBERS.user_id > USERS._id
+BLOG_POSTS.author_id > USERS._id
+BLOG_COMMENTS.post_id > BLOG_POSTS._id
+BLOG_COMMENTS.user_id > USERS._id
+BLOG_COMMENTS.parent_comment_id > BLOG_COMMENTS._id
+AI_FEATURES.user_id > USERS._id
+DATA_SOURCES.created_by > USERS._id
+
+
+Phân Nhóm Module
+🧩 MODULE 1: USERS & USER SETTINGS & PAYMENTS & NOTIFICATIONS & CONTACT REQUESTS
+
+USERS {
+  ObjectId _id PK
+  String name
+  String email "unique, not null"
+  String password "not null"
+  String role "enum: Admin, Manager, User"
+  String current_plan_type "enum: Free, Basic, Premium"
+  String online_status "enum: Online, Offline"
+  Date created_at
+  Date updated_at
+}
+
+USER_SETTINGS {
+  ObjectId _id PK
+  ObjectId user_id FK "unique"
+  String theme
+  String display_density
+  String font
+  String language
+  Array notification_types
+  Boolean sound_enabled
+  Date created_at
+  Date updated_at
+}
+
+PAYMENTS {
+  ObjectId _id PK
+  ObjectId user_id FK
+  String plan_type
+  Number amount
+  Date payment_date
+  String transaction_id
+}
+
+NOTIFICATIONS {
+  ObjectId _id PK
+  ObjectId user_id FK
+  String type
+  String content
+  Date sent_at
+  Boolean is_read
+}
+
+CONTACT_REQUESTS {
+  ObjectId _id PK
+  ObjectId user_id FK
+  String email
+  String content
+  Date created_at
+}
+
+USERS -> USER_SETTINGS : has
+USERS -> PAYMENTS : makes
+USERS -> NOTIFICATIONS : receives
+USERS -> CONTACT_REQUESTS : sends
+
+🧩 MODULE 2: PROJECTS & TASKS & MEMBERS & TIME TRACKING
+
+PROJECTS {
+  ObjectId _id PK
+  String project_name
+  String description
+  Date start_date
+  Date end_date
+  String status
+  String priority
+  Boolean is_deleted
+  Date created_at
+  Date updated_at
+}
+
+PROJECT_MEMBERS {
+  ObjectId _id PK
+  ObjectId project_id FK
+  ObjectId user_id FK
+  String role_in_project
+  Date joined_at
+}
+
+TASKS {
+  ObjectId _id PK
+  ObjectId project_id FK
+  ObjectId assigned_to FK
+  String title
+  String description
+  String status
+  String priority
+  Date due_date
+  Number time_spent
+  Boolean is_deleted
+  Date created_at
+  Date updated_at
+}
+
+TASK_COMMENTS {
+  ObjectId _id PK
+  ObjectId task_id FK
+  ObjectId user_id FK
+  String content
+  Date created_at
+}
+
+TIME_TRACKING {
+  ObjectId _id PK
+  ObjectId task_id FK
+  ObjectId user_id FK
+  Date start_time
+  Date end_time
+  Number duration
+  Date created_at
+}
+
+PROJECTS -> PROJECT_MEMBERS : has
+PROJECTS -> TASKS : contains
+TASKS -> TASK_COMMENTS : has
+TASKS -> TIME_TRACKING : tracks
+USERS -> PROJECT_MEMBERS : joins
+USERS -> TASKS : assigned
+USERS -> TASK_COMMENTS : comments
+USERS -> TIME_TRACKING : logs
+
+🧩 MODULE 3: CHAT ROOMS & MESSAGES
+
+CHAT_ROOMS {
+  ObjectId _id PK
+  ObjectId project_id FK
+  String room_name
+  Date created_at
+}
+
+CHAT_MESSAGES {
+  ObjectId _id PK
+  ObjectId room_id FK
+  ObjectId sender_id FK
+  String message_content
+  Date timestamp
+}
+
+PROJECTS -> CHAT_ROOMS : has
+CHAT_ROOMS -> CHAT_MESSAGES : contains
+USERS -> CHAT_MESSAGES : sends
+
+🧩 MODULE 4: BLOG POSTS & COMMENTS
+
+BLOG_POSTS {
+  ObjectId _id PK
+  String title
+  String content
+  ObjectId author_id FK
+  Date created_at
+  Date updated_at
+  String status
+  Number view_count
+}
+
+BLOG_COMMENTS {
+  ObjectId _id PK
+  ObjectId post_id FK
+  ObjectId user_id FK
+  String content
+  Date created_at
+  ObjectId parent_comment_id FK
+}
+
+USERS -> BLOG_POSTS : authors
+BLOG_POSTS -> BLOG_COMMENTS : receives
+USERS -> BLOG_COMMENTS : writes
+BLOG_COMMENTS -> BLOG_COMMENTS : replies_to
+
+🧩 MODULE 5: TEAMS & TEAM MEMBERS
+
+
+TEAMS {
+  ObjectId _id PK
+  String team_name
+  String description
+  ObjectId created_by FK
+  Date created_at
+  Date updated_at
+}
+
+TEAM_MEMBERS {
+  ObjectId _id PK
+  ObjectId team_id FK
+  ObjectId user_id FK
+  String role
+  Date joined_at
+}
+
+USERS -> TEAMS : creates
+TEAMS -> TEAM_MEMBERS : has
+USERS -> TEAM_MEMBERS : joins
+🧩 MODULE 6: AI FEATURES & DATA SOURCES
+
+
+AI_FEATURES {
+  ObjectId _id PK
+  ObjectId user_id FK
+  String feature_name
+  Date executed_at
+  String result_summary
+}
+
+DATA_SOURCES {
+  ObjectId _id PK
+  String name
+  String type
+  String connection_string
+  ObjectId created_by FK
+  Date created_at
+  Date updated_at
+  Boolean is_active
+}
+
+USERS -> AI_FEATURES : uses
+USERS -> DATA_SOURCES : creates
+🧩 MODULE 7: REPORTS & FILES
+
+
+REPORTS {
+  ObjectId _id PK
+  ObjectId project_id FK
+  String report_type
+  ObjectId generated_by FK
+  Date created_at
+  String file_path
+}
+
+FILES {
+  ObjectId _id PK
+  ObjectId project_id FK
+  ObjectId uploaded_by FK
+  String file_name
+  Number file_size
+  String file_type
+  Boolean is_shared
+  Boolean is_deleted
+  Date created_at
+}
+
+PROJECTS -> REPORTS : has
+PROJECTS -> FILES : has
+USERS -> REPORTS : generates
+USERS -> FILES : uploads
+https://app.eraser.io/workspace/yeD13nZb145ykEpbhSVw?origin=share
+nguồn: https://www.eraser.io/ai/erd-generator
+CSDL
+1. USERS
+Mô tả: Lưu thông tin người dùng, bao gồm tài khoản, vai trò, và gói dịch vụ.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+name	String	Tên người dùng
+email	String	Email (duy nhất)
+password	String	Mật khẩu (mã hóa)
+role	String	Vai trò: Admin, Manager, User
+current_plan_type	String	Gói dịch vụ: Free, Basic, Premium
+online_status	String	Trạng thái: Online, Offline
+created_at	Date	Ngày tạo
+updated_at	Date	Ngày cập nhật
+   avatar_url	String	Cập nhập ảnh đại diện
+Constraints: 
+oemail: UNIQUE, NOT NULL
+opassword: NOT NULL
+orole: ENUM('Admin', 'Manager', 'User'), DEFAULT 'User'
+ocurrent_plan_type: ENUM('Free', 'Basic', 'Premium'), DEFAULT 'Free'
+oonline_status: ENUM('Online', 'Offline'), DEFAULT 'Offline'
+Relationships: 
+o1 User → N ProjectMembers
+o1 User → N Tasks
+o1 User → N ChatMessages
+o1 User → N Files
+o1 User → N Payments
+o1 User → N Notifications
+o1 User → N AIFeatures
+o1 User → N Reports
+o1 User → N TeamMembers
+o1 User → N BlogPosts
+o1 User → N BlogComments
+o1 User → N UserSettings
+o1 User → N TimeTracking
+2. PROJECTS
+Mô tả: Quản lý thông tin dự án, bao gồm tên, trạng thái, và tiến độ.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_name	String	Tên dự án
+description	String	Mô tả dự án
+start_date	Date	Ngày bắt đầu
+end_date	Date	Ngày kết thúc
+status	String	Trạng thái: Active, Archived
+priority	String	Độ ưu tiên: Low, Medium, High
+is_deleted	Boolean	Đã xóa (soft delete)
+created_at	Date	Ngày tạo
+updated_at	Date	Ngày cập nhật
+project_type: String	  Loại dự án (ví dụ: IT, Sale).
+member_count number số lượng thành viên trong dự án
+team_id (ObjectId, nullable) 
+Constraints: 
+oproject_name: NOT NULL
+ostatus: ENUM('Active', 'Archived'), DEFAULT 'Active'
+opriority: ENUM('Low', 'Medium', 'High'), DEFAULT 'Medium'
+ois_deleted: DEFAULT false
+oPROJECT_TYPES.  Constraints: FOREIGN KEY, NOT NULL, ON DELETE CASCADE
+Relationships: 
+o1 Project → N ProjectMembers
+o1 Project → N Tasks
+o1 Project → N Files
+o1 Project → N ChatRooms
+o1 Project → N GanttItems
+o1 Project → N Reports
+o1 ProjectType → N Projects
+
+Mô tả chi tiết
+PROJECTS là bảng trung tâm trong hệ thống quản lý dự án của UniPlan. Nó lưu trữ thông tin cơ bản về mỗi dự án, bao gồm tên, mô tả, ngày bắt đầu và kết thúc, trạng thái, độ ưu tiên, và các thông tin về việc xóa dự án.
+Trường project_type giúp phân loại dự án thành các loại khác nhau như IT, Sale, Marketing, HR, v.v. Điều này cho phép bạn dễ dàng quản lý và lọc các dự án theo loại.
+Quan hệ giữa PROJECTS và các bảng khác như ProjectMembers, Tasks, Files, ChatRooms, GanttItems, và Reports cho phép quản lý toàn diện các khía cạnh của dự án, từ thành viên tham gia, công việc cần thực hiện, tài liệu liên quan, giao tiếp trong dự án, đến việc theo dõi tiến độ và báo cáo.
+PROJECT_TYPES
+Fields
+1._id: ObjectId
+Mô tả: Khóa chính của bảng, định danh duy nhất cho mỗi loại dự án.
+2.type_name: String
+Mô tả: Tên của loại dự án (ví dụ: IT, Sale, Marketing).
+Constraints: NOT NULL, UNIQUE
+3. PROJECT_MEMBERS
+Mô tả: Quản lý thành viên trong dự án và vai trò của họ.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_id	ObjectId	FK → PROJECTS._id
+user_id	ObjectId	FK → USERS._id
+role_in_project	String	Vai trò: Owner, Editor, Viewer
+joined_at	Date	Ngày tham gia
+ kanban_id (ObjectId): Khóa ngoại, liên kết đến bảng KANBAN, chỉ ra thành viên này tham gia bảng Kanban nào (có thể null nếu không tham gia Kanban). 
+role_in_kanban (String): Vai trò của thành viên trong bảng Kanban ("Owner", "Editor", "Viewer").
+Constraints: 
+oproject_id: FOREIGN KEY, NOT NULL
+ouser_id: FOREIGN KEY, NOT NULL
+orole_in_project: ENUM('Owner', 'Editor', 'Viewer'), DEFAULT 'Viewer'
+oUNIQUE(project_id, user_id)
+Relationships: 
+oMany-to-Many giữa PROJECTS và USERS
+4. TASKS
+Mô tả: Quản lý công việc (task) trong dự án, bao gồm trạng thái và thời hạn.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_id	ObjectId	FK → PROJECTS._id
+assigned_to	ObjectId	FK → USERS._id (nullable)
+title	String	Tiêu đề task
+description	String	Mô tả task
+status	String	Trạng thái: To Do, In Progress, Done
+priority	String	Độ ưu tiên: Low, Medium, High
+due_date	Date	Thời hạn
+time_spent	Number	Thời gian làm việc (phút)
+is_deleted	Boolean	Đã xóa (soft delete)
+created_at	Date	Ngày tạo
+updated_at	Date	Ngày cập nhật
+Constraints: 
+oproject_id: FOREIGN KEY, NOT NULL
+oassigned_to: FOREIGN KEY, NULLABLE
+otitle: NOT NULL
+ostatus: ENUM('To Do', 'In Progress', 'Done'), DEFAULT 'To Do'
+opriority: ENUM('Low', 'Medium', 'High'), DEFAULT 'Medium'
+ois_deleted: DEFAULT false
+Relationships: 
+o1 Project → N Tasks
+o1 User → N Tasks
+o1 Task → N TaskComments
+o1 Task → N TimeTracking
+5. CHAT_ROOMS
+Mô tả: Quản lý phòng chat liên quan đến dự án.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_id	ObjectId	FK → PROJECTS._id
+room_name	String	Tên phòng chat
+created_at	Date	Ngày tạo
+Constraints: 
+oproject_id: FOREIGN KEY, NOT NULL
+oroom_name: NOT NULL
+Relationships: 
+o1 Project → N ChatRooms
+o1 ChatRoom → N ChatMessages
+6. CHAT_MESSAGES
+Mô tả: Lưu trữ tin nhắn trong phòng chat.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+room_id	ObjectId	FK → CHAT_ROOMS._id
+sender_id	ObjectId	FK → USERS._id
+message_content	String	Nội dung tin nhắn
+timestamp	Date	Thời gian gửi
+Constraints: 
+oroom_id: FOREIGN KEY, NOT NULL
+osender_id: FOREIGN KEY, NOT NULL
+omessage_content: NOT NULL
+Relationships: 
+o1 ChatRoom → N ChatMessages
+o1 User → N ChatMessages
+7. REPORTS
+Mô tả: Lưu trữ báo cáo tiến độ và năng suất của dự án.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_id	ObjectId	FK → PROJECTS._id
+report_type	String	Loại báo cáo: Basic, Advanced
+generated_by	ObjectId	FK → USERS._id
+created_at	Date	Ngày tạo
+file_path	String	Đường dẫn file báo cáo
+Constraints: 
+oproject_id: FOREIGN KEY, NOT NULL
+ogenerated_by: FOREIGN KEY, NOT NULL
+oreport_type: ENUM('Basic', 'Advanced'), DEFAULT 'Basic'
+Relationships: 
+o1 Project → N Reports
+o1 User → N Reports
+8. FILES
+Mô tả: Quản lý tài liệu tải lên trong dự án.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_id	ObjectId	FK → PROJECTS._id
+uploaded_by	ObjectId	FK → USERS._id
+file_name	String	Tên file
+file_size	Number	Kích thước file (bytes)
+file_type	String	Loại file: doc, pdf, excel, etc.
+is_shared	Boolean	File được chia sẻ (gắn sao)
+is_deleted	Boolean	Đã xóa (soft delete)
+created_at	Date	Ngày tạo
+Constraints: 
+oproject_id: FOREIGN KEY, NOT NULL
+ouploaded_by: FOREIGN KEY, NOT NULL
+ofile_name: NOT NULL
+ois_shared: DEFAULT false
+ois_deleted: DEFAULT false
+Relationships: 
+o1 Project → N Files
+o1 User → N Files
+9. PAYMENTS
+Mô tả: Lưu trữ giao dịch thanh toán gói dịch vụ.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+user_id	ObjectId	FK → USERS._id
+plan_type	String	Gói: Free, Basic, Premium
+amount	Number	Số tiền
+payment_date	Date	Ngày thanh toán
+transaction_id	String	Mã giao dịch
+Constraints: 
+ouser_id: FOREIGN KEY, NOT NULL
+oplan_type: ENUM('Free', 'Basic', 'Premium'), NOT NULL
+oamount: DEFAULT 0
+Relationships: 
+o1 User → N Payments
+10. GANTT_ITEMS
+Mô tả: Quản lý các mục trên biểu đồ Gantt.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+project_id	ObjectId	FK → PROJECTS._id
+task_name	String	Tên task
+start_time	Date	Thời gian bắt đầu
+end_time	Date	Thời gian kết thúc
+assigned_to	ObjectId	FK → USERS._id (nullable)
+Constraints: 
+oproject_id: FOREIGN KEY, NOT NULL
+otask_name: NOT NULL
+oassigned_to: FOREIGN KEY, NULLABLE
+Relationships: 
+o1 Project → N GanttItems
+o1 User → N GanttItems
+11. AI_FEATURES
+Mô tả: Lưu trữ kết quả sử dụng tính năng AI (Premium).
+Field            Type      Description
+_id              ObjectId  Khóa chính
+user_id          ObjectId  FK → USERS._id (Người dùng thực thi AI)
+feature_name     String    Tên tính năng: Deadline Reminder, Time Prediction, Risk Prediction
+executed_at      Date      Thời gian thực thi
+result_summary   String    Tóm tắt kết quả (e.g., "Task A dự kiến hoàn thành trong 3 ngày")
+project_id       ObjectId  FK → PROJECTS._id (nullable, phân tích cấp dự án)
+task_id          ObjectId  FK → TASKS._id (nullable, phân tích cấp task)
+risk_level       String    Mức độ rủi ro (e.g., 'Low', 'Medium', 'High', nullable, dùng cho Risk Prediction)
+risk_details     String    Chi tiết rủi ro (e.g., 'Rủi ro trễ hạn do thiếu tài nguyên', nullable, dùng cho Risk Prediction)
+Constraints:
+- user_id: FOREIGN KEY, NOT NULL
+- feature_name: NOT NULL, ENUM('Deadline Reminder', 'Time Prediction', 'Risk Prediction')
+- executed_at: NOT NULL
+- result_summary: NOT NULL
+- project_id, task_id, risk_level, risk_details: NULLABLE
+Relationships:
+- 1 User → N AIFeatures
+12. NOTIFICATIONS
+Mô tả: Quản lý thông báo gửi đến người dùng.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+user_id	ObjectId	FK → USERS._id
+type	String	Loại: Basic, Smart
+content	String	Nội dung thông báo
+sent_at	Date	Thời gian gửi
+is_read	Boolean	Đã đọc
+Constraints: 
+ouser_id: FOREIGN KEY, NOT NULL
+otype: ENUM('Basic', 'Smart'), DEFAULT 'Basic'
+ocontent: NOT NULL
+ois_read: DEFAULT false
+Relationships: 
+o1 User → N Notifications
+13. TEAMS
+Mô tả: Quản lý các nhóm làm việc.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+team_name	String	Tên nhóm
+description	String	Mô tả nhóm
+created_by	ObjectId	FK → USERS._id
+created_at	Date	Ngày tạo
+updated_at	Date	Ngày cập nhật
+Constraints: 
+oteam_name: NOT NULL
+ocreated_by: FOREIGN KEY, NOT NULL
+Relationships: 
+o1 Team → N TeamMembers
+o1 User → N Teams (via created_by)
+14. TEAM_MEMBERS
+Mô tả: Quản lý thành viên trong nhóm và vai trò.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+team_id	ObjectId	FK → TEAMS._id
+user_id	ObjectId	FK → USERS._id
+role	String	Vai trò: Admin, Member
+joined_at	Date	Ngày tham gia
+Constraints: 
+oteam_id: FOREIGN KEY, NOT NULL
+ouser_id: FOREIGN KEY, NOT NULL
+orole: ENUM('Admin', 'Member'), DEFAULT 'Member'
+oUNIQUE(team_id, user_id)
+Relationships: 
+oMany-to-Many giữa TEAMS và USERS
+15. BLOG_POSTS
+Mô tả: Quản lý bài viết blog trong hệ thống.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+title	String	Tiêu đề bài viết
+content	String	Nội dung bài viết
+author_id	ObjectId	FK → USERS._id
+created_at	Date	Ngày tạo
+updated_at	Date	Ngày cập nhật
+status	String	Trạng thái: Draft, Published
+view_count	Number	Lượt xem
+Constraints: 
+otitle: NOT NULL
+oauthor_id: FOREIGN KEY, NOT NULL
+ostatus: ENUM('Draft', 'Published'), DEFAULT 'Draft'
+oview_count: DEFAULT 0
+Relationships: 
+o1 User → N BlogPosts
+o1 BlogPost → N BlogComments
+16. BLOG_COMMENTS
+Mô tả: Lưu trữ bình luận trên bài viết blog.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+post_id	ObjectId	FK → BLOG_POSTS._id
+user_id	ObjectId	FK → USERS._id
+content	String	Nội dung bình luận
+created_at	Date	Ngày tạo
+parent_comment_id	ObjectId	FK → BLOG_COMMENTS._id (nullable)
+Constraints: 
+opost_id: FOREIGN KEY, NOT NULL
+ouser_id: FOREIGN KEY, NOT NULL
+ocontent: NOT NULL
+oparent_comment_id: FOREIGN KEY, NULLABLE
+Relationships: 
+o1 BlogPost → N BlogComments
+o1 User → N BlogComments
+o1 BlogComment → N BlogComments (self-referential)
+17. DATA_SOURCES
+Mô tả: Quản lý nguồn dữ liệu cho báo cáo hoặc tích hợp.
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+name	String	Tên nguồn dữ liệu
+type	String	Loại: Database, API, File
+connection_string	String	Thông tin kết nối
+created_by	ObjectId	FK → USERS._id
+created_at	Date	Ngày tạo
+updated_at	Date	Ngày cập nhật
+is_active	Boolean	Đang hoạt động
+Constraints: 
+oname: NOT NULL
+otype: ENUM('Database', 'API', 'File'), NOT NULL
+ocreated_by: FOREIGN KEY, NOT NULL
+ois_active: DEFAULT true
+Relationships: 
+o1 User → N DataSources
+18. USER_SETTINGS (Mới)
+Mô tả: Lưu cấu hình giao diện và thông báo của người dùng.
+USER_SETTINGS
+Field              Type      Description
+_id                ObjectId  Khóa chính
+user_id            ObjectId  FK → USERS._id
+theme              String    Theme: Sáng, Tối, Hệ thống
+display_density    String    Mật độ: Compact, Medium, Comfortable
+font               String    Font chữ (e.g., 'Roboto', 'Open Sans', từ Google Fonts)
+language           String    Ngôn ngữ: Tiếng Việt, English
+notification_types Array     Loại thông báo nhận (e.g., ['task_update', 'chat_message'])
+sound_enabled      Boolean   Bật/tắt âm báo
+created_at         Date      Ngày tạo
+updated_at         Date      Ngày cập nhật
+widget_config      JSON      Cấu hình Widget (e.g., [{id: 'MemberStats', position: 1}, {id: 'PersonalPerformance', position: 2}])
+Constraints:
+- user_id: FOREIGN KEY, NOT NULL, UNIQUE
+- theme: ENUM('Sáng', 'Tối', 'Hệ thống'), DEFAULT 'Hệ thống'
+- display_density: ENUM('Compact', 'Medium', 'Comfortable'), DEFAULT 'Medium'
+- language: ENUM('Tiếng Việt', 'English'), DEFAULT 'English'
+- sound_enabled: DEFAULT true
+- widget_config: DEFAULT []
+- font: DEFAULT 'Roboto'
+Relationships:
+- 1 User → 1 UserSettings
+Tích hợp công nghệ:
+Mongoose: Schema với index trên user_id.
+Google Fonts: Tải font động cho font (React, Tailwind CSS).
+jsPDF: Xuất Widget thành PDF.
+@hello-pangea/dnd: Kéo thả Widget.
+Socket.IO: Đồng bộ cấu hình real-time.
+
+19. TASK_COMMENTS (Mới)
+Mô tả: Lưu trữ bình luận trên task (khác với chat).
+Fields: 
+Field	Type	Description
+_id	ObjectId	Khóa chính
+task_id	ObjectId	FK → TASKS._id
+user_id	ObjectId	FK → USERS._id
+content	String	Nội dung bình luận
+created_at	Date	Ngày tạo
+Constraints: 
+otask_id: FOREIGN KEY, NOT NULL
+ouser_id: FOREIGN KEY, NOT NULL
+ocontent: NOT NULL
+Relationships: 
+o1 Task → N TaskComments
+o1 User → N TaskComments
+20. TIME_TRACKING (Mới)
+Mô tả: Theo dõi thời gian làm việc trên task.
+Field            Type      Description
+_id              ObjectId  Khóa chính
+user_id          ObjectId  FK → USERS._id (Người dùng theo dõi thời gian)
+task_id          ObjectId  FK → TASKS._id (Task liên quan)
+project_id       ObjectId  FK → PROJECTS._id (Dự án liên quan)
+start_time       Date      Thời gian bắt đầu
+end_time         Date      Thời gian kết thúc (nullable)
+duration         Number    Thời gian (phút, tự động tính)
+created_at       Date      Ngày tạo
+Constraints:
+- user_id: FOREIGN KEY, NOT NULL
+- task_id, project_id: NOT NULL
+- start_time: NOT NULL
+- end_time, duration: NULLABLE
+Relationships:
+- 1 User → N TimeTracking
+- 1 Task → N TimeTracking
+- 1 Project → N TimeTracking
+Tích hợp công nghệ:
+Mongoose: Schema với index trên user_id, task_id, project_id.
+Chart.js: Biểu đồ hiệu suất (thời gian làm việc, task hoàn thành).
+
+21.CONTACT_REQUESTS
+Mô tả: Hỗ trợ hoặc Liên hệ có form gửi yêu cầu, nên thêm bản
+Field        Type      Description
+_id          ObjectId  Khóa chính
+user_id      ObjectId  FK → USERS._id (nullable)
+email        String    Email người gửi
+content      String    Nội dung yêu cầu
+created_at   Date      Ngày gửi
+Constraints:
+- email: NOT NULL
+- content: NOT NULL
+22.WIDGETS
+WIDGETS {
+  _id: ObjectId,
+  key: String,            // eg: 'introduce', 'schedule', 'custom'
+  name: String,
+  description: String,
+  defaultConfig: Object   // cấu hình mặc định nếu cần
+}
+23.USER_WIDGETS
+USER_WIDGETS {
+  _id: ObjectId,
+  userId: ObjectId,        // liên kết với USERS
+  widgetId: ObjectId,      // liên kết với WIDGETS
+  projectId?: ObjectId,    // (nếu widget gắn vào project cụ thể)
+  position: { x, y },      // dùng cho kéo thả
+  color: String,           // màu nền
+  config: Object,          // cấu hình riêng của widget
+  isPinned: Boolean,       // ghim hay không
+  createdAt: Date,
+  updatedAt: Date
+}
+24.Bảng KANBAN:
+Mô tả: Lưu trữ thông tin về bảng Kanban.
+Các trường: 
+o_id (ObjectId): Khóa chính, định danh duy nhất cho bảng Kanban.
+oproject_id (ObjectId): Khóa ngoại, liên kết đến bảng PROJECTS, chỉ ra bảng Kanban này thuộc về dự án nào.
+oname (String): Tên của bảng Kanban.
+odescription (String): Mô tả chi tiết về bảng Kanban (tùy chọn).
+ocreated_at (Date): Thời điểm tạo bảng Kanban.
+oupdated_at (Date): Thời điểm cập nhật bảng Kanban lần cuối.
+25.Bảng KANBAN_TASKS:
+Mô tả: Lưu trữ thông tin về các công việc (task) trong bảng Kanban.
+Các trường: 
+o_id (ObjectId): Khóa chính, định danh duy nhất cho công việc.
+okanban_id (ObjectId): Khóa ngoại, liên kết đến bảng KANBAN, chỉ ra công việc này thuộc về bảng Kanban nào.
+otitle (String): Tiêu đề của công việc.
+odescription (String): Mô tả chi tiết về công việc.
+ostatus (String): Trạng thái của công việc ("Cần Làm", "Đang Làm", "Xong").
+oorder (Number): Thứ tự của công việc trong cột trạng thái.
+odue_date (Date): Thời hạn hoàn thành công việc.
+ocreated_at (Date): Thời điểm tạo công việc.
+oupdated_at (Date): Thời điểm cập nhật công việc lần cuối.
+ocreated_by (ObjectId): Khóa ngoại, liên kết đến bảng USERS, chỉ ra người tạo công việc.
+oassigned_to (ObjectId): Khóa ngoại, liên kết đến bảng USERS, chỉ ra người được giao công việc.
+otags (Array of ObjectId): Mảng các khóa ngoại, liên kết đến bảng TAGS, chỉ ra các tag được gán cho công việc.
+26.Bảng TAGS:
+Mô tả: Lưu trữ thông tin về các tag để phân loại công việc.
+Các trường: 
+o_id (ObjectId): Khóa chính, định danh duy nhất cho tag.
+oname (String): Tên của tag.
+ocolor (String): Màu sắc của tag.
+ocreated_by (ObjectId): Khóa ngoại, liên kết đến bảng USERS, chỉ ra người tạo tag.
+ocreated_at (Date): Thời điểm tạo tag.
+oupdated_at (Date): Thời điểm cập nhật tag lần cuối.
+27.PersonalMemberList
+·  Mô tả: Bảng PersonalMemberList được thiết kế để quản lý các danh sách thành viên cá nhân mà một người dùng (chủ sở hữu) có thể tạo ra. Mỗi bản ghi trong bảng này thể hiện mối quan hệ giữa một người dùng "chủ sở hữu" và một người dùng "thành viên" mà họ đã thêm vào danh sách của mình.
+·  ·  Các Trường:
+owner_user_id (ObjectId):
+oMô tả: Khóa ngoại, liên kết đến bảng User.
+oChức năng: Xác định người dùng là chủ sở hữu của danh sách thành viên này. Trường này là bắt buộc.
+member_user_id (ObjectId):
+oMô tả: Khóa ngoại, liên kết đến bảng User.
+oChức năng: Xác định người dùng được thêm vào làm thành viên trong danh sách của owner_user_id. Trường này là bắt buộc.
+added_at (Date):
+oMô tả: Thời điểm thành viên được thêm vào danh sách.
+oChức năng: Tự động ghi lại dấu thời gian khi bản ghi này được tạo.
+custom_role (String):
+oMô tả: Vai trò tùy chỉnh mà chủ sở hữu gán cho thành viên này (ví dụ: "Trưởng nhóm nhỏ", "Cộng tác viên").
+oChức năng: Cung cấp khả năng phân loại hoặc mô tả vai trò cụ thể của thành viên trong danh sách. Giá trị mặc định là null.
+notes (String):
+oMô tả: Ghi chú bổ sung do chủ sở hữu cung cấp về thành viên này.
+oChức năng: Lưu trữ thông tin chi tiết hoặc cá nhân hóa về thành viên. Giá trị mặc định là null.
+is_active (Boolean):
+oMô tả: Trạng thái hoạt động của thành viên trong danh sách.
+oChức năng: Cho biết liệu thành viên này có đang được coi là "hoạt động" trong danh sách hay không. Mặc định là true.
+·  Các Ràng Buộc và Logic Bổ Sung:
+timestamps:
+oMô tả: Mongoose tự động thêm hai trường: createdAt và updatedAt.
+oChức năng: Theo dõi thời điểm bản ghi được tạo và thời điểm được cập nhật lần cuối, hữu ích cho việc quản lý và kiểm tra dữ liệu.
+Unique Index (owner_user_id, member_user_id):
+oMô tả: Một chỉ mục duy nhất được tạo trên cặp trường owner_user_id và member_user_id.
+oChức năng: Đảm bảo rằng một thành viên chỉ có thể được thêm vào danh sách của một chủ sở hữu duy nhất một lần. Điều này ngăn chặn việc trùng lặp dữ liệu không mong muốn.
+Index cho owner_user_id:
+oMô tả: Một chỉ mục được tạo trên trường owner_user_id.
+oChức năng: Tối ưu hóa hiệu suất truy vấn khi bạn muốn lấy tất cả các thành viên thuộc về một chủ sở hữu cụ thể.
+Middleware pre('save'):
+oMô tả: Một logic được thực thi trước khi một bản ghi mới được lưu vào cơ sở dữ liệu.
+oChức năng: Ngăn chặn việc người dùng thêm chính mình vào danh sách thành viên cá nhân. Nếu owner_user_id và member_user_id trùng khớp, hệ thống sẽ trả về lỗi và không cho phép lưu bản ghi.
+
+
+Sơ đồ quan hệ
+USERS
+ ├──< PROJECT_MEMBERS >── PROJECTS
+ ├──< TASKS >── PROJECTS
+ ├──< CHAT_MESSAGES >── CHAT_ROOMS >── PROJECTS
+ ├──< FILES >── PROJECTS
+ ├──< PAYMENTS
+ ├──< NOTIFICATIONS
+ ├──< AI_FEATURES
+ ├──< REPORTS >── PROJECTS
+ ├──< TEAM_MEMBERS >── TEAMS
+ ├──< BLOG_POSTS
+ ├──< BLOG_COMMENTS >── BLOG_POSTS
+ ├──< USER_SETTINGS
+ ├──< TASK_COMMENTS >── TASKS
+ ├──< TIME_TRACKING >── TASKS
+ └──< DATA_SOURCES
+USERS --------< USER_WIDGETS >-------- WIDGETS
+            (có thể thêm PROJECTS nếu gắn widget vào project cụ thể)
+
+
+PROJECTS
+ ├──< TASKS
+ ├──< FILES
+ ├──< CHAT_ROOMS >── CHAT_MESSAGES
+ ├──< GANTT_ITEMS
+ ├──< REPORTS
+ └──< PROJECT_MEMBERS >── USERS
+
+TASKS
+ ├──< TASK_COMMENTS >── USERS
+ └──< TIME_TRACKING >── USERS
+
+TEAMS
+ └──< TEAM_MEMBERS >── USERS
+
+BLOG_POSTS
+ └──< BLOG_COMMENTS >── USERS
+
+
+Bảng tóm tắt: Chức năng giao diện sau đăng nhập và bảng CSDL sử dụng
+Chức năng giao diện	Mô tả ngắn gọn	Bảng CSDL sử dụng
+1. HEADER		
+Tạo mới	Dropdown: Tạo dự án, nhóm, tài liệu, task	PROJECTS, TEAMS, FILES, TASKS
+Thông báo	Hiển thị thông báo chưa đọc (hệ thống, dự án, nhóm)	NOTIFICATIONS
+User Menu	Thông tin cá nhân, cài đặt tài khoản, đăng xuất	USERS, USER_SETTINGS
+2. SUB-NAVIGATION (BREADCRUMB)	Hiển thị cấu trúc điều hướng (Dashboard > Section > Sub-section > Chi tiết)	PROJECTS, TEAMS, USERS, PROJECT_MEMBERS
+3. SIDEBAR		
+Dự án	Danh sách dự án, bộ lọc (trạng thái, thời gian, ưu tiên), tạo mới	PROJECTS, PROJECT_MEMBERS
+Chat	Nhóm chat, tìm kiếm, trạng thái online/offline	CHAT_ROOMS, CHAT_MESSAGES, USERS
+Báo cáo	Báo cáo nhanh (tiến độ, năng suất), xem tất cả	REPORTS, PROJECTS, TASKS
+Tài liệu	Tài liệu gần đây, phân loại (doc, pdf, excel), tải lên	FILES
+Gantt	Lịch biểu tổng quan, toggle (tuần/tháng/quý), tạo task	GANTT_ITEMS, TASKS
+AI [PRO]	Dự đoán tiến độ, gợi ý phân công, tối ưu lịch trình	AI_FEATURES, USERS (current_plan_type)
+Cài đặt	Giao diện (theme, font, mật độ), thông báo, bảo mật, ngôn ngữ	USER_SETTINGS, USERS
+Gói dịch vụ	Hiển thị gói hiện tại, nâng cấp, hạn sử dụng	PAYMENTS, USERS (current_plan_type)
+Dự án gần đây	3-5 dự án với progress bar	PROJECTS, PROJECT_MEMBERS, TASKS
+4. MAIN CONTENT AREA		
+Widget: Lịch biểu	Sự kiện sắp tới, kéo thả, tích hợp Google Calendar	GANTT_ITEMS
+Widget: Hoạt động gần đây	Feed thời gian thực (task, comment, file, thành viên mới), filter	TASKS, TASK_COMMENTS, FILES, PROJECT_MEMBERS
+Widget: Thành viên nhóm	Avatar, trạng thái, hành động Admin (mời, chỉnh vai trò, xóa)	PROJECT_MEMBERS, USERS
+Widget: Tổng quan		
+- Chào mừng	Tên người dùng, avatar, thông điệp theo thời gian	USERS
+- Thống kê dự án	Số lượng dự án, chi tiết (% hoàn thành)	PROJECTS, PROJECT_MEMBERS, TASKS
+- Quản lý task	Phân loại task, cảnh báo sắp hạn/quá hạn	TASKS
+- Biểu đồ hiệu suất	Progress bar, so sánh tuần trước	TASKS, TIME_TRACKING
+- Thông báo nổi bật	2-3 thông báo quan trọng, hiệu ứng "new"	NOTIFICATIONS
+- Tùy chọn mở rộng	Cập nhật, tùy chỉnh, ghim, đóng widget	Không cần CSDL (xử lý giao diện)
+Widget: Tùy chỉnh	Thêm widget (burn-down, thống kê task, time tracking, custom report), kéo thả	REPORTS, TASKS, TIME_TRACKING
+5. TÌNH HUỐNG ĐẶC BIỆT		
+Không có dự án	Nút tạo dự án, gợi ý template	PROJECTS, PROJECT_MEMBERS
+Task quá hạn	Cảnh báo đỏ, nhấp nháy	TASKS
+Đạt 100% tiến độ	Confetti, thông điệp chúc mừng	PROJECTS, TASKS
+6. DATA BINDING & PERSONALIZATION		
+Data Binding	Kết nối với Users, Projects, Tasks, Notifications	USERS, PROJECTS, TASKS, NOTIFICATIONS
+Real-time update	Cập nhật mỗi 5 phút hoặc khi thay đổi trạng thái	TASKS, NOTIFICATIONS, CHAT_MESSAGES, FILES
+Personalization	Lưu cấu hình và vị trí widget	USER_SETTINGS
+Bảng tóm tắt: Chức năng Sitemap trước khi đăng nhập và bảng CSDL sử dụng (Cập nhật với Hero Sections tĩnh)
+Chức năng Sitemap	Mô tả ngắn gọn	Bảng CSDL sử dụng
+1. HEADER		
+Tính năng (Dropdown)	Liên kết điều hướng đến các phần Hero hoặc trang tính năng	Không cần CSDL trực tiếp
+Công cụ (Dropdown)	Liên kết đến các phần Hero hoặc trang công cụ	Không cần CSDL trực tiếp
+Giá cả (/pricingPage)	Liên kết đến trang gói Free, Basic, Premium	PAYMENTS, USERS (current_plan_type)
+Hỗ trợ (/support)	Liên kết đến trang FAQ hoặc form liên hệ	Không cần CSDL trực tiếp. Form liên hệ (nếu có): USERS, CONTACT_REQUESTS (đề xuất)
+Bắt đầu miễn phí (/register)	Liên kết đến trang đăng ký	USERS
+2. HERO SECTIONS		
+HeroProjectManagement	Ảnh và text giới thiệu quản lý dự án	Không cần CSDL
+HeroCommunicate	Ảnh và text giới thiệu chat	Không cần CSDL
+HeroIdeatocompletion	Ảnh và text giới thiệu quy trình ý tưởng đến hoàn thành	Không cần CSDL
+HeroGantt	Ảnh và text giới thiệu biểu đồ Gantt	Không cần CSDL
+HeroAIAssistant	Ảnh và text giới thiệu AI	Không cần CSDL
+HeroDocumentManager	Ảnh và text giới thiệu quản lý tài liệu	Không cần CSDL
+HeroPricing	Ảnh và text giới thiệu gói dịch vụ	Không cần CSDL. Trang đích (/pricingPage): PAYMENTS, USERS
+3. FOOTER		
+Về UniPlan (/about)	Trang giới thiệu tĩnh	Không cần CSDL
+Blog (/blog)	Danh sách bài viết (tùy chọn)	BLOG_POSTS, BLOG_COMMENTS (nếu giữ)
+Chính sách bảo mật (/privacy-policy)	Nội dung tĩnh	Không cần CSDL
+Điều khoản sử dụng (/terms-of-use)	Nội dung tĩnh	Không cần CSDL
+Liên hệ	Email, link mạng xã hội, form liên hệ (nếu có)	Không cần CSDL trực tiếp. Form liên hệ (nếu có): USERS, CONTACT_REQUESTS (đề xuất)
+4. TOPBUTTON	Nút cuộn lên đầu trang	Không cần CSDL
+5. OTHER PAGES		
+Đăng ký (/register)	Form tạo tài khoản	USERS
+Đăng nhập (/login)	Form đăng nhập	USERS
+Quên mật khẩu (/forgot-password)	Form gửi yêu cầu reset	USERS
+Gửi yêu cầu reset (/reset-request)	Xử lý yêu cầu reset	USERS
+Đặt lại mật khẩu (/reset-password)	Form đặt lại mật khẩu	USERS
+USECASE
+Đặc tả Usecase trước khi đăng nhập
+Đặc tả Use Case: Dashboard trước khi đăng nhập (Landing Page)
+Dưới đây là các Use Case được trình bày trong định dạng bảng chuyên nghiệp, mỗi Use Case bao gồm các mục tiêu chuẩn: ID, Tên, Mô tả, Actors, Điều kiện tiên quyết, Luồng chính, Luồng phụ, Điều kiện hậu quả, Yêu cầu đặc biệt, Tần suất sử dụng, Giả định, và Bảng CSDL liên quan.
+Use Case: UC-01 – Xem Landing Page
+Tên: Xem Landing Page
+Mô tả: Người dùng truy cập Landing Page để xem thông tin về UniPlan, tính năng, giá cả, liên kết liên quan.
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết:
+Trình duyệt web và kết nối internet.
+Landing Page được triển khai.
+Luồng chính:
+1.Người dùng truy cập www.uniplan.com.
+2.Hệ thống hiển thị:
+oHeader: Liên kết Tính năng, Công cụ, Giá cả, Hỗ trợ, Bắt đầu miễn phí.
+oHero Sections: Ảnh và text tĩnh về quản lý dự án, giao tiếp, quy trình, Gantt, AI, tài liệu, giá cả.
+oFooter: Liên kết Về UniPlan, Chính sách bảo mật, Điều khoản sử dụng, Liên hệ.
+oTopButton: Nút cuộn lên đầu.
+3.Người dùng cuộn hoặc nhấp liên kết để xem thêm.
+Luồng phụ:
+Trang tải chậm/lỗi: Hiển thị "404 not found".
+Điều kiện hậu quả: Người dùng xem được nội dung Landing Page và có thể chuyển hướng.
+Yêu cầu đặc biệt:
+Tải trang < 3 giây.
+Responsive trên desktop/mobile.
+TopButton hiển thị khi cuộn xuống > 50% trang.
+Tần suất sử dụng: Cao
+Giả định: Hero Sections tĩnh, không cần CSDL.
+Bảng CSDL liên quan: Không cần CSDL
+
+Use Case: UC-02 – Chuyển hướng từ Header
+Tên: Chuyển hướng từ Header
+Mô tả: Người dùng nhấp liên kết trong Header để xem chi tiết tính năng, công cụ, giá cả, hỗ trợ hoặc đăng ký.
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết: Người dùng đang ở Landing Page.
+Luồng chính:
+1.Người dùng nhấp liên kết:
+oTính năng/Công cụ (Dropdown): Cuộn đến Hero Section tương ứng.
+oGiá cả: Tải /pricingPage.
+oHỗ trợ: Tải /support.
+oBắt đầu miễn phí: Tải /register.
+2.Hệ thống xử lý cuộn hoặc tải trang đích.
+3.Người dùng xem nội dung trang đích.
+Luồng phụ:
+Trang đích không tải: Hiển thị "Trang không khả dụng".
+Điều kiện hậu quả: Người dùng được chuyển đến đúng Hero Section hoặc trang đích.
+Yêu cầu đặc biệt:
+Dropdown hiển thị mượt, không che nội dung.
+Tải trang đích < 2 giây.
+Tần suất sử dụng: Trung bình
+Giả định: Dropdown chỉ cuộn đến Hero Sections tĩnh.
+Bảng CSDL liên quan:
+PAYMENTS, USERS (cho /pricingPage)
+USERS (cho /register)
+USERS, CONTACT_REQUESTS (cho /support)
+
+Use Case: UC-03 – Xem trang Giá cả
+Tên: Xem trang Giá cả
+Mô tả: Người dùng xem thông tin các gói dịch vụ (Free, Basic, Premium).
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết: Người dùng nhấp Giá cả từ Header hoặc từ HeroPricing.
+Luồng chính:
+1.Hệ thống tải /pricingPage.
+2.Hiển thị gói dịch vụ:
+oTên gói, giá, tính năng.
+oNút CTA: "Bắt đầu miễn phí" → /register.
+3.Người dùng nhấp CTA hoặc quay lại Landing Page.
+Luồng phụ:
+Không tải được dữ liệu: Hiển thị "Không thể tải thông tin gói".
+Điều kiện hậu quả: Người dùng xem được gói dịch vụ và có thể đăng ký.
+Yêu cầu đặc biệt:
+So sánh gói trực quan (bảng hoặc thẻ).
+Responsive trên mobile.
+Tần suất sử dụng: Trung bình
+Giả định: Gói lấy từ CSDL.
+Bảng CSDL liên quan: PAYMENTS, USERS (current_plan_type)
+Hình ảnh usecase 1+2+3.
+
+Code:
+@startuml
+title UniPlan - Before Login: Guest Interactions
+
+actor "Guest(Người dùng chưa đăng nhập)" as Guest
+
+package "UniPlan Before Login(UniPlan - Trước khi đăng nhập)" {
+  [View Landing Page(Xem Landing Page)] #..# Guest : Association
+  [Redirect from Header(Chuyển hướng từ Header)] #..# Guest : Association
+  [View Pricing Page(Xem trang Giá cả)] #..# Guest : Association
+}
+skinparam packageBackgroundColor #E0F2FE
+@enduml
+
+Use Case: UC-04 – Gửi yêu cầu hỗ trợ
+Tên: Gửi yêu cầu hỗ trợ
+Mô tả: Người dùng điền form liên hệ để gửi câu hỏi hoặc yêu cầu hỗ trợ.
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết: Người dùng nhấp Hỗ trợ (Header) hoặc Liên hệ (Footer).
+Luồng chính:
+1.Hệ thống tải /support hoặc hiển thị form trong Footer.
+2.Người dùng điền:
+oEmail (bắt buộc)
+oNội dung (bắt buộc)
+oTên (tùy chọn)
+3.Nhấp "Gửi".
+4.Hệ thống kiểm tra, lưu yêu cầu vào CONTACT_REQUESTS, gửi email xác nhận.
+5.Hiển thị thông báo "Yêu cầu đã được gửi".
+Luồng phụ:
+Email không hợp lệ hoặc thiếu nội dung: Hiển thị "Nhập email hợp lệ".
+Gửi thất bại: Hiển thị "Không thể gửi, thử lại".
+Điều kiện hậu quả: Yêu cầu được lưu, người dùng nhận xác nhận.
+Yêu cầu đặc biệt:
+Form đơn giản, dễ dùng.
+Mã hóa thông tin người dùng (HTTPS, GDPR).
+Tần suất sử dụng: Thấp
+Giả định: Trang Hỗ trợ/Liên hệ có form liên hệ.
+Bảng CSDL liên quan: USERS (email, name), CONTACT_REQUESTS
+Hình ảnh usecase4
+
+Link ảnh: https://img.plantuml.biz/plantuml/png/dP6zIWD14CVxWtk7FqcJ51vY6KA82KaQ4V6Z4ejrRtEtv6xtt0zGnCediB8G2x4GX41QS-M5lCUzYNkvYAATrUmEix_vpMnV6wACJHFVCzma36U27oL4O0S3DfMAuK16N7GmiKmRdDZBb1ljOfP9PN3Chggyx_aUeKOgD3PrhSDelIZpPuwm-10HQBnU4AmULlVk8k9oES_Q3H1TKwlN6Q4p4Z4qllh_xDxwbZfL5VY9OXRpFy1RtmFEQyVVYgr9cSyvReft2rektopYCd-4KMN-shv0CmYQsnaxsDTQKauCbw8cCX5YACMKgtIJnIWbFDaYMNN6TV52QnFXS47G-wT81zqk5pIn8UlrVE-kMewUSP4HHL9irpHm8LBIYd0e4xVrvcXtl3SULRLzv-g-ynC0
+Code
+@startuml
+title UniPlan - Before Login: Guest Submits Support Request
+
+actor "Guest(Người dùng chưa đăng nhập)" as Guest
+
+package "UniPlan Before Login(UniPlan - Trước khi đăng nhập)" {
+  [Submit Support Request(Gửi yêu cầu hỗ trợ)] #..# Guest : Association
+  [Send Confirmation Email(Gửi email xác nhận)] ..> [Submit Support Request(Gửi yêu cầu hỗ trợ)] : <<include>>
+}
+
+skinparam packageBackgroundColor #E0F2FE
+
+@enduml
+
+Use Case: UC-05 – Đăng ký tài khoản
+Tên: Đăng ký tài khoản
+Mô tả: Người dùng tạo tài khoản mới để sử dụng UniPlan.
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết: Người dùng nhấp "Bắt đầu miễn phí" từ Header hoặc Hero Sections.
+Luồng chính:
+1.Hệ thống tải /register.
+2.Người dùng điền:
+oTên, Email, Mật khẩu, Xác nhận mật khẩu (bắt buộc)
+3.Nhấp "Đăng ký".
+4.Hệ thống kiểm tra, lưu tài khoản vào USERS với gói Free, gửi email xác minh.
+5.Hiển thị thông báo thành công, chuyển đến /login.
+Luồng phụ:
+Email đã tồn tại: Hiển thị "Email đã được sử dụng".
+Mật khẩu không khớp hoặc yếu: Hiển thị "Mật khẩu cần 8+ ký tự".
+Gửi thất bại: Hiển thị "Đăng ký thất bại".
+Điều kiện hậu quả: Tài khoản được tạo, người dùng có thể đăng nhập.
+Yêu cầu đặc biệt:
+Mật khẩu được mã hóa.
+Form responsive, dễ dùng.
+Tần suất sử dụng: Trung bình
+Giả định: Gói mặc định là Free (current_plan_type = 'Free')
+Bảng CSDL liên quan: USERS
+Hình ảnh usecase 5
+
+Link ảnh: https://img.plantuml.biz/plantuml/png/bP7BIiD068NtWRp3eTt4XK5SbbBQIjkDY7ZRY8jXCar-aioKcGa8uieNqBK8Ykj2jxQuIkbxv4sSn1O5Lwxcmlc_S-PCtrYcRP5dlcV9PWANaaup9h6FePWgBN2iOf8TJ0fXBCv4JCOARJ3WN1NI-fxlCMwLHgjH12VnPb6jNWXH-I5Zy6IpO5W_hH_SGIRLSZxRQu6PRruzFMCyPR50Q-VyspVuYNEXQ_0pHvhG7-2Txm7NktIxSC7wiP6bvITi-KfkL5NBTxbtWtOOjhTlwc1WZEB4B2dPSCw5Z70bD4s9DxSOvOooO5AjvWHHxt5Rld7a91C72yFUlymxw7P9ygo8HA_dU_Tr3IObEMEQvTWMCdHBh1qfEbAPwxSzEXWVZaUrjk_okI_x0W00
+Code:
+@startuml
+title UniPlan - Before Login: Guest Registers Account
+
+actor "Guest(Người dùng chưa đăng nhập)" as Guest
+
+package "UniPlan Before Login(UniPlan - Trước khi đăng nhập)" {
+  [Register Account(Đăng ký tài khoản)] #..# Guest : Association
+  [Send Verification Email(Gửi email xác minh)] ..> [Register Account(Đăng ký tài khoản)] : <<include>>
+}
+
+skinparam packageBackgroundColor #E0F2FE
+
+@enduml
+
+Use Case: UC-06 – Đăng nhập
+Tên: Đăng nhập
+Mô tả: Người dùng đăng nhập để truy cập giao diện Dashboard.
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết: Người dùng nhấp Đăng nhập từ Header hoặc các trang khác.
+Luồng chính:
+1.Hệ thống tải /login.
+2.Người dùng điền Email và Mật khẩu.
+3.Nhấp "Đăng nhập".
+4.Hệ thống kiểm tra trong USERS, tạo phiên đăng nhập.
+5.Chuyển hướng đến Dashboard sau đăng nhập.
+Luồng phụ:
+Email hoặc mật khẩu sai: Hiển thị "Thông tin đăng nhập không đúng".
+Tài khoản chưa xác minh: Hiển thị "Xác minh email".
+Điều kiện hậu quả: Người dùng đăng nhập thành công, truy cập Dashboard.
+Yêu cầu đặc biệt:
+Hỗ trợ "Ghi nhớ đăng nhập" (cookie).
+Bảo mật thông tin (HTTPS).
+Tần suất sử dụng: Cao
+Giả định: Email và mật khẩu xác thực qua bảng USERS.
+Bảng CSDL liên quan: USERS
+Hỉnh ảnh usecase 6
+
+Code:
+@startuml
+title UniPlan - Before Login: Guest Logs In
+
+left to right direction
+
+actor "Guest(Người dùng chưa đăng nhập)" as Guest
+
+package "UniPlan Before Login(UniPlan - Trước khi đăng nhập)" {
+  [Login(Đăng nhập)] #..# Guest : Association
+  [Create Login Session(Tạo phiên đăng nhập)] ..> [Login(Đăng nhập)] : <<include>>
+}
+
+skinparam packageBackgroundColor #E0F2FE
+
+@enduml
+
+Use Case: UC-07 – Quên mật khẩu
+Tên: Quên mật khẩu
+Mô tả: Người dùng yêu cầu đặt lại mật khẩu khi quên.
+Actors: Người dùng chưa đăng nhập (Guest)
+Điều kiện tiên quyết: Người dùng nhấp "Quên mật khẩu" từ trang /login.
+Luồng chính:
+1.Hệ thống tải /forgot-password.
+2.Người dùng điền Email, nhấp "Gửi yêu cầu".
+3.Hệ thống kiểm tra email trong USERS, gửi link reset, lưu yêu cầu.
+4.Hiển thị "Link reset đã gửi".
+5.Người dùng nhấp link, tải /reset-password.
+6.Điền mật khẩu mới, xác nhận, nhấp "Đặt lại".
+7.Hệ thống cập nhật mật khẩu trong USERS, hiển thị thông báo thành công.
+Luồng phụ:
+Email không tồn tại: Hiển thị "Email không tìm thấy".
+Link hết hạn: Hiển thị "Link đã hết hạn".
+Điều kiện hậu quả: Mật khẩu được đặt lại, người dùng có thể đăng nhập.
+Yêu cầu đặc biệt:
+Link reset hiệu lực 24 giờ.
+Mật khẩu mã hóa.
+Tần suất sử dụng: Thấp
+Giả định: Email dùng để gửi link reset.
+Bảng CSDL liên quan: USERS
+Link ảnh: https://img.plantuml.biz/plantuml/png/ZP7DIWCn58Nt0_CEXtOpNJY8or9AhRJT5Ab_At4HCcacJ9gKv0ukn9LFu5fy08L2jxPBIzzZtiIChJ_WnbMIctlEFL_IyyGSbJCTHwH82rmPDT7Cu01zCRLEO6obCcsCIk49vy8ByfWmxs-jo-8eZhIO4iZ2APaJCkK49sLDVSKuMOV6fpGvbTjbjNvMoDxVZ0JFjqk6pUFc8HnCNgqMyrO3pEy6rUevumMJ0eslIBy39JyvBrrj_CHHvEgFuLqS0TT3wwIbxzZ9MVd-QZ0BFHHKrUgbRDsWcQRDFMORnzvRhjYE93XS29Fjw35MfaX6rNgXeCCMhgu6VPfs_pcfZKv76QxBJ7IxSNHVq_f2cJbpR8OzTpyiqjdIP2TMXsTi3Ww7HyD1tTiBOSANVG00
+Hình usecase 7:
+
+Code:
+@startuml
+title UniPlan - Before Login: Guest Resets Password
+
+left to right direction
+
+actor "Guest(Người dùng chưa đăng nhập)" as Guest
+
+package "UniPlan Before Login(UniPlan - Trước khi đăng nhập)" {
+  [Forgot Password(Quên mật khẩu)] #..# Guest : Association
+  [Send Reset Link(Gửi link reset)] ..> [Forgot Password(Quên mật khẩu)] : <<include>>
+}
+
+skinparam packageBackgroundColor #E0F2FE
+
+@enduml
+
+Tóm tắt bảng CSDL sử dụng
+Use Case	Bảng CSDL liên quan
+UC-01	Không cần CSDL (tĩnh)
+UC-02	PAYMENTS, USERS (/pricingPage); USERS (/register); USERS, CONTACT_REQUESTS (/support, nếu có form)
+UC-03	PAYMENTS, USERS
+UC-04	USERS, CONTACT_REQUESTS (đề xuất)
+UC-05	USERS
+UC-06	USERS
+UC-07	USERS
+
+
+Use Case 1: Xem Dashboard sau đăng nhập
+ID: UC-01
+Tên: Xem Dashboard sau đăng nhập
+Mô tả: Người dùng đã đăng nhập truy cập Dashboard để xem tổng quan dự án, hoạt động, thông báo, và các tính năng chính, với giao diện tùy chỉnh theo vai trò (Admin, Paid User, Free User).
+Actors: Người dùng đã đăng nhập (Authenticated User: Admin, Paid User, Free User).
+Điều kiện tiên quyết: 
+oNgười dùng đã đăng nhập (JWT xác thực qua USERS).
+oTrình duyệt web và kết nối internet.
+Luồng chính: 
+1.Người dùng truy cập Dashboard (React Router /dashboard).
+2.Hệ thống truy vấn USERS, USER_SETTINGS, PROJECTS, NOTIFICATIONS (Express API /api/dashboard) và hiển thị giao diện (React, Tailwind CSS): 
+Header: Dropdown Tạo mới, Thông báo (badge từ NOTIFICATIONS), User Menu (Cài đặt, Hồ sơ, Đăng xuất) (Lucide icons).
+Sub-navigation: Breadcrumb điều hướng (Tailwind CSS breadcrumb).
+Sidebar: 
+Dự án: Danh sách, bộ lọc, Tạo mới (PROJECTS).
+Chat: Nhóm chat, tìm kiếm, trạng thái online/offline (Socket.IO, CHAT_ROOMS, USERS).
+Báo cáo: Tiến độ, năng suất (Chart.js, REPORTS).
+Tài liệu: Tài liệu gần đây, tải lên (Multer, FILES).
+Gantt: Lịch biểu, tạo task (gantt-task-react, GANTT_ITEMS).
+AI [PRO]: Dự đoán, gợi ý (Paid User, AI_FEATURES).
+Cài đặt: Giao diện, thông báo (USER_SETTINGS).
+Gói dịch vụ: Gói hiện tại, Nâng cấp (Free User, React Router /pricing).
+Dự án gần đây: 3-5 dự án với progress bar (Chart.js, PROJECTS).
+Main Content Area: 
+Widget Lịch biểu: Sự kiện, kéo thả (@hello-pangea/dnd, GANTT_ITEMS).
+Widget Hoạt động gần đây: Feed real-time (Socket.IO, TASKS, TASK_COMMENTS, FILES).
+Widget Thành viên nhóm: Avatar, trạng thái, hành động Admin (PROJECT_MEMBERS, USERS).
+Widget Tổng quan: Chào mừng, thống kê, biểu đồ (Chart.js), thông báo (NOTIFICATIONS).
+Widget Tùy chỉnh: Burn-down, Thống kê thành viên, Hiệu suất cá nhân (USER_SETTINGS.widget_config).
+3.Giao diện áp dụng USER_SETTINGS (theme, display_density, font từ Google Fonts, language) (Tailwind CSS dark, React context).
+4.Người dùng tương tác với các thành phần (xem UC tiếp theo).
+Luồng phụ: 
+oKhông có dự án: Hiển thị "Chưa có dự án" với nút Tạo dự án (Tailwind CSS alert, Framer Motion fade-in).
+oTải lỗi: Hiển thị "Không thể tải Dashboard" (Tailwind CSS alert, Lucide icon warning).
+oFree User: Nút "Nâng cấp" khi truy cập AI [PRO] (React conditional rendering).
+Điều kiện hậu quả: 
+oNgười dùng xem Dashboard cá nhân hóa, tương tác theo vai trò.
+Yêu cầu đặc biệt: 
+oTải trang < 3 giây, index USERS.user_id, PROJECTS.user_id (Mongoose).
+oReal-time update mỗi 5 phút (Socket.IO).
+oResponsive (Tailwind CSS), hiệu ứng (Framer Motion).
+oPhân quyền: Admin thấy hành động quản lý, Free User giới hạn (React, JWT).
+Tần suất sử dụng: Cao.
+Giả định: 
+oReal-time qua Socket.IO (chat, hoạt động).
+oGiao diện tùy chỉnh theo USER_SETTINGS.font (Google Fonts).
+Bảng CSDL liên quan: 
+oUSERS, USER_SETTINGS, PROJECTS, PROJECT_MEMBERS, TASKS, TASK_COMMENTS, FILES, NOTIFICATIONS, GANTT_ITEMS, REPORTS, CHAT_ROOMS, CHAT_MESSAGES.
+Hình ảnh usecase 1:
+ 
+Link ảnh: https://img.plantuml.biz/plantuml/png/fLJDQjj04BuBz0w3VL4EDgL7OqnSDwQ5a9ewBeMqXusqrcujpOhLY3JzEULGIazzW43JqAEXXKA9TLJeU-XDkYlRaKqF9Ub5kpkpyyqttyveDoMcAOiZro594OS9ob7445hGdnBNiAz2YHru9la9F6IfE5PC1wxZEX6V4f02BKD144ZDVP8AhOlvf3Gq-Xa9ZYHzHZo0IShr2_GEmj_Vo_nSGb1SOGZNdujByxa-CtiKvMAUx3I0fTNj6YY89LRcQdTZ7p6vnAryzhGLDjISrsvxMhfTnwxGVTTghG5hGurIspP34-RFMCYXiHPgGoQl5c_CCfW9-LTfRrq7u6XRJUyvZ-lJpajejjlDYZXqe9-cofTiAQq9tLTiMJECEP74CFKEoyMb1B_uOjELYry4k2MoGMotU__Cse5kLw8VPG7lzUfS8wrUcQTTfmdA_0SK5_X_e0UAvDGsXYbhZKoY-6caEYukr9t11rbAAfPlpBi_zWwBgrFmHPb_H06XPCfqQPb_k0rr_feu1YlmiL0dC4b2pG9kPOaJyXuPn3CqtCly4s3nrHJWbujloHroWEkyjns6YlXggjJqjbajqO4j6SJc7Lyek1a7UyVs9kdirCRD4w1YRZJ2gbT7Jv-uZc44beWbbCua9aop65RD_y0ieLOP1WCLcKbhxjqRtX_kkSwk2JF_aZy0
+Code
+@startuml
+title UniPlan - After Login: View Dashboard
+
+left to right direction
+
+actor "Authenticated User\n(Người dùng đã đăng nhập)" as User
+actor "Admin" as Admin
+actor "Paid User" as PaidUser
+actor "Free User" as FreeUser
+
+User <|-- Admin
+User <|-- PaidUser
+User <|-- FreeUser
+
+package "UniPlan After Login(UniPlan - Sau khi đăng nhập)" {
+  [View Dashboard(Xem Dashboard)] #..# User : Association
+  [Load User Settings(Tải cài đặt người dùng)] ..> [View Dashboard(Xem Dashboard)] : <<include>>
+  [Load Projects(Tải dự án)] ..> [View Dashboard(Xem Dashboard)] : <<include>>
+  [Load Notifications(Tải thông báo)] ..> [View Dashboard(Xem Dashboard)] : <<include>>
+  [Customize UI(Tùy chỉnh giao diện)] ..> [View Dashboard(Xem Dashboard)] : <<extend>>
+  [Show Upgrade Prompt(Hiển thị nâng cấp)] ..> [View Dashboard(Xem Dashboard)] : <<extend>> 
+}
+
+note right of [Show Upgrade Prompt(Hiển thị nâng cấp)]
+  Chỉ hiển thị cho Free User
+  khi truy cập tính năng PRO
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+@enduml
+
+Use Case 2: Tạo mới nội dung
+ID: UC-02
+Tên: Tạo mới nội dung
+Mô tả: Người dùng tạo dự án, nhóm, tài liệu, hoặc task từ Header hoặc Sidebar, với quyền kiểm tra theo vai trò.
+Actors: Người dùng đã đăng nhập (Admin, Paid User, Free User).
+Điều kiện tiên quyết: 
+oNgười dùng ở Dashboard, có quyền tạo nội dung (PROJECT_MEMBERS.role).
+Luồng chính: 
+1.Người dùng nhấp "Tạo mới" (Header) hoặc nút trong Sidebar (React, Tailwind CSS button).
+2.Hệ thống hiển thị form (React modal, Tailwind CSS, @tailwindcss/forms): 
+Dự án: Tên, mô tả, ngày, thành viên (PROJECTS, PROJECT_MEMBERS).
+Nhóm: Tên, thành viên (TEAMS, TEAM_MEMBERS).
+Tài liệu: Tên, file (React Dropzone, Multer).
+Task: Tên, mô tả, người phụ trách, thời hạn, ưu tiên (TASKS).
+3.Người dùng điền, nhấp "Tạo" (Lucide icon check).
+4.Hệ thống kiểm tra quyền (Express middleware, JWT), lưu vào CSDL (Mongoose), gửi thông báo (Socket.IO, NOTIFICATIONS).
+5.Dashboard cập nhật với hiệu ứng (Framer Motion).
+Luồng phụ: 
+oThiếu thông tin: Hiển thị lỗi "Điền đầy đủ thông tin" (Tailwind CSS alert).
+oKhông có quyền: Hiển thị "Bạn không có quyền" (React conditional rendering).
+oTải file lỗi: Hiển thị "Không thể tải file" (Tailwind CSS alert).
+Điều kiện hậu quả: 
+oNội dung mới được tạo, hiển thị trên Dashboard, thông báo gửi đi.
+Yêu cầu đặc biệt: 
+oForm đơn giản, kéo thả file (React Dropzone).
+oReal-time thông báo (Socket.IO).
+oFree User giới hạn số dự án (Express middleware).
+Tần suất sử dụng: Trung bình.
+Giả định: 
+oAdmin/Paid User tạo không giới hạn, Free User giới hạn.
+Bảng CSDL liên quan: 
+oPROJECTS, PROJECT_MEMBERS, TEAMS, TEAM_MEMBERS, TASKS, FILES, NOTIFICATIONS.
+Hình ảnh usecase 2:
+
+Link ảnh :https://img.plantuml.biz/plantuml/png/hLHFYnCn5ByN-XqUxQKUMXQFIocxjXqMNAMmhWZY8KxIcKSpISrakefw40yYdZo9UB4idaJSymxYeR3V8z_4bxJRwR9UN9jBalVlzzulxsKljypO8fFrcaKh1Hmh74cce0rz8vWLS5-SG5yhAvIjr-erASOMh0Q3IMg1en6nHQsyYiLM6sZi5pObOup9cyDnBam3M1uEbGtFK0LnEAtb8uORBlvsnIqoGbHgVrkgwpM_G_TLktqPi19KKIhPfkkKnHEM26XSbhwgTaa0rTQ0b_KQmEFhXBGUkFEvXioLNn2KApyZy48bjvv0izDfXanX5_RpNCV8bZG1X5X7gJvP0q2aJTOwG5U-LM1JLtw0CKd0Lj4fPAVJ-xSSTg7RHHNBWejUBw0-P1Avzny9as6U4tRUkkjn2SmmU5QySEKRjHsm8pOJlbC6pBAdB1Ujmukp0cQBhnhwHuF3hO04e0EcE7NkFL-GIW9Uwv4hVu1S_28wqPt_Be2xyYT8AlLTSLDayPniUAzt1RLY4WP2eU0RqAxy3Z4zvqVyNsR_2XsXdzUfr8p3q1XjAcZfoa_e--SKOKncMy1zxMT5QV9UZhuUtvW3NqIVPEzXCP_wb_b6pnQd6jRpxIqcASBiuioLfvPS5tD8C2IPKi8qI9GN-7HyMla4rPGPbi5gcE_GbXXTADxNadwEvd0dkXqDDosBNCJKbSlPlcOVXHLKsd1XLkATi08PUvG0_Pj_0000
+Code:
+@startuml
+title UniPlan - Create New Content
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Admin" as Admin
+actor "Paid User" as PaidUser
+actor "Free User" as FreeUser
+
+User <|-- Admin
+User <|-- PaidUser
+User <|-- FreeUser
+
+package "UniPlan Content Creation" {
+  [Create New Content(Tạo mới nội dung)] #..# User : Association
+  
+  [Show Creation Form(Hiển thị form tạo mới)] ..> [Create New Content(Tạo mới nội dung)] : <<include>>
+  [Validate Permissions(Kiểm tra quyền)] ..> [Create New Content(Tạo mới nội dung)] : <<include>>
+  [Save to Database(Lưu vào CSDL)] ..> [Create New Content(Tạo mới nội dung)] : <<include>>
+  
+  [Handle Missing Data(Xử lý thiếu dữ liệu)] ..> [Create New Content(Tạo mới nội dung)] : <<extend>> 
+  [Handle Permission Denied(Xử lý từ chối quyền)] ..> [Create New Content(Tạo mới nội dung)] : <<extend>> 
+  [Handle File Upload Error(Xử lý lỗi tải file)] ..> [Create New Content(Tạo mới nội dung)] : <<extend>> 
+}
+
+note right of [Handle Permission Denied(Xử lý từ chối quyền)]
+  Chỉ áp dụng cho Free User
+  khi vượt quá giới hạn
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+}
+@enduml
+
+Use Case 3: Trò chuyện trong nhóm chat
+ID: UC-03
+Tên: Trò chuyện trong nhóm chat
+Mô tả: Người dùng xem nhóm chat, tìm kiếm, kiểm tra trạng thái thành viên, và trò chuyện real-time.
+Actors: Người dùng đã đăng nhập (Admin, Paid User, Free User).
+Điều kiện tiên quyết: 
+oTruy cập Sidebar → Chat.
+oCó nhóm chat (CHAT_ROOMS).
+Luồng chính: 
+1.Người dùng nhấp Chat (Sidebar, React Router).
+2.Hệ thống hiển thị (React, Tailwind CSS): 
+Danh sách nhóm chat (CHAT_ROOMS).
+Thanh tìm kiếm (React state).
+Trạng thái online/offline (Socket.IO, USERS).
+3.Người dùng tìm kiếm hoặc nhấp nhóm, mở chat panel (Framer Motion slide-in).
+4.Hệ thống hiển thị tin nhắn (CHAT_MESSAGES), người dùng gửi tin nhắn.
+5.Hệ thống lưu tin nhắn (Mongoose), cập nhật real-time (Socket.IO).
+Luồng phụ: 
+oKhông có nhóm: Hiển thị "Chưa có nhóm chat" (Tailwind CSS alert).
+oTìm kiếm không kết quả: Hiển thị "Không tìm thấy" (React conditional rendering).
+oGửi lỗi: Hiển thị "Không thể gửi" (Tailwind CSS alert).
+Điều kiện hậu quả: 
+oNgười dùng trò chuyện real-time, tin nhắn lưu và hiển thị.
+Yêu cầu đặc biệt: 
+oChat real-time (Socket.IO).
+oTìm kiếm nhanh (Express API).
+oTrạng thái online/offline chính xác (Socket.IO).
+Tần suất sử dụng: Cao.
+Giả định: 
+oMỗi dự án có nhóm chat (CHAT_ROOMS).
+Bảng CSDL liên quan: 
+oCHAT_ROOMS, CHAT_MESSAGES, USERS, PROJECTS.
+Hình ảnh uscase 3:
+
+Link ảnh:
+https://img.plantuml.biz/plantuml/png/hLIzZXCn4EuZxJkCacOf4awKfoYw418EyNTAxYf4ONadkzRksi6U5Po0Yk8A7e2AueGea3WXSLJPWcAVPDy4sqdO19fJmCtOy_DzCz_QUsI8QIhoB6YHe0pXJ8gJZ4demdsjYWMC4aOmKdbUIC4P2IM3Lj3AS4v02hI84u98QEIR4EEaDBI71IKeoTLW16S6THkOyPic9yg5z6w_--q_OMAhn9rsoYOQiGcxqoeSj9o5_fjkTmFOE1gKnhTTkc0yPJ52UoE07tnsRWZpDhmEMW3F6aN2Krrz1vuKvtLv8K4crNL-wpbqUhsExmmEOMYCucAj6807k2VC8cFdA-ofKha9ZqLTlfD0ILs-N-5OM4OMhDSRt83o4Ffz8NbMH3WOU98PCiqJc1JIVvFmjFgQGohgvS_y7r2doB8kYHpXCHh3OY7Zq8-XDu7zmJt1CPEHlNzFLADE-32fViWOU7MzhpJuYb16Wy4EnreXIpL5KsIqBH6aAyxK7WXU5FNoq_yWb16CjLOwV5IN7mJ4TNabW8JS5_kjkxDI4QwVe9hVx1EvhcQM7AAw_6p7d2cU8lKUF7M1dRj8kbvUsWnAgai1IcP2ucqrdplhaaVrycfXsxE6t2H--yrMr-KNxZ4-Yg3b1dTjkdPDAkI2QPR3-h7TjIQsWyjef3BxiZlZWycToNWxip38cS7L0_mhV-AN3oaTeLwx3_noxg7L_EKVNYlTaMtB_lD-0G00
+Code:
+@startuml
+title UniPlan - Group Chat Communication
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Admin" as Admin
+actor "Paid User" as PaidUser
+actor "Free User" as FreeUser
+
+User <|-- Admin
+User <|-- PaidUser
+User <|-- FreeUser
+
+package "UniPlan Chat System" {
+  [Group Chat(Trò chuyện nhóm)] #..# User : Association
+  
+  [Display Chat Rooms(Hiển thị nhóm chat)] ..> [Group Chat(Trò chuyện nhóm)] : <<include>>
+  [Search Function(Tìm kiếm)] ..> [Group Chat(Trò chuyện nhóm)] : <<include>>
+  [Real-time Messaging(Chat real-time)] ..> [Group Chat(Trò chuyện nhóm)] : <<include>>
+  
+  [Handle No Chat Room(Không có nhóm chat)] ..> [Group Chat(Trò chuyện nhóm)] : <<extend>> 
+  [Handle Search No Result(Tìm kiếm không kết quả)] ..> [Group Chat(Trò chuyện nhóm)] : <<extend>> 
+  [Handle Send Error(Lỗi gửi tin)] ..> [Group Chat(Trò chuyện nhóm)] : <<extend>> 
+}
+
+note right of [Real-time Messaging(Chat real-time)]
+  Sử dụng Socket.IO
+  Hiển thị trạng thái online/offline
+  Cập nhật tin nhắn tức thời
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+@enduml
+
+Use Case 4: Xem và lọc hoạt động gần đây
+ID: UC-04
+Tên: Xem và lọc hoạt động gần đây
+Mô tả: Người dùng xem feed hoạt động (task, comment, file, thành viên) và lọc theo loại.
+Actors: Người dùng đã đăng nhập (Admin, Paid User, Free User).
+Điều kiện tiên quyết: 
+oTruy cập Widget Hoạt động gần đây.
+Luồng chính: 
+1.Hệ thống hiển thị Widget Hoạt động gần đây (React, Tailwind CSS).
+2.Feed real-time hiển thị (Socket.IO): 
+Task thay đổi (TASKS).
+Comment mới (TASK_COMMENTS).
+File upload (FILES).
+Thành viên mới (PROJECT_MEMBERS).
+3.Người dùng chọn bộ lọc (React dropdown, Tailwind CSS).
+4.Hệ thống cập nhật feed (Express API /api/activities).
+Luồng phụ: 
+oKhông có hoạt động: Hiển thị "Chưa có hoạt động" (Tailwind CSS alert).
+oLọc không kết quả: Hiển thị "Không có hoạt động phù hợp" (React conditional rendering).
+Điều kiện hậu quả: 
+oNgười dùng xem và lọc feed real-time.
+Yêu cầu đặc biệt: 
+oFeed real-time (Socket.IO, 5 phút hoặc khi có thay đổi).
+oBộ lọc mượt (React state).
+Tần suất sử dụng: Trung bình.
+Giả định: 
+oFeed ưu tiên hoạt động mới nhất (TASK_COMMENTS.created_at).
+Bảng CSDL liên quan: 
+oTASKS, TASK_COMMENTS, FILES, PROJECT_MEMBERS.
+Hình ảnh uscase 4:
+
+Link ảnh:
+https://img.plantuml.biz/plantuml/png/jLH1YnCn5BuNvZyyMf1TQ4iHl2obR5rtM55qQLaHr4FCl7R2P98nURDhKG_YKJnu4F6cY1TXJmf2v-2X_f7v9oRJrkcw9sKtboJlU-_Bzrxoick96SfJ6JH8a4GuKk9GCWKTk2Vm19YA81IIqC08EIg28ITnB4YW3Hf1G-A4W3GOCOq98c7GmLfvY77I1fh3d68N9pWZZE38eca2izMYzebIeIfpjVfZFsHY8yJlpeI51h66_Mu91mq_G_zvfxCch0qrIstR3CqOJzWKeRckn2hX6OndbZ1jmhEW0V2WAi-LTN7ggZnKM_SnTSZjidZ38TRb_1F1hxTbyK5Djnz1gzjjLQ9X1uRMQYxOic805UyDOJF9PlMn8MBaI0z4MRnIG75Pl8Q9ivsdxdO7_wzh1_fzeRZC8nmCAYN3B9Ep5P4FNxpC82gBBseAZrqKI4zqySUEaCaEYTHTRHQvH-CfzihvQGOgTXE1MJjS-DdL-GVkpRj6kAFFCjsA5zzTvdpnxH8AZqy9LJGOG2iCUsvi2baHEZqZjBaaJxYaIfQIadB-a-19Niu_NuwM5xulb2PSjRcU_Dij-Mp6PN6wVZrZpHEaxisx7ZWJb9R5Um7N88iNS_AeL_Z3PoggobFiEiFBVISykaNC9ctWEatT5zE6YP3OTawBZog6Ox7ughQ3Xai6l7YVX4s4ofXXAQpQ_BgRfaRdAjhJqlqfhVrUU3NSt_JCBN9cSTdsv_p3QbIGDX6QbRdNMr_Zq1XzyfVL5NJNoNBVxcy0
+Code:
+@startuml
+title UniPlan - View and Filter Recent Activities
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Admin" as Admin
+actor "Paid User" as PaidUser
+actor "Free User" as FreeUser
+
+User <|-- Admin
+User <|-- PaidUser
+User <|-- FreeUser
+
+package "UniPlan Activity System" {
+  [View & Filter Activities\n(Xem & Lọc hoạt động)] #..# User : Association
+  
+  [Display Activity Feed\n(Hiển thị feed hoạt động)] ..> [View & Filter Activities\n(Xem & Lọc hoạt động)] : <<include>>
+  [Apply Filters\n(Áp dụng bộ lọc)] ..> [View & Filter Activities\n(Xem & Lọc hoạt động)] : <<include>>
+  [Real-time Updates\n(Cập nhật real-time)] ..> [View & Filter Activities\n(Xem & Lọc hoạt động)] : <<include>>
+  
+  [Handle No Activities\n(Không có hoạt động)] ..> [View & Filter Activities\n(Xem & Lọc hoạt động)] : <<extend>> #FF0000
+  [Handle Filter No Results\n(Lọc không kết quả)] ..> [View & Filter Activities\n(Xem & Lọc hoạt động)] : <<extend>> #FF0000
+}
+
+note right of [Real-time Updates\n(Cập nhật real-time)]
+  Sử dụng Socket.IO
+  Cập nhật mỗi 5 phút
+  hoặc khi có thay đổi
+  (task, comment, file, thành viên)
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+@enduml
+
+
+Use Case 5: Quản lý lịch biểu Gantt
+ID: UC-05
+Tên: Quản lý lịch biểu Gantt
+Mô tả: Người dùng xem, tạo, chỉnh sửa sự kiện/task trong lịch biểu Gantt.
+Actors: Người dùng đã đăng nhập (Admin, Paid User, Free User).
+Điều kiện tiên quyết: 
+oTruy cập Sidebar → Gantt hoặc Widget Lịch biểu.
+oCó quyền chỉnh sửa (PROJECT_MEMBERS.role).
+Luồng chính: 
+1.Người dùng nhấp Gantt hoặc Widget Lịch biểu (React Router).
+2.Hệ thống hiển thị lịch biểu (gantt-task-react, GANTT_ITEMS).
+3.Người dùng: 
+Tạo task: Điền tên, thời gian, người phụ trách (React form).
+Chỉnh sửa: Kéo thả (@hello-pangea/dnd) hoặc cập nhật chi tiết.
+4.Hệ thống lưu thay đổi (Express API /api/gantt), gửi thông báo (Socket.IO, NOTIFICATIONS).
+Luồng phụ: 
+oKhông có quyền: Hiển thị "Bạn không có quyền" (React conditional rendering).
+oLưu lỗi: Hiển thị "Không thể lưu" (Tailwind CSS alert).
+Điều kiện hậu quả: 
+oLịch biểu cập nhật, thông báo gửi đi.
+Yêu cầu đặc biệt: 
+oKéo thả mượt (@hello-pangea/dnd).
+oReal-time thông báo (Socket.IO).
+Tần suất sử dụng: Trung bình.
+Giả định: 
+oMỗi dự án có lịch biểu (GANTT_ITEMS).
+Bảng CSDL liên quan: 
+oGANTT_ITEMS, TASKS, NOTIFICATIONS.
+Hình ảnh uscase 5:
+
+Link ảnh:
+https://img.plantuml.biz/plantuml/png/hLGxZnCn4EuZxNyO9HA28WzHdg8e8SaU2111kI0aeF2jvx9Ml7QmlHpHGO4e4AAYGDId4mN52IIeig8Aud_iFs5sDo79NGN4ZUrvVFFDmsvRnuoB8-cLd70IOQJ4G385LTXdoZdeXgI7kqonCKQed5VoIXAF73WDHen31rmO39pGAbEnm6a3vKxiGZ8M0NF8OMJHb87P_B2suP5GkJW__P4FcDXmoMvRRhv1NAkpMw7sIjaEpHVLwWfmBLYZh6MRhbCMJ2X1AA_IBv8Vpgp3g0mdNWdWKL64pReyLbVln-dyJ85S_02P9k-240v5choE2xDhJw1IgrLolh077Mjr85XHB80SzO70umkO3p7Q1YEOMgtrhmpseDaKAf0nnrOhZzarI8sfzxbmSC3in1BCGJe_rVLkc2PlLGWsJSuPEDBjEdRFi35SWPxHKnXDEV4Wd6uwFv-22cbpC5byrk3eVBRZs7dycqnnclC1caXOIvs07Yg1d11lXullQWp1uXiyZMTfyahzFm5yxb3nLWiglj-WjSbXo9uXz8tHXj3kfCb70VBNrnXucdm1ILXlTj3vomHUPXEljCFb0zP7VzkLB8aXJKZ6z1DLh1sYbBewPMgChCuLpmosl6dWPDM92Aco38OwcA2htRgNsUqJa23alFQ7YrCDar3aJN0Xcy7FzsdoGNWbIW8oqXbvEn5goWoBOFbmRz0sDZfMlAib_HALViE_xlStBMEB0RDOlELBzdw-SfKs7CrIt6YiUjQXDXrVa58XsqIBVi_V
+Code:
+@startuml
+title UniPlan - Gantt Chart Management
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Admin" as Admin
+actor "Paid User" as PaidUser
+actor "Free User" as FreeUser
+
+User <|-- Admin
+User <|-- PaidUser
+User <|-- FreeUser
+
+package "UniPlan Gantt System" {
+  [Manage Gantt Chart\n(Quản lý lịch biểu Gantt)] #..# User : Association
+  
+  [View Gantt Chart\n(Xem lịch biểu)] ..> [Manage Gantt Chart\n(Quản lý lịch biểu Gantt)] : <<include>>
+  [Create/Edit Tasks\n(Tạo/Chỉnh sửa task)] ..> [Manage Gantt Chart\n(Quản lý lịch biểu Gantt)] : <<include>>
+  [Drag & Drop Update\n(Cập nhật kéo thả)] ..> [Manage Gantt Chart\n(Quản lý lịch biểu Gantt)] : <<include>>
+  
+  [Handle Permission Denied\n(Không có quyền)] ..> [Manage Gantt Chart\n(Quản lý lịch biểu Gantt)] : <<extend>> #FF0000
+  [Handle Save Error\n(Lỗi lưu dữ liệu)] ..> [Manage Gantt Chart\n(Quản lý lịch biểu Gantt)] : <<extend>> #FF0000
+}
+
+note right of [Drag & Drop Update\n(Cập nhật kéo thả)]
+  Sử dụng @hello-pangea/dnd
+  Cập nhật real-time qua Socket.IO
+  Gửi thông báo khi có thay đổi
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+@enduml
+
+
+
+Use Case 6: Sử dụng tính năng AI (PRO)
+ID: UC-06
+Tên: Sử dụng tính năng AI (PRO)
+Mô tả: Người dùng sử dụng AI để nhận nhắc nhở thời hạn, dự đoán thời gian, hoặc dự đoán rủi ro, với tự động gửi email nhắc nhở thời hạn, kết quả trực quan, và áp dụng gợi ý.
+Actors: Người dùng đã đăng nhập (Paid User).
+Điều kiện tiên quyết: 
+oNgười dùng có gói PRO (USERS.current_plan_type = 'Premium', JWT).
+oTruy cập Sidebar → AI [PRO].
+oCó dự án/task (PROJECTS, TASKS).
+Luồng chính: 
+1.Người dùng nhấp AI [PRO] (Sidebar, React Router).
+2.Hệ thống hiển thị giao diện (React component, Tailwind CSS): 
+Nhắc nhở thời hạn (Deadline Reminder).
+Dự đoán thời gian (Time Prediction).
+Dự đoán rủi ro (Risk Prediction).
+3.Người dùng chọn tùy chọn (ví dụ: Deadline Reminder), chọn dự án/task (React dropdown, Express API /api/projects), nhấp "Chạy AI" (Lucide icon play).
+4.Hệ thống xử lý (Express API /api/ai/execute, Axios nếu gọi AI server), lưu kết quả vào AI_FEATURES (feature_name, result_summary, project_id, task_id, risk_level, risk_details).
+5.Nếu feature_name = 'Deadline Reminder', hệ thống: 
+Tự động gửi email nhắc nhở đến người phụ trách task (TASKS.assignee_id) qua Nodemailer (dùng USERS.email, nội dung từ result_summary).
+Lưu thông báo vào NOTIFICATIONS (Express API /api/notifications).
+6.Frontend hiển thị (Framer Motion fade-in): 
+Nhắc nhở: Danh sách task sắp hạn (Tailwind CSS list).
+Thời gian: Biểu đồ tiến độ (Chart.js).
+Rủi ro: Mức độ (Thấp: xanh, Trung bình: vàng, Cao: đỏ, Tailwind CSS badge), chi tiết (Tailwind CSS alert).
+7.Người dùng áp dụng gợi ý (nút "Áp dụng"), cập nhật TASKS/PROJECTS (Express API), thông báo real-time (Socket.IO, NOTIFICATIONS).
+8.Xem lịch sử AI (React pagination, Express API /api/ai/history).
+Luồng phụ: 
+oKhông có gói PRO: Hiển thị "Nâng cấp lên Premium" (React Router /pricing).
+oKhông có dữ liệu: Hiển thị "Chưa có dữ liệu, tạo dự án/task" (Tailwind CSS alert).
+oGửi email lỗi: Hiển thị "Không thể gửi email nhắc nhở" (Tailwind CSS alert).
+oXử lý AI lỗi: Hiển thị "Không thể tạo kết quả" (Framer Motion shake).
+Điều kiện hậu quả: 
+oKết quả AI hiển thị, email nhắc nhở gửi đi, gợi ý áp dụng, lưu vào AI_FEATURES.
+Yêu cầu đặc biệt: 
+oEmail nhắc nhở (Nodemailer) có nội dung rõ ràng (ví dụ: "Task A sắp hết hạn vào 25/04/2025").
+oBiểu đồ (Chart.js), badge (Tailwind CSS), hiệu ứng (Framer Motion).
+oXử lý AI < 5 giây, index AI_FEATURES.user_id, executed_at.
+oReal-time (Socket.IO).
+oResponsive (Tailwind CSS).
+Tần suất sử dụng: Thấp.
+Giả định: 
+oAI tích hợp qua API (Axios).
+oEmail gửi qua SMTP (Nodemailer).
+Bảng CSDL liên quan: 
+oAI_FEATURES: Kết quả AI.
+oPROJECTS, TASKS: Dữ liệu.
+oUSERS: Gói PRO, email.
+oNOTIFICATIONS: Thông báo.
+Tích hợp công nghệ:
+Nodemailer: Gửi email nhắc nhở (Express route /api/email/reminder).
+Chart.js: Biểu đồ tiến độ/rủi ro.
+Socket.IO: Thông báo email gửi thành công.
+Hình ảnh uscase 6:
+
+Link ảnh:
+https://img.plantuml.biz/plantuml/png/hLI_RzD05DuZvNzuIXOO21PZLKLrGwmEeR9m8u40LSVvQfzgtrbtvqA4c1WOMDYO49IeOwHAJCHYCkh_SVy9x-maKBeWY9VJUz_vUz-xzsDF6w9CcMVTZk4cOp0LFCo8W3iGCNN6AOF6d1Q98Z7hThgTZ9qOC18KJr83CLUC6Yw5WmWrKa4lK0o9D5Cz81gSvOmDl4yqfx_mncmlT3i5eQSaOT1RwmZ9B6V2G3JJXkKzUDNj03nPoRccyQcuTLX_4GbGkxme8Ac_SeXjzOwcS6QhYzlFe3yOz3ToO0TyhINbf5N_VwoR96xIDjJtkIuoCeDHgPHBPqLzm6trHe19aR7bJj7p5ZrsUSwHV30O_gkk7TZTvO9cPSo6mqP4g2HbMg_V52aUsMe1MVqT5H2HObNhSx7jgDCY9gRjXpN7o2uN1OWK3zEIYEJgqbOVaQt-9f8jIsXa710HOt-l-scib5J8DR7L1xxTzDbBmqGy748_23pycl1-fXY9Pn0gblCoHwOVx-ivsEfJIxFoRpEwv_c-Y_xQ3PQGM8DsPEN9txU2qtvKBp04jkYyWCWeNh2x-5j8CWT6qGIUs-LSGkwgwLoJgyiIpkhFiW5GR-W_VZ0-F8eSUAtqqsZyC1hGTYQESK34iPaLk6Km0t2AdN9zoaL15CbXjHpsyKYKB4KyaXakbFxO2-u5uzzlbffHebcxBMxS3vglWQIAcLgvFMzTBH-RuyKVNdp5FPI5g_8d
+Code:
+@startuml
+title UniPlan - AI PRO Features Usage
+
+left to right direction
+
+actor "Paid User" as PaidUser <<Premium>>
+
+package "UniPlan AI System" {
+  [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] #..# PaidUser : Association
+  
+  [Access AI Interface\n(Truy cập giao diện AI)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<include>>
+  [Execute AI Function\n(Chạy chức năng AI)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<include>>
+  [Display AI Results\n(Hiển thị kết quả AI)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<include>>
+  [Apply AI Suggestions\n(Áp dụng gợi ý AI)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<include>>
+  
+  [Handle Non-Premium User\n(Không có gói PRO)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<extend>> #FF0000
+  [Handle No Data\n(Không có dữ liệu)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<extend>> #FF0000
+  [Handle Email Error\n(Lỗi gửi email)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<extend>> #FF0000
+  [Handle AI Error\n(Lỗi xử lý AI)] ..> [Use AI PRO Features\n(Sử dụng tính năng AI PRO)] : <<extend>> #FF0000
+}
+
+note right of [Execute AI Function\n(Chạy chức năng AI)]
+  Các tính năng AI:
+  1. Nhắc nhở thời hạn
+  2. Dự đoán thời gian
+  3. Dự đoán rủi ro
+  
+  Công nghệ:
+  - Nodemailer (gửi email)
+  - Chart.js (biểu đồ)
+  - Socket.IO (real-time)
+  - Axios (gọi API AI)
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+@enduml
+
+
+Use Case 7: Nâng cấp gói dịch vụ
+ID: UC-07
+Tên: Nâng cấp gói dịch vụ
+Mô tả: Người dùng nâng cấp từ Free/Basic lên Premium để truy cập AI [PRO] và Widget đầy đủ.
+Actors: Người dùng đã đăng nhập (Free User, Basic User).
+Điều kiện tiên quyết: 
+oTruy cập Sidebar → Gói dịch vụ.
+Luồng chính: 
+1.Người dùng nhấp Gói dịch vụ (Sidebar, React Router /pricing).
+2.Hệ thống hiển thị gói hiện tại (USERS.current_plan_type) và tùy chọn nâng cấp (React, Tailwind CSS card).
+3.Người dùng chọn Premium, nhấp "Nâng cấp" (Lucide icon upgrade).
+4.Hệ thống chuyển đến thanh toán (React Router, Express API /api/payment).
+5.Người dùng điền thông tin, hệ thống xử lý (Stripe/PayPal), lưu PAYMENTS, cập nhật USERS.current_plan_type.
+6.Hiển thị "Nâng cấp thành công" (Tailwind CSS alert, Framer Motion).
+Luồng phụ: 
+oThanh toán lỗi: Hiển thị "Thanh toán không thành công" (Tailwind CSS alert).
+oĐã ở Premium: Ẩn nút nâng cấp (React conditional rendering).
+Điều kiện hậu quả: 
+oGói nâng cấp, truy cập AI [PRO] và Widget đầy đủ.
+Yêu cầu đặc biệt: 
+oThanh toán bảo mật (SSL, Stripe).
+oGiao diện đơn giản (Tailwind CSS form).
+Tần suất sử dụng: Thấp.
+Giả định: 
+oCổng thanh toán tích hợp (Stripe/PayPal).
+Bảng CSDL liên quan: 
+oUSERS: current_plan_type.
+oPAYMENTS: Thanh toán.
+Hình ảnh uscase 7:
+
+Link ảnh:
+https://img.plantuml.biz/plantuml/png/hLI_RzD05DuZvNzuIXOO21PZLKLrGwmEeR9m8u40LSVvQfzgtrbtvqA4c1WOMDYO49IeOwHAJCHYCkh_SVy9x-maKBeWY9VJUz_vUz-xzsDF6w9CcMVTZk4cOp0LFCo8W3iGCNN6AOF6d1Q98Z7hThgTZ9qOC18KJr83CLUC6Yw5WmWrKa4lK0o9D5Cz81gSvOmDl4yqfx_mncmlT3i5eQSaOT1RwmZ9B6V2G3JJXkKzUDNj03nPoRccyQcuTLX_4GbGkxme8Ac_SeXjzOwcS6QhYzlFe3yOz3ToO0TyhINbf5N_VwoR96xIDjJtkIuoCeDHgPHBPqLzm6trHe19aR7bJj7p5ZrsUSwHV30O_gkk7TZTvO9cPSo6mqP4g2HbMg_V52aUsMe1MVqT5H2HObNhSx7jgDCY9gRjXpN7o2uN1OWK3zEIYEJgqbOVaQt-9f8jIsXa710HOt-l-scib5J8DR7L1xxTzDbBmqGy748_23pycl1-fXY9Pn0gblCoHwOVx-ivsEfJIxFoRpEwv_c-Y_xQ3PQGM8DsPEN9txU2qtvKBp04jkYyWCWeNh2x-5j8CWT6qGIUs-LSGkwgwLoJgyiIpkhFiW5GR-W_VZ0-F8eSUAtqqsZyC1hGTYQESK34iPaLk6Km0t2AdN9zoaL15CbXjHpsyKYKB4KyaXakbFxO2-u5uzzlbffHebcxBMxS3vglWQIAcLgvFMzTBH-RuyKVNdp5FPI5g_8d
+Code:
+@startuml
+title UniPlan - Service Plan Upgrade
+
+left to right direction
+
+actor "Free User" as FreeUser
+actor "Basic User" as BasicUser
+
+package "UniPlan Payment System" {
+  [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] #..# FreeUser : Association
+  [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] #..# BasicUser : Association
+  
+  [Display Current Plan\n(Hiển thị gói hiện tại)] ..> [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] : <<include>>
+  [Process Payment\n(Xử lý thanh toán)] ..> [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] : <<include>>
+  [Update User Plan\n(Cập nhật gói người dùng)] ..> [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] : <<include>>
+  
+  [Handle Payment Error\n(Lỗi thanh toán)] ..> [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] : <<extend>> #FF0000
+  [Already Premium\n(Đã ở gói Premium)] ..> [Upgrade Service Plan\n(Nâng cấp gói dịch vụ)] : <<extend>> #00AA00
+}
+
+note right of [Process Payment\n(Xử lý thanh toán)]
+  Tích hợp Stripe/PayPal
+  SSL bảo mật
+  Lưu vào bảng PAYMENTS
+  Cập nhật USERS.current_plan_type
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+@enduml
+
+
+Use Case 8: Tùy chỉnh Widget
+ID: UC-08
+Tên: Tùy chỉnh Widget
+Mô tả: Người dùng thêm, xóa, sắp xếp Widget (Thống kê thành viên, Hiệu suất cá nhân) và tùy chỉnh giao diện (theme, display_density, font, language), với phân quyền giới hạn cho Free User.
+Actors: Người dùng đã đăng nhập (Admin, Paid User, Free User).
+Điều kiện tiên quyết: 
+oTruy cập Main Content Area hoặc Sidebar → Cài đặt.
+Luồng chính: 
+1.Người dùng nhấp "Widget Tùy chỉnh" hoặc "Cài đặt" (React Router, Tailwind CSS button).
+2.Hệ thống hiển thị modal (React, Framer Motion slide-in): 
+Widget: Burn-down, Thống kê task, Time tracking, Custom report, Thống kê thành viên, Hiệu suất cá nhân.
+Giao diện: Theme, Display density, Font (Google Fonts), Language, Notification types, Sound enabled (Tailwind CSS form, @tailwindcss/forms).
+3.Người dùng thực hiện: 
+Chọn Widget Thống kê thành viên hoặc Hiệu suất cá nhân, nhấp "Thêm" (Lucide icon plus).
+Cập nhật theme Tối, font Roboto, language Tiếng Việt (React dropdown).
+4.Hệ thống kiểm tra quyền (Express middleware, JWT): 
+Admin/Paid User: 
+Widget Thống kê thành viên: Số thành viên, tỷ lệ online/offline (Chart.js pie chart), vai trò (Tailwind CSS table) từ PROJECT_MEMBERS, USERS.
+Widget Hiệu suất cá nhân: Thời gian làm việc, task hoàn thành (Chart.js bar chart) từ TIME_TRACKING, TASKS.
+Free User: 
+Widget Thống kê thành viên: Chỉ số thành viên, nút "Nâng cấp" (React conditional rendering).
+Widget Hiệu suất cá nhân: Chỉ thời gian làm việc cơ bản, nút "Nâng cấp".
+5.Người dùng nhấp "Xuất PDF" (jsPDF), hệ thống tạo file PDF từ Widget (Express API /api/export/pdf, dữ liệu từ PROJECT_MEMBERS, TIME_TRACKING).
+6.Người dùng kéo thả Widget (@hello-pangea/dnd) hoặc xóa (Lucide icon trash).
+7.Hệ thống lưu cấu hình vào USER_SETTINGS (widget_config, theme, font, language) (Express API /api/settings/update), đồng bộ real-time (Socket.IO), áp dụng font động (Google Fonts, React context).
+Luồng phụ: 
+oKhông có dữ liệu: Hiển thị "Chưa có dữ liệu" (Tailwind CSS alert).
+oLưu lỗi: Hiển thị "Không thể lưu" (Framer Motion shake).
+oXóa hết Widget: Hiển thị "Thêm ít nhất một Widget" (React Router).
+oFree User truy cập dữ liệu hạn chế: Hiển thị "Nâng cấp để xem đầy đủ" (Tailwind CSS alert).
+oXuất PDF lỗi: Hiển thị "Không thể xuất PDF" (Tailwind CSS alert).
+Điều kiện hậu quả: 
+oWidget và giao diện tùy chỉnh, PDF xuất thành công, lưu vào USER_SETTINGS.
+Yêu cầu đặc biệt: 
+oKéo thả (@hello-pangea/dnd), hiệu ứng (Framer Motion).
+oWidget Thống kê thành viên: Biểu đồ (Chart.js), real-time (Socket.IO).
+oWidget Hiệu suất cá nhân: Biểu đồ cột (Chart.js, thời gian làm việc/task), lọc theo tuần/tháng (React state).
+oXuất PDF (jsPDF): Bao gồm biểu đồ, dữ liệu bảng, logo UniPlan.
+oFont động (Google Fonts): Roboto, Open Sans, áp dụng toàn giao diện.
+oTối đa 10 Widget (React state).
+oPhân quyền: Admin/Paid User xem đầy đủ, Free User giới hạn (Express middleware).
+oResponsive (Tailwind CSS).
+Tần suất sử dụng: Thấp.
+Giả định: 
+oWidget Thống kê thành viên, Hiệu suất cá nhân giới hạn theo PROJECT_MEMBERS.role.
+oFont ảnh hưởng toàn giao diện (React context).
+Bảng CSDL liên quan: 
+oUSER_SETTINGS: widget_config, theme, font, language.
+oPROJECT_MEMBERS, USERS: Thống kê thành viên.
+oTIME_TRACKING, TASKS: Hiệu suất cá nhân.
+oPROJECTS, REPORTS: Widget khác.
+Tích hợp công nghệ:
+jsPDF: Xuất PDF Widget (Express route /api/export/pdf).
+Google Fonts: Tải font động (React, Tailwind CSS).
+Chart.js: Biểu đồ Thống kê thành viên, Hiệu suất cá nhân.
+Socket.IO: Real-time trạng thái online/offline, đồng bộ cấu hình.
+
+Hình ảnh uscase 8:
+
+Link ảnh:
+https://img.plantuml.biz/plantuml/png/hLLDRzD04Br7odyO9H9A3_aGnwgA6fAuL1IeI2ig0OUjlRMtiNUjtJMaV1mGXmfngdf0Y0iLwW442bAH4F61Wn7_m_-4MSUfKpWLuekzytRcpSxE6wygJQIE0hzSqapx5BOvs_G9XphSPOvBDNGZfKN07XFD12-NoYMVxcdG0YHpFGqEazIUGSJMGaAb4scFSiriega3suhA2X2LVHHxd83np9nzdTit2PjpCQiBRfQaj83DQWgNI-ODAq_hzLd0mb14AMpphY6nXyIbK9aTFZ_wu41f6bJWIRa4S6zM29h3wZwlRINV3y3sqlWbztBpqWEeDXhLB4bOXevImcPvyG2oI1tRfagTir2j6NUpS3B2SEdaSmXsyex1pwDqyir4R3JQbqbW6LPM6BVzoA7jzfJISPftQ20UNd3saez1SoSv8uNhVpFr977X2lIa2A4Z9U4kHUz1EXc7C4edFq8O9Xy4Q2-Tl5y4NtyK2farv6RFGh-TA9sSQhDOIDt2q3-0xVNvMqgUX-2ayIbtmML4e0JI-90lW2rZl4wuWpgy9Q17D47d6rxo5QdivComZi4tTD6_qT6Hfjnfjw5gMIryvXa719kZBwMG668ZZLypy7zzYKm_daRW9P-ujtZISpt31WkOnZXhUBot3B0zJdW1BuhvcT4x5vhcuqliNUwEJUuN-7OHTDFuE5WsK1ssF1fGg6sbyH5h3f8JxYvD0KjmdNcDeROcX6iEZoQLmpTHzTe8Fdu37fAzu4OYyQifUil57W2EHEDPetIphk0kRZhCkLSzwlkY7XhDaQR37QZDQMswPr-XCg0sAbGojNSz_0yqzXNKTWrxbALod8C3OG-fRgpVXbfcHk9TJ1HHB2-OSfgogY7Z8P4aW7oWNiENAqN4dQxmSNfN-othgjMVtnafQXD5foFsh_rMzcIGa0wLkRdLchKH3XZnw0yhNl4gfeN_jDy0
+Code:
+@startuml
+title UniPlan - Widget Customization
+
+left to right direction
+
+actor "Authenticated User" as User
+actor "Admin" as Admin
+actor "Paid User" as PaidUser
+actor "Free User" as FreeUser
+
+User <|-- Admin
+User <|-- PaidUser
+User <|-- FreeUser
+
+package "UniPlan Widget System" {
+  [Customize Widgets\n(Tùy chỉnh Widget)] #..# User : Association
+  
+  [Access Widget Settings\n(Truy cập cài đặt)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<include>>
+  [Add/Remove Widgets\n(Thêm/Xóa Widget)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<include>>
+  [Drag & Drop Arrange\n(Sắp xếp kéo thả)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<include>>
+  [Export to PDF\n(Xuất PDF)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<include>>
+  [Apply UI Settings\n(Áp dụng giao diện)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<include>>
+  
+  [Handle No Data\n(Không có dữ liệu)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<extend>> #FF0000
+  [Handle Save Error\n(Lỗi lưu cấu hình)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<extend>> #FF0000
+  [Handle Free User Limit\n(Giới hạn Free User)] ..> [Customize Widgets\n(Tùy chỉnh Widget)] : <<extend>> #FF0000
+}
+
+note right of [Apply UI Settings\n(Áp dụng giao diện)]
+  Tùy chỉnh bao gồm:
+  - Theme (Tối/Sáng)
+  - Font chữ (Google Fonts)
+  - Mật độ hiển thị
+  - Ngôn ngữ
+  
+  Công nghệ:
+  - @hello-pangea/dnd (kéo thả)
+  - jsPDF (xuất PDF)
+  - Chart.js (biểu đồ)
+  - Socket.IO (đồng bộ)
+end note
+
+skinparam packageBackgroundColor #E0F2FE
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  ArrowColor #000000
+}
+@enduml
+
+
+Phân tích và rà soát
+1. Sự phù hợp
+Đầy đủ: Đặc tả từ UC-01 đến UC-08, tích hợp: 
+oUC-06: Tự động gửi email nhắc nhở (Nodemailer, AI_FEATURES).
+oUC-08: Widget Hiệu suất cá nhân (Chart.js, TIME_TRACKING), xuất PDF (jsPDF), font Google Fonts (USER_SETTINGS.font), phân quyền Widget Thống kê thành viên.
+Phù hợp Sơ đồ: 
+oUC-01: Header, Sidebar, Main Content Area.
+oUC-06: Sidebar → AI [PRO].
+oUC-08: Main Content Area → Widget Tùy chỉnh, Sidebar → Cài đặt.
+Tích hợp công nghệ: 
+oReact, Tailwind CSS: Responsive, modal/form (@tailwindcss/forms).
+oChart.js: Biểu đồ (tiến độ, online/offline, hiệu suất).
+o@hello-pangea/dnd, gantt-task-react: Kéo thả, lịch biểu.
+oSocket.IO: Real-time (chat, hoạt động, AI, Widget).
+oFramer Motion: Hiệu ứng (fade-in, slide-in, shake).
+oNodemailer: Email nhắc nhở.
+ojsPDF: Xuất PDF.
+oGoogle Fonts: Font động.
+oMongoose: Index user_id, executed_at, project_id.
+CSDL chính xác: 
+oAI_FEATURES: Thêm project_id, task_id, risk_level, risk_details.
+oUSER_SETTINGS: Thêm widget_config, font.
+oTIME_TRACKING: Hỗ trợ Widget Hiệu suất cá nhân.
+2. Kiểm tra thiếu/thừa trong ERD
+Thiếu: 
+oCác bảng/trường đã đủ, index tối ưu (user_id, executed_at, project_id).
+Thừa: 
+oBLOG_POSTS, BLOG_COMMENTS, DATA_SOURCES, CONTACT_REQUESTS: Không liên quan, đề xuất loại bỏ.
+3. Đề xuất
+UC-06: 
+oGợi ý giảm rủi ro (React component, lưu vào AI_FEATURES.result_summary).
+oTích hợp cảnh báo rủi ro vào Widget Hoạt động gần đây (Socket.IO, Chart.js).
+oLên lịch gửi email nhắc nhở (Node-Cron, Nodemailer).
+UC-08: 
+oWidget Thống kê thành viên: Bộ lọc (React state, chỉ Admin), nút "Xem chi tiết" (React Router).
+oWidget Hiệu suất cá nhân: So sánh hiệu suất nhóm (Chart.js, TIME_TRACKING).
+oXuất PDF: Thêm watermark UniPlan (jsPDF).
+oFont: Hỗ trợ font tiếng Việt (Google Fonts: Noto Sans).
+Bảo mật: 
+oUC-06: Mã hóa AI_FEATURES.result_summary (Bcrypt/AES).
+oUC-08: Quyền xem Widget (PROJECT_MEMBERS.role, Express middleware).
+Hiệu suất: 
+oLazy loading (React Suspense) cho Widget, AI.
+oCache AI kết quả (Redis nếu tích hợp).
+

@@ -1,0 +1,464 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="27.2.0">
+  <diagram name="Project Model Table ERD" id="project-model-table-erd">
+    <mxGraphModel dx="664" dy="690" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="PROJECT MODEL - ERD TABLE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="50" y="20" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="projectTable" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;strokeColor=#000000;fillColor=#ffffff;" parent="1" vertex="1">
+          <mxGeometry x="80" y="90" width="860" height="490" as="geometry" />
+        </mxCell>
+        <mxCell id="header" value="" style="shape=tableRow;horizontal=0;fillColor=#4472C4;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry width="860" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="h1" value="Tên trường" style="shape=partialRectangle;connectable=0;fillColor=#4472C4;align=center;fontStyle=1;fontSize=12;fontColor=#ffffff;" parent="header" vertex="1">
+          <mxGeometry x="40" width="150" height="40" as="geometry">
+            <mxRectangle width="150" height="40" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h2" value="Kiểu dữ liệu" style="shape=partialRectangle;connectable=0;fillColor=#4472C4;align=center;fontStyle=1;fontSize=12;fontColor=#ffffff;" parent="header" vertex="1">
+          <mxGeometry x="190" width="100" height="40" as="geometry">
+            <mxRectangle width="100" height="40" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3" value="Ràng buộc/Enum" style="shape=partialRectangle;connectable=0;fillColor=#4472C4;align=center;fontStyle=1;fontSize=12;fontColor=#ffffff;" parent="header" vertex="1">
+          <mxGeometry x="290" width="200" height="40" as="geometry">
+            <mxRectangle width="200" height="40" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h4" value="Giá trị mặc định" style="shape=partialRectangle;connectable=0;fillColor=#4472C4;align=center;fontStyle=1;fontSize=12;fontColor=#ffffff;" parent="header" vertex="1">
+          <mxGeometry x="490" width="120" height="40" as="geometry">
+            <mxRectangle width="120" height="40" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h5" value="Mô tả" style="shape=partialRectangle;connectable=0;fillColor=#4472C4;align=center;fontStyle=1;fontSize=12;fontColor=#ffffff;" parent="header" vertex="1">
+          <mxGeometry x="610" width="250" height="40" as="geometry">
+            <mxRectangle width="250" height="40" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row1" value="" style="shape=tableRow;horizontal=0;fillColor=#FFE6CC;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="40" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r1c1" value="_id" style="shape=partialRectangle;connectable=0;fillColor=#FFE6CC;align=left;fontStyle=1;" parent="row1" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r1c2" value="ObjectId" style="shape=partialRectangle;connectable=0;fillColor=#FFE6CC;align=left;" parent="row1" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r1c3" value="Primary Key" style="shape=partialRectangle;connectable=0;fillColor=#FFE6CC;align=left;" parent="row1" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r1c4" value="Tự động" style="shape=partialRectangle;connectable=0;fillColor=#FFE6CC;align=left;" parent="row1" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r1c5" value="Khóa chính MongoDB" style="shape=partialRectangle;connectable=0;fillColor=#FFE6CC;align=left;" parent="row1" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row2" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="70" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r2c1" value="project_name" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row2" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r2c2" value="String" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row2" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r2c3" value="required, trim" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row2" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r2c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row2" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r2c5" value="Tên dự án" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row2" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row3" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="100" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r3c1" value="description" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row3" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r3c2" value="String" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row3" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r3c3" value="trim" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row3" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r3c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row3" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r3c5" value="Mô tả" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row3" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row4" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="130" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r4c1" value="start_date" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row4" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r4c2" value="Date" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row4" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r4c3" value="required" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row4" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r4c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row4" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r4c5" value="Ngày bắt đầu" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row4" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row5" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="160" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r5c1" value="end_date" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row5" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r5c2" value="Date" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row5" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r5c3" value="required" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row5" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r5c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row5" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r5c5" value="Ngày kết thúc" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row5" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row6" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="190" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r6c1" value="status" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row6" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r6c2" value="String" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row6" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r6c3" value="enum: Planning, Active, On Hold, Completed, Cancelled, Archived &lt;b&gt;Test&lt;/b&gt;" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row6" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r6c4" value="Planning" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row6" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r6c5" value="Trạng thái dự án" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row6" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row7" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="220" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r7c1" value="priority" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row7" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r7c2" value="String" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row7" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r7c3" value="enum: Low, Medium, High, Critical" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row7" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r7c4" value="Medium" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row7" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r7c5" value="Mức độ ưu tiên" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row7" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row8" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="250" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r8c1" value="project_type_id" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row8" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r8c2" value="ObjectId" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row8" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r8c3" value="ref: ProjectType, required" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row8" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r8c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row8" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r8c5" value="Loại dự án" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row8" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row9" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="280" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r9c1" value="created_by" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row9" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r9c2" value="ObjectId" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row9" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r9c3" value="ref: User, required" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row9" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r9c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row9" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r9c5" value="Người tạo" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row9" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row10" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="310" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r10c1" value="is_deleted" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row10" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r10c2" value="Boolean" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row10" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r10c3" value="" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row10" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r10c4" value="false" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row10" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r10c5" value="Đã xóa mềm" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row10" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row11" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="340" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r11c1" value="deleted_at" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row11" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r11c2" value="Date" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row11" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r11c3" value="" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row11" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r11c4" value="null" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row11" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r11c5" value="Thời gian xóa" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row11" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row12" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="370" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r12c1" value="team_id" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row12" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r12c2" value="ObjectId" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row12" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r12c3" value="ref: Team" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row12" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r12c4" value="null" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row12" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r12c5" value="Nhóm dự án" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row12" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row13" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="400" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r13c1" value="kanban_id" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row13" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r13c2" value="ObjectId" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row13" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r13c3" value="ref: Kanban" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row13" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r13c4" value="" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row13" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r13c5" value="Liên kết Kanban" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row13" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row14" value="" style="shape=tableRow;horizontal=0;fillColor=#ffffff;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="430" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r14c1" value="createdAt" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row14" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r14c2" value="Date" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row14" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r14c3" value="" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row14" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r14c4" value="Tự động" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row14" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r14c5" value="Ngày tạo" style="shape=partialRectangle;connectable=0;fillColor=#ffffff;align=left;" parent="row14" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="row15" value="" style="shape=tableRow;horizontal=0;fillColor=#E6F3FF;strokeColor=#000000;" parent="projectTable" vertex="1">
+          <mxGeometry y="460" width="860" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="r15c1" value="updatedAt" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row15" vertex="1">
+          <mxGeometry x="40" width="150" height="30" as="geometry">
+            <mxRectangle width="150" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r15c2" value="Date" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row15" vertex="1">
+          <mxGeometry x="190" width="100" height="30" as="geometry">
+            <mxRectangle width="100" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r15c3" value="" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row15" vertex="1">
+          <mxGeometry x="290" width="200" height="30" as="geometry">
+            <mxRectangle width="200" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r15c4" value="Tự động" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row15" vertex="1">
+          <mxGeometry x="490" width="120" height="30" as="geometry">
+            <mxRectangle width="120" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r15c5" value="Ngày cập nhật" style="shape=partialRectangle;connectable=0;fillColor=#E6F3FF;align=left;" parent="row15" vertex="1">
+          <mxGeometry x="610" width="250" height="30" as="geometry">
+            <mxRectangle width="250" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

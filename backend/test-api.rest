@@ -1,0 +1,115 @@
+### Biến môi trường
+@baseUrl = http://localhost:5000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... // Thay thế bằng token của bạn sau khi đăng nhập
+
+### Đăng ký tài khoản mới
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "123456"
+}
+
+### Đăng nhập
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "123456"
+}
+
+### Tạo phân loại dự án mới
+POST {{baseUrl}}/project-types
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Dự án IT",
+  "description": "Các dự án liên quan đến công nghệ thông tin"
+}
+
+### Lấy danh sách phân loại dự án
+GET {{baseUrl}}/project-types
+Authorization: Bearer {{token}}
+
+### Tạo dự án mới
+POST {{baseUrl}}/projects
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "project_name": "Dự án Test",
+  "description": "Mô tả cho dự án test",
+  "start_date": "2025-05-15",
+  "end_date": "2025-06-15",
+  "status": "Active",
+  "priority": "Medium",
+  "project_type_id": "your_project_type_id" // Thay thế bằng ID của project type
+}
+
+### Lấy danh sách dự án
+GET {{baseUrl}}/projects
+Authorization: Bearer {{token}}
+
+### Cập nhật dự án
+PUT {{baseUrl}}/projects/your_project_id
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "project_name": "Dự án Test Updated",
+  "description": "Mô tả đã được cập nhật",
+  "status": "Active",
+  "priority": "High"
+}
+
+### Xóa mềm dự án
+DELETE {{baseUrl}}/projects/your_project_id
+Authorization: Bearer {{token}}
+
+### Khôi phục dự án đã xóa
+PUT {{baseUrl}}/projects/your_project_id/restore
+Authorization: Bearer {{token}}
+
+### Tạo Kanban mới
+POST {{baseUrl}}/kanbans
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Test Kanban",
+  "project_id": "your_project_id", // Thay thế bằng ID của project
+  "description": "Kanban cho dự án test"
+}
+
+### Tạo task trong Kanban
+POST {{baseUrl}}/kanban-tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Task Test",
+  "description": "Mô tả cho task test",
+  "kanban_id": "your_kanban_id", // Thay thế bằng ID của kanban
+  "status": "To Do",
+  "priority": "Medium",
+  "due_date": "2025-05-20"
+}
+
+### Lấy danh sách task trong Kanban
+GET {{baseUrl}}/kanban-tasks?kanban_id=your_kanban_id
+Authorization: Bearer {{token}}
+
+### Thêm thành viên vào dự án
+POST {{baseUrl}}/project-members
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "project_id": "your_project_id", // Thay thế bằng ID của project
+  "user_id": "member_user_id", // Thay thế bằng ID của user muốn thêm
+  "role": "member" // Có thể là "owner" hoặc "member"
+}

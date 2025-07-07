@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="27.2.0">
+  <diagram name="projectType_model_erd" id="projectType_model_erd">
+    <mxGraphModel dx="664" dy="690" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="&lt;b&gt;projectType&lt;/b&gt;" style="swimlane;html=1;rounded=0;whiteSpace=wrap;container=1;collapsible=0;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="600" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="3" value="&lt;b&gt;Field&lt;/b&gt;" style="table;html=1;strokeColor=none;fillColor=#e1e1e1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry y="40" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="4" value="&lt;b&gt;Type&lt;/b&gt;" style="table;html=1;strokeColor=none;fillColor=#e1e1e1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="150" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="5" value="&lt;b&gt;Constraints&lt;/b&gt;" style="table;html=1;strokeColor=none;fillColor=#e1e1e1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="250" y="40" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="6" value="&lt;b&gt;Default&lt;/b&gt;" style="table;html=1;strokeColor=none;fillColor=#e1e1e1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="370" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="7" value="&lt;b&gt;Description&lt;/b&gt;" style="table;html=1;strokeColor=none;fillColor=#e1e1e1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="470" y="40" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="8" value="_id" style="table;html=1;strokeColor=none;fillColor=#fff;align=left;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry y="80" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9" value="ObjectId" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="150" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="10" value="PK, Required" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="250" y="80" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="11" value="Auto" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="370" y="80" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="12" value="ID loại dự án" style="table;html=1;strokeColor=none;fillColor=#fff;align=left;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="470" y="80" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="13" value="name" style="table;html=1;strokeColor=none;fillColor=#fff;align=left;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry y="120" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="14" value="String" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="150" y="120" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="15" value="Required, Unique" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="250" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="16" value="" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="370" y="120" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="Tên loại dự án" style="table;html=1;strokeColor=none;fillColor=#fff;align=left;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="470" y="120" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="18" value="description" style="table;html=1;strokeColor=none;fillColor=#fff;align=left;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry y="160" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="19" value="String" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="150" y="160" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="20" value="" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="250" y="160" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="21" value="" style="table;html=1;strokeColor=none;fillColor=#fff;align=center;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="370" y="160" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="22" value="Mô tả loại dự án" style="table;html=1;strokeColor=none;fillColor=#fff;align=left;verticalAlign=middle;" parent="2" vertex="1">
+          <mxGeometry x="470" y="160" width="130" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

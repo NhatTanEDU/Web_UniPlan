@@ -1,0 +1,5 @@
+{
+  "watch": ["server.js", "controllers", "models"],
+  "ext": "js,json" ,
+  "ignore": ["*.test.js", "logs/*"]
+}

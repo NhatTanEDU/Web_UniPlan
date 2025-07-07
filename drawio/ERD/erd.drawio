@@ -1,0 +1,346 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="27.2.0" pages="2">
+  <diagram name="ERD" id="diagram-1">
+    <mxGraphModel dx="1730" dy="1005" grid="0" gridSize="8" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFFFFF" math="0" shadow="1" adaptiveColors="simple">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user" value="User" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="650" y="850" width="220" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="user_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="user" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="user_fields" value="full_name: String&#xa;email: String (Unique)&#xa;password: String&#xa;role: String&#xa;current_plan_type: String&#xa;trial_start_date: Date&#xa;trial_end_date: Date&#xa;subscription_start_date: Date&#xa;subscription_end_date: Date&#xa;payment_status: String&#xa;last_payment_date: Date&#xa;next_billing_date: Date&#xa;online_status: String&#xa;avatar_url: String&#xa;phone: String&#xa;bio: String&#xa;isActive: Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="user" vertex="1">
+          <mxGeometry y="52" width="220" height="428" as="geometry" />
+        </mxCell>
+        <mxCell id="team" value="Team" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="450" width="200" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="team_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="team" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="team_fields" value="team_name: String&#xa;description: String&#xa;type: String&#xa;FK: created_by (ref: User)&#xa;FK: project_data (ref: Project)&#xa;is_deleted: Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="team" vertex="1">
+          <mxGeometry y="52" width="200" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="teamMember" value="TeamMember (M-N)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="850" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="teamMember_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="teamMember" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="teamMember_fields" value="FK: team_id (ref: Team)&#xa;FK: user_id (ref: User)&#xa;role: String&#xa;is_active: Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="teamMember" vertex="1">
+          <mxGeometry y="52" width="200" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="personalMemberList" value="PersonalMemberList (M-N)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="650" y="1400" width="220" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="personalMemberList_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="personalMemberList" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="personalMemberList_fields" value="FK: owner_user_id (ref: User)&#xa;FK: member_user_id (ref: User)&#xa;notes: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="personalMemberList" vertex="1">
+          <mxGeometry y="52" width="220" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="teamActivity" value="TeamActivity" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1100" y="100" width="200" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="teamActivity_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="teamActivity" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="teamActivity_fields" value="FK: teamId (ref: Team)&#xa;FK: performedBy (ref: User)&#xa;activityType: String&#xa;description: String&#xa;details: Object" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="teamActivity" vertex="1">
+          <mxGeometry y="52" width="200" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="project" value="Project" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1550" y="450" width="220" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="project_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="project" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="project_fields" value="project_name: String&#xa;description: String&#xa;start_date: Date&#xa;end_date: Date&#xa;status: String&#xa;priority: String&#xa;FK: project_type_id (ref: ProjectType)&#xa;FK: created_by (ref: User)&#xa;FK: team_id (ref: Team)&#xa;FK: kanban_id (ref: Kanban)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="project" vertex="1">
+          <mxGeometry y="52" width="220" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="projectMember" value="ProjectMember (M-N)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1550" y="850" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="projectMember_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="projectMember" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="projectMember_fields" value="FK: project_id (ref: Project)&#xa;FK: user_id (ref: User)&#xa;role_in_project: String&#xa;role_in_kanban: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="projectMember" vertex="1">
+          <mxGeometry y="52" width="220" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="projectType" value="ProjectType" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1550" y="100" width="220" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="projectType_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="projectType" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="projectType_fields" value="name: String&#xa;FK: userId (String)&#xa;description: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="projectType" vertex="1">
+          <mxGeometry y="52" width="220" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="kanban" value="Kanban" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1900" y="450" width="200" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="kanban_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="kanban" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kanban_fields" value="FK: project_id (ref: Project)&#xa;name: String&#xa;description: String&#xa;FK: created_by (ref: User)&#xa;status: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="kanban" vertex="1">
+          <mxGeometry y="52" width="200" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="kanbanTask" value="KanbanTask" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="2250" y="450" width="220" height="364" as="geometry" />
+        </mxCell>
+        <mxCell id="kanbanTask_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="kanbanTask" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="kanbanTask_fields" value="FK: kanban_id (ref: Kanban)&#xa;title: String&#xa;description: String&#xa;status: String&#xa;order: Number&#xa;due_date: Date&#xa;FK: created_by (ref: User)&#xa;FK: assigned_to (ref: User)&#xa;FKs: tags (ref: Tag)&#xa;priority: String&#xa;color: String&#xa;is_pinned: Boolean&#xa;FKs: documents (ref: Document)&#xa;riskLevel: Number" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="kanbanTask" vertex="1">
+          <mxGeometry y="52" width="220" height="312" as="geometry" />
+        </mxCell>
+        <mxCell id="tag" value="Tag" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="2250" y="900" width="220" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="tag" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="tag_fields" value="name: String&#xa;color: String&#xa;FK: created_by (ref: User)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="tag" vertex="1">
+          <mxGeometry y="52" width="220" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="document" value="Document" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="1900" y="900" width="220" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="document_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="document" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="document_fields" value="fileName: String&#xa;fileUrl: String&#xa;fileType: String&#xa;fileSize: Number&#xa;FK: teamId (ref: Team)&#xa;FK: projectId (ref: Project)&#xa;FK: taskId (ref: KanbanTask)&#xa;FK: uploadedBy (ref: User)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="document" vertex="1">
+          <mxGeometry y="52" width="220" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="taskDependency" value="TaskDependency" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="2250" y="100" width="220" height="182" as="geometry" />
+        </mxCell>
+        <mxCell id="taskDependency_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="taskDependency" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="taskDependency_fields" value="FK: project_id (ref: Project)&#xa;FK: source_task_id (ref: KanbanTask)&#xa;FK: target_task_id (ref: KanbanTask)&#xa;dependency_type: String&#xa;lag_days: Number&#xa;FK: created_by (ref: User)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="taskDependency" vertex="1">
+          <mxGeometry y="52" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="payment" value="Payment" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="850" width="200" height="182" as="geometry" />
+        </mxCell>
+        <mxCell id="payment_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="payment" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="payment_fields" value="FK: user_id (ref: User)&#xa;plan_type: String&#xa;amount: Number&#xa;momo_order_id: String&#xa;payment_status: String&#xa;momo_response: Object" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="payment" vertex="1">
+          <mxGeometry y="52" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="subscriptionHistory" value="SubscriptionHistory" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="1100" width="200" height="182" as="geometry" />
+        </mxCell>
+        <mxCell id="subscriptionHistory_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="subscriptionHistory" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="subscriptionHistory_fields" value="FK: user_id (ref: User)&#xa;action: String&#xa;from_plan: String&#xa;to_plan: String&#xa;FK: payment_id (ref: Payment)&#xa;reason: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="subscriptionHistory" vertex="1">
+          <mxGeometry y="52" width="200" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="notification" value="Notification" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="200" y="450" width="200" height="208" as="geometry" />
+        </mxCell>
+        <mxCell id="notification_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="notification" vertex="1">
+          <mxGeometry y="26" width="200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="notification_fields" value="FK: user_id (ref: User)&#xa;title: String&#xa;message: String&#xa;type: String&#xa;status: String&#xa;read: Boolean&#xa;FK: project_id (ref: Project)&#xa;metadata: Object" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="notification" vertex="1">
+          <mxGeometry y="52" width="200" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="widget" value="Widget" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="650" y="100" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="widget_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="widget" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="widget_fields" value="name: String&#xa;type: String&#xa;icon: String&#xa;isDefault: Boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="widget" vertex="1">
+          <mxGeometry y="52" width="220" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="userWidget" value="UserWidget (M-N)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;labelBackgroundColor=none;fillColor=#A8DADC;strokeColor=#457B9D;fontColor=#1D3557;rounded=1;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="650" y="450" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="userWidget_pk" value="PK: _id" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="userWidget" vertex="1">
+          <mxGeometry y="26" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="userWidget_fields" value="FK: userId (ref: User)&#xa;FK: widgetId (ref: Widget)&#xa;position: Object&#xa;config: Object" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;labelBackgroundColor=none;fontColor=#1D3557;rounded=1;shadow=1;" parent="userWidget" vertex="1">
+          <mxGeometry y="52" width="220" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="rel_user_team" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="team" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="800" as="sourcePoint" />
+            <mxPoint x="1090" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_teamMember" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="teamMember" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="915" as="sourcePoint" />
+            <mxPoint x="1090" y="915" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_team_teamMember" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="team" target="teamMember" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1200" y="640" as="sourcePoint" />
+            <mxPoint x="1200" y="840" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_project" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="project" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="980" as="sourcePoint" />
+            <mxPoint x="1540" y="580" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1400" y="1090" />
+              <mxPoint x="1400" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_team_project" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="team" target="project" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1310" y="540" as="sourcePoint" />
+            <mxPoint x="1540" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_projectMember" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="projectMember" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="915" as="sourcePoint" />
+            <mxPoint x="1540" y="915" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_project_projectMember" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="project" target="projectMember" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1660" y="720" as="sourcePoint" />
+            <mxPoint x="1660" y="840" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_project_kanban" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="project" target="kanban" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1780" y="528" as="sourcePoint" />
+            <mxPoint x="1890" y="528" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_kanban_kanbanTask" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="kanban" target="kanbanTask" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="2110" y="528" as="sourcePoint" />
+            <mxPoint x="2240" y="528" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_kanbanTask_tag" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmany;endFill=1;startFill=1;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="kanbanTask" target="tag" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="2360" y="824" as="sourcePoint" />
+            <mxPoint x="2360" y="890" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_kanbanTask_document" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERmany;startArrow=ERmany;endFill=1;startFill=1;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="kanbanTask" target="document" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="2240" y="631" as="sourcePoint" />
+            <mxPoint x="2130" y="890" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_document" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="document" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="1004" as="sourcePoint" />
+            <mxPoint x="1890" y="1004" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_project_taskDependency" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="project" target="taskDependency" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1780" y="476" as="sourcePoint" />
+            <mxPoint x="2240" y="191" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="2000" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_kanbanTask_taskDependency_source" value="source" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="kanbanTask" target="taskDependency" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="2360" y="440" as="sourcePoint" />
+            <mxPoint x="2360" y="302" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_kanbanTask_taskDependency_target" value="target" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="kanbanTask" target="taskDependency" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="2480" y="440" as="sourcePoint" />
+            <mxPoint x="2480" y="302" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="2520" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_payment" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="payment" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="640" y="941" as="sourcePoint" />
+            <mxPoint x="410" y="941" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_payment_subscriptionHistory" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERone;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="payment" target="subscriptionHistory" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="300" y="1042" as="sourcePoint" />
+            <mxPoint x="300" y="1090" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_subscriptionHistory" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="subscriptionHistory" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="640" y="1191" as="sourcePoint" />
+            <mxPoint x="410" y="1191" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_notification" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="notification" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="640" y="554" as="sourcePoint" />
+            <mxPoint x="410" y="554" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_widget" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="widget" target="userWidget" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="760" y="240" as="sourcePoint" />
+            <mxPoint x="760" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_userWidget" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="userWidget" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="760" y="840" as="sourcePoint" />
+            <mxPoint x="760" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_personalMemberList" value="owner" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="personalMemberList" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="760" y="1340" as="sourcePoint" />
+            <mxPoint x="760" y="1390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_user_personalMemberList_member" value="member" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="personalMemberList" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="1250" as="sourcePoint" />
+            <mxPoint x="880" y="1452" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="920" y="1350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_projectType_user" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="user" target="projectType" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="880" y="840" as="sourcePoint" />
+            <mxPoint x="1540" y="152" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1200" y="152" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_projectType_project" value="" style="edgeStyle=entityRelationEdgeStyle;endArrow=ERoneToMany;startArrow=ERone;endFill=1;startFill=0;labelBackgroundColor=none;strokeColor=#457B9D;fontColor=default;shadow=1;" parent="1" source="projectType" target="project" edge="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="1660" y="214" as="sourcePoint" />
+            <mxPoint x="1660" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="0E9JYFpsZx7Uubywwel3" name="Trang-2">
+    <mxGraphModel dx="692" dy="402" grid="0" gridSize="8" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

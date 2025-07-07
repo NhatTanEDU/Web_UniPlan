@@ -1,0 +1,3 @@
+git add .
+git commit -m "Update Dashboard with ScrollTrigger animations"
+git push origin <your-branch-name>

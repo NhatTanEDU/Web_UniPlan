@@ -1,0 +1,41 @@
+được rồi bây giờ từ thư mục này hãy làk giao diện giúp tôi nhé , đầu tiên hãy làm giúp tôi là hiển thị danh sách team, tạo team (trong tạo team nhập form ví dụ tên mô tả,... của team)
+rồi hiển thị team. Sau đó làm thêm chức năng nữa là xóa(phần xóa dự án hãy tạo lời cảnh báo giúp tôi thêm các highlit chữ đỏ và vàng, đỏ là nguy hiểm và vàng là cảnh báo. Khi xóa team mà có dự án có thành viên thì sẽ cảnh báo rằng là khi xóa thì sẽ mất toàn bộ thành viên và dư án đó sẽ mất thông tin của nhóm, có thể làm icon xóa và chỉnh sửa sao cho đẹp giao diênj nhénhé) và chỉnh sửa teams(về chỉnh cho phép người dùng chỉnh sửa tên dự án và nhưng thứ liên quan khác), click vào team bất kì trong  danh sách hiển thị team mà tôi mới làm ở trên để thêm thành viên từ danh sách thành viên, đầu tiên tìm kiếm thành viên nè , ghi tôi nhập bất kì tên hoặc email của thành viên thì sẽ hiển thị nhưng tên đã có và gợi ý ở bên dưới, và mỗi tên hiển thị ở bên dưới sẽ người dùng click vào để thêm 1 lúc nhiều lần rồi bấm nút thêm để thêm toàn bộ. sau khi thêm xong sẽ hiển thị danh sách và thành viên đã thêm trong teams, tôi sẽ gọi nó là danh sách hiển thị thành viên trong team nhé, khi thêm thành công thì sẽ hiển thị dánh sách thành viên đã được thêm(làm thêm chức năng xóa thành viên khỏi nhóm, chỉnh sửa vai trò của thành viên(edit,member(ở phần này hãy làm combox để Admin có thể chọn, và mặc đinhj vai trò khi thêm thành công thành viên lần đầu là member nhénhé))). rồi tiếp tục khi tôi đang ở trong danh sách thành viên trong team thì sẽ có 1 buton thêm dự án vào , trong btn này sẽ có 2 cái là 1 cái thêm dự án có sẵn trong danh sách dự án (tìm kiếm dự án nhé tìm kiếm giống như tìm kiếm của thành viên vậy), tạo dự án nhanh (lưu ý tạo dự án nhanh này nguời dùng vẫn phải nhập đầy đủ nhé tránh lỗi notnull) ban có thể tái sử dụng lại 2 file tôi gửi liên quan tới project về phần form tạo dự án và chỉnh sửa dự án. (sau khi gán dự án cho team xong hãy làm thêm chức năng gỡ bỏ dự án khỏi team).  
+Vậy là mình đã mô tả chi tiết các chức năng của giao diện rồi, mình mong bạn
+Kế hoạch của bạn về giao diện đã rất chi tiết và đầy đủ các bước chính, sau đây là một số góp ý để đảm bảo UX, maintainability và mở rộng về sau:
+
+Kiến trúc & tái sử dụng
+
+Tách rõ 3 layer:
+• UI Components (TeamList, TeamModal, MemberList, ProjectList,…)
+• Hooks/Context (ví dụ useTeams, TeamContext để giữ currentTeamId)
+• API layer (teamApi, teamMemberApi, teamProjectApi)
+Dùng chung TeamModal cho Create/Edit (truyền initialData/onSubmit khác nhau).
+Trải nghiệm người dùng
+
+Thêm loading spinner/skeleton khi fetch danh sách hoặc submit form.
+Hiện toast notification (hoặc snackbar) cho các thao tác thành công/thất bại.
+ConfirmDialog với highlight:
+• Tiêu đề màu vàng (“Cảnh báo”)
+• Nội dung màu đỏ (“Xóa sẽ mất toàn bộ thành viên & dự án”)
+Paginate hoặc infinite-scroll nếu danh sách teams/members/projects quá dài.
+Tìm kiếm & chọn nhiều items
+
+UserSearchInput: debounce (300 ms), show dropdown gợi ý, cho phép multi-select (tag input).
+ProjectSearchInput: tương tự, tận dụng ProjectForm để “tạo nhanh”.
+Quản lý state & điều hướng
+
+Khi click vào Team card → chuyển đến /teams/:teamId/members: load members & projects.
+Lưu currentTeam vào Context để chia sẻ giữa tab Members / Projects / Stats.
+Validation & bảo mật
+
+Dùng Yup (trong teamValidation.ts, projectValidation.ts) cho form Create/Edit.
+Kiểm tra quyền (Admin vs Editor vs Member) để ẩn/hiện nút Edit/Delete.
+Responsive & accessibility
+
+Test mobile: modal full-screen, table scroll ngang.
+Thêm aria-label, hỗ trợ keyboard cho modal, dropdown…
+Mở rộng tương lai
+
+Bulk actions (bulk delete members/projects).
+Real-time cập nhật (socket.io) khi có thay đổi từ người khác.
+Export CSV/PDF danh sách thành viên, projects.

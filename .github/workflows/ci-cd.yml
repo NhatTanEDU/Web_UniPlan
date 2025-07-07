@@ -1,0 +1,129 @@
+name: UniPlan CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  frontend-test:
+    runs-on: ubuntu-latest
+    name: Frontend Tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: Run frontend tests
+      run: |
+        cd frontend
+        npm test -- --coverage --watchAll=false
+        
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+
+  backend-test:
+    runs-on: ubuntu-latest
+    name: Backend Tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test
+          code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Check
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        cd frontend && npm ci
+        cd ../backend && npm ci
+        
+    - name: Run ESLint
+      run: |
+        cd frontend && npm run lint || true
+        cd ../backend && npm run lint || true
+        
+    - name: Check for syntax errors in demo files
+      run: |
+        echo "Checking syntax errors in demo files..."
+        node -c Document/error-demo.js || echo "❌ Syntax errors found in error-demo.js"
+        
+  error-demo-test:
+    runs-on: ubuntu-latest
+    name: Demo Error Testing
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Jest for testing
+      run: npm install -g jest
+      
+    - name: Run tests on error demo
+      run: |
+        echo "Running tests on intentionally broken code..."
+        cd Document
+        node -c error-demo.js && echo "✅ Syntax check passed" || echo "❌ Syntax errors detected!"
+        echo "This demonstrates CI/CD catching errors before deployment"
+        
+  deploy:
+    needs: [frontend-test, backend-test, code-quality]
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy notification
+      run: |
+        echo "Deploying UniPlan to production..."
+        echo "Frontend and Backend tests passed!"
+        echo "Code quality checks completed!"

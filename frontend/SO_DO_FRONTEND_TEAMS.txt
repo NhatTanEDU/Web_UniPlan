@@ -1,0 +1,336 @@
+================================================================================
+                    SƠ ĐỒ KIẾN TRÚC FRONTEND - HỆ THỐNG QUẢN LÝ NHÓM
+================================================================================
+
+📋 TỔNG QUAN HỆ THỐNG
+================================================================================
+- Hệ thống quản lý nhóm nâng cao với giao diện hiện đại
+- Hỗ trợ dark mode và responsive design
+- Tích hợp với backend Enhanced Teams API
+- Sử dụng React + TypeScript + Tailwind CSS
+
+📁 CẤU TRÚC THÀNH PHẦN (COMPONENTS)
+================================================================================
+
+/src/components/After/tab/teams/
+├── teams.tsx                    (Trang chính - Component gốc)
+├── TeamsManagement.tsx          (Component quản lý chính) ✅
+├── TeamCard.tsx                 (Thẻ hiển thị thông tin nhóm) ✅
+├── TeamStats.tsx                (Thống kê tổng quan) ✅
+├── CreateTeamModal.tsx          (Modal tạo nhóm mới) ✅
+├── TeamDetailsModal.tsx         (Modal chi tiết nhóm) ✅
+├── BulkOperationsModal.tsx      (Modal thao tác hàng loạt) ✅
+├── TeamSearchFilters.tsx        (Bộ lọc tìm kiếm nâng cao) ✅
+├── TeamActivityFeed.tsx         (Timeline hoạt động) ✅ MỚI
+├── TeamHealthCheck.tsx          (Kiểm tra sức khỏe nhóm) ✅ MỚI
+├── TeamRecommendations.tsx      (Gợi ý AI thông minh) ✅ MỚI
+├── NotificationCenter.tsx       (Trung tâm thông báo) ✅ MỚI
+├── TeamSettings.tsx             (Cài đặt nhóm)
+└── types/
+    ├── team.types.ts           (Định nghĩa kiểu dữ liệu)
+    └── api.types.ts            (Kiểu dữ liệu API)
+
+🎯 CHỨC NĂNG CHỦ YẾU
+================================================================================
+
+1. QUẢN LÝ NHÓM CƠ BẢN
+   ✅ Hiển thị danh sách nhóm dạng lưới/bảng
+   ✅ Tạo nhóm mới với validation đầy đủ
+   ✅ Xem/chỉnh sửa thông tin nhóm
+   ✅ Xóa nhóm (có xác nhận)
+   ✅ Quản lý thành viên nhóm
+
+2. TÌM KIẾM VÀ LỌC NÂNG CAO
+   ✅ Tìm kiếm theo tên, mô tả
+   ✅ Lọc theo loại nhóm, quyền riêng tư
+   ✅ Lọc theo số lượng thành viên
+   ✅ Lọc theo mức độ hoạt động
+   ✅ Lọc theo khoảng thời gian
+   ✅ Lọc theo tags và trưởng nhóm
+   ✅ Sắp xếp đa tiêu chí
+
+3. THỐNG KÊ VÀ PHÂN TÍCH
+   ✅ Thống kê tổng quan (số nhóm, thành viên, dự án)
+   ✅ Thống kê chi tiết từng nhóm
+   ✅ So sánh hiệu suất giữa các nhóm
+   ✅ Biểu đồ hoạt động theo thời gian
+   ✅ Thống kê xu hướng và tăng trưởng
+
+4. THAO TÁC HÀNG LOẠT
+   ✅ Chọn nhiều nhóm cùng lúc
+   ✅ Xóa/lưu trữ nhiều nhóm
+   ✅ Thêm/xóa thành viên hàng loạt
+   ✅ Thay đổi quyền riêng tư hàng loạt
+   ✅ Thêm/xóa tags hàng loạt
+   ✅ Xuất dữ liệu (CSV, JSON, Excel)
+
+5. KIỂM TRA SỨC KHỎE NHÓM
+   ✅ Đánh giá chỉ số sức khỏe nhóm
+   ✅ Gợi ý cải thiện
+   ✅ Cảnh báo nhóm không hoạt động
+   ✅ Kiểm tra cấu trúc nhóm
+
+6. GỢI Ý VÀ KHUYẾN NGHỊ
+   ✅ Gợi ý nhóm phù hợp để tham gia
+   ✅ Khuyến nghị dựa trên sở thích
+   ✅ Gợi ý thành viên mới
+   ✅ Đề xuất dự án phù hợp
+   ✅ AI recommendation system với confidence score
+   ✅ Feedback mechanism cho recommendations
+
+7. TRUNG TÂM THÔNG BÁO
+   ✅ Quản lý tất cả thông báo liên quan đến nhóm
+   ✅ Đánh dấu quan trọng, lưu trữ thông báo
+   ✅ Thao tác hàng loạt với thông báo
+   ✅ Cập nhật real-time
+   ✅ Action buttons cho quick actions
+
+8. TIMELINE HOẠT ĐỘNG
+   ✅ Theo dõi mọi hoạt động của nhóm
+   ✅ Lọc theo loại hoạt động và thời gian
+   ✅ Real-time updates
+   ✅ Giao diện timeline trực quan
+   ✅ Export activity data
+
+📊 CẤU TRÚC DỮ LIỆU CHÍNH
+================================================================================
+
+interface Team {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  isPublic: boolean;
+  maxMembers?: number;
+  memberCount: number;
+  projectCount: number;
+  type: 'academic' | 'project' | 'study' | 'research' | 'other';
+  tags: string[];
+  createdAt: string;
+  lastActivity: string;
+  leader: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  healthScore: number;
+  activityLevel: 'very-active' | 'active' | 'moderate' | 'inactive';
+}
+
+interface TeamMember {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role: 'leader' | 'admin' | 'member';
+  joinedAt: string;
+  lastActive: string;
+}
+
+interface TeamStats {
+  overview: {
+    totalTeams: number;
+    teamsAsLeader: number;
+    teamsAsAdmin: number;
+    teamsAsMember: number;
+    publicTeams: number;
+    privateTeams: number;
+  };
+  projects: {
+    totalProjects: number;
+    completedProjects: number;
+    activeProjects: number;
+    pendingProjects: number;
+  };
+  members: {
+    totalMembers: number;
+    averageTeamSize: number;
+  };
+  activity: {
+    recentlyActiveTeams: number;
+  };
+}
+
+🎨 THIẾT KẾ GIAO DIỆN
+================================================================================
+
+1. LAYOUT CHÍNH
+   - Header: Tiêu đề, nút tạo nhóm, bộ lọc nhanh
+   - Sidebar: Bộ lọc nâng cao, thống kê
+   - Main Content: Lưới nhóm hoặc bảng danh sách
+   - Footer: Phân trang, thông tin tổng quan
+
+2. THẺ NHÓM (TeamCard)
+   - Avatar/màu sắc nhóm
+   - Tên và mô tả ngắn
+   - Số thành viên và dự án
+   - Chỉ số sức khỏe
+   - Tags và loại nhóm
+   - Nút hành động nhanh
+
+3. MODAL CHI TIẾT NHÓM
+   - Tab Thông tin cơ bản
+   - Tab Thành viên
+   - Tab Dự án
+   - Tab Hoạt động
+   - Tab Cài đặt
+
+4. BỘ LỌC TÌM KIẾM
+   - Thanh tìm kiếm chính
+   - Dropdown loại nhóm
+   - Slider số lượng thành viên
+   - Date picker khoảng thời gian
+   - Multi-select tags
+   - Toggle quyền riêng tư
+
+📱 RESPONSIVE DESIGN
+================================================================================
+
+DESKTOP (≥1024px)
+- Lưới 4 cột
+- Sidebar đầy đủ
+- Modal lớn
+- Tooltip chi tiết
+
+TABLET (768px - 1023px)
+- Lưới 3 cột
+- Sidebar có thể thu gọn
+- Modal trung bình
+- Touch-friendly
+
+MOBILE (≤767px)
+- Lưới 1-2 cột
+- Bottom sheet thay modal
+- Swipe gestures
+- Tab navigation
+
+🔄 TƯƠNG TÁC NGƯỜI DÙNG
+================================================================================
+
+1. TẠO NHÓM MỚI
+   Nút "Tạo nhóm" → Modal → Form validation → API call → Refresh danh sách
+
+2. CHỈNH SỬA NHÓM
+   Click thẻ nhóm → Modal chi tiết → Tab chỉnh sửa → Save → Update UI
+
+3. TÌM KIẾM VÀ LỌC
+   Nhập từ khóa → Debounce 300ms → API call → Update kết quả
+
+4. THAO TÁC HÀNG LOẠT
+   Checkbox select → Menu hành động → Modal xác nhận → Thực hiện
+
+5. XEM THỐNG KÊ
+   Tab thống kê → Loading → Render charts → Interactive tooltips
+
+🚀 TỐI ƯU HIỆU SUẤT
+================================================================================
+
+1. LAZY LOADING
+   - Component modal chỉ load khi cần
+   - Infinite scroll cho danh sách lớn
+   - Image lazy loading cho avatar
+
+2. CACHING
+   - Cache API response với React Query
+   - Local storage cho preferences
+   - Session storage cho filters
+
+3. DEBOUNCING
+   - Search input: 300ms
+   - Filter changes: 500ms
+   - Auto-save: 1000ms
+
+4. VIRTUAL SCROLLING
+   - Cho danh sách >100 items
+   - Chỉ render visible items
+   - Smooth scrolling
+
+🔐 BẢO MẬT VÀ QUYỀN HẠN
+================================================================================
+
+1. AUTHENTICATION
+   - JWT token trong header
+   - Auto refresh token
+   - Logout khi expired
+
+2. AUTHORIZATION
+   - Role-based actions
+   - Hide/disable buttons theo quyền
+   - Validate ở cả client và server
+
+3. DATA VALIDATION
+   - Client-side validation
+   - Sanitize input data
+   - XSS protection
+
+🧪 TESTING STRATEGY
+================================================================================
+
+1. UNIT TESTS
+   - Component rendering
+   - Hook functionality
+   - Utility functions
+
+2. INTEGRATION TESTS
+   - API interactions
+   - Form submissions
+   - Navigation flows
+
+3. E2E TESTS
+   - Complete user journeys
+   - Cross-browser testing
+   - Performance testing
+
+📈 ANALYTICS VÀ MONITORING
+================================================================================
+
+1. USER BEHAVIOR
+   - Click tracking
+   - Time on page
+   - Feature usage
+
+2. PERFORMANCE
+   - Load times
+   - API response times
+   - Error rates
+
+3. BUSINESS METRICS
+   - Team creation rate
+   - Member engagement
+   - Feature adoption
+
+🔧 CÔNG CỤ VÀ THƯ VIỆN
+================================================================================
+
+CORE
+- React 18+
+- TypeScript
+- Tailwind CSS
+- React Router
+
+STATE MANAGEMENT
+- React Query (API state)
+- Zustand (Local state)
+- Context API (Theme, Auth)
+
+UI COMPONENTS
+- Heroicons
+- Headless UI
+- React Hook Form
+- React Select
+
+CHARTS & VISUALIZATION
+- Recharts
+- Chart.js
+- D3.js (nếu cần)
+
+UTILITIES
+- Date-fns
+- Lodash
+- Clsx
+- React Hot Toast
+
+================================================================================
+                               KẾT THÚC SƠ ĐỒ
+================================================================================

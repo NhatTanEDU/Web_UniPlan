@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" version="27.2.0">
+  <diagram name="Professional Use Case Specification" id="uploadfile_spec">
+    <mxGraphModel dx="1138" dy="408" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="spec-container-uploadfile" value="" style="rounded=0;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;fillColor=none;verticalAlign=top;align=left;spacingLeft=10;spacingTop=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="740" height="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="title-uploadfile" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Đặc tả use case 'Upload File Nhóm'&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;fontFamily=Helvetica;" parent="spec-container-uploadfile" vertex="1">
+          <mxGeometry width="740" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="table-info" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-uploadfile" vertex="1">
+          <mxGeometry y="40" width="740" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row1" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r1c1" value="&lt;b&gt;Tên use case&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row1" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r1c2" value="Upload File Nhóm" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row1" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="30" width="740" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r2c1" value="&lt;b&gt;Mô tả sơ lược&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row2" vertex="1">
+          <mxGeometry width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r2c2" value="Chức năng này cho phép người dùng hoặc quản trị viên tải lên file tài liệu vào nhóm để chia sẻ với các thành viên khác trong hệ thống UniPlan." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row2" vertex="1">
+          <mxGeometry x="220" width="520" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row3" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="90" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r3c1" value="&lt;b&gt;Actor chính&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row3" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r3c2" value="Người dùng, Quản trị viên" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row3" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row4" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="120" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r4c1" value="&lt;b&gt;Tiền điều kiện (Pre-condition)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row4" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r4c2" value="Người dùng đã đăng nhập vào hệ thống và là thành viên của nhóm hoặc có quyền quản trị." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row4" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row5" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="150" width="740" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r5c1" value="&lt;b&gt;Hậu điều kiện (Post-condition)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row5" vertex="1">
+          <mxGeometry width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r5c2" value="&lt;b&gt;Thành công:&lt;/b&gt; File được tải lên và lưu trữ thành công, thông tin file được cập nhật trong CSDL.&lt;br&gt;&lt;b&gt;Thất bại:&lt;/b&gt; Hiển thị thông báo lỗi tương ứng và file không được lưu." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row5" vertex="1">
+          <mxGeometry x="220" width="520" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="table-mainflow-uploadfile" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-uploadfile" vertex="1">
+          <mxGeometry y="270" width="740" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-title-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-mainflow-uploadfile" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-title-cell" value="&lt;b&gt;Dòng sự kiện chính (main flow)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-title-row" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-header-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=#f5f5f5;" parent="table-mainflow-uploadfile" vertex="1">
+          <mxGeometry y="30" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-h1" value="&lt;b&gt;Actor&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-header-row" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-h2" value="&lt;b&gt;System&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-header-row" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-content-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-mainflow-uploadfile" vertex="1">
+          <mxGeometry y="60" width="740" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-r1c1" value="1. Truy cập chức năng upload file trong nhóm.&lt;br&gt;2. Nhấn nút 'Tải lên file' hoặc kéo thả file.&lt;br&gt;3. Chọn file từ thiết bị.&lt;br&gt;4. Nhập thông tin mô tả file (tuỳ chọn).&lt;br&gt;5. Xác nhận tải lên." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="mainflow-content-row" vertex="1">
+          <mxGeometry width="370" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-r1c2" value="1. Hiển thị giao diện upload file.&lt;br&gt;2. Hiển thị vùng kéo thả hoặc nút chọn file.&lt;br&gt;3. Nhận file được chọn.&lt;br&gt;4. Thực hiện kiểm tra:&lt;br&gt;   - &lt;i&gt;Include: Kiểm tra quyền thành viên&lt;/i&gt;&lt;br&gt;   - &lt;i&gt;Include: Kiểm tra định dạng &amp;amp; dung lượng&lt;/i&gt;&lt;br&gt;5. Lưu file vào hệ thống lưu trữ.&lt;br&gt;6. Cập nhật thông tin file trong CSDL.&lt;br&gt;7. Hiển thị thông báo thành công.&lt;br&gt;8. Cập nhật danh sách file của nhóm." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="mainflow-content-row" vertex="1">
+          <mxGeometry x="370" width="370" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="table-exceptionflow-uploadfile" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-uploadfile" vertex="1">
+          <mxGeometry y="570" width="740" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-title-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-uploadfile" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-title-cell" value="&lt;b&gt;Dòng sự kiện thay thế &amp;amp; ngoại lệ (alternative &amp;amp; exception flow)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-title-row" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-header-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=#f5f5f5;" parent="table-exceptionflow-uploadfile" vertex="1">
+          <mxGeometry y="30" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-h1" value="&lt;b&gt;Điều kiện ngoại lệ&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-header-row" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-h2" value="&lt;b&gt;Hành động của hệ thống&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-header-row" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row1" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-uploadfile" vertex="1">
+          <mxGeometry y="60" width="740" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r1c1" value="&lt;b&gt;4a. File không đúng định dạng hoặc quá dung lượng&lt;/b&gt;&lt;br&gt;File được chọn có định dạng không được phép hoặc vượt quá dung lượng tối đa." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row1" vertex="1">
+          <mxGeometry width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r1c2" value="1. Hệ thống hiển thị thông báo lỗi cụ thể về định dạng hoặc dung lượng.&lt;br&gt;2. Hiển thị danh sách định dạng được phép và dung lượng tối đa.&lt;br&gt;3. Yêu cầu người dùng chọn file khác phù hợp.&lt;br&gt;4. Quay lại bước 3 của luồng chính." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row1" vertex="1">
+          <mxGeometry x="370" width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-uploadfile" vertex="1">
+          <mxGeometry y="190" width="740" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r2c1" value="&lt;b&gt;4b. Không có quyền upload file&lt;/b&gt;&lt;br&gt;Người dùng cố gắng upload file mà không có quyền trong nhóm." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row2" vertex="1">
+          <mxGeometry width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r2c2" value="1. Hệ thống hiển thị thông báo 'Không có quyền upload file vào nhóm này'.&lt;br&gt;2. Ngăn chặn thao tác upload và quay về giao diện trước đó." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row2" vertex="1">
+          <mxGeometry x="370" width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row3" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-uploadfile" vertex="1">
+          <mxGeometry y="310" width="740" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r3c1" value="&lt;b&gt;5a. Lỗi lưu trữ file&lt;/b&gt;&lt;br&gt;Hệ thống gặp lỗi khi lưu file vào hệ thống lưu trữ (đầy bộ nhớ, lỗi mạng, v.v.)." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row3" vertex="1">
+          <mxGeometry width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r3c2" value="1. Hệ thống hiển thị thông báo 'Lỗi khi tải lên file, vui lòng thử lại'.&lt;br&gt;2. Ghi log lỗi để admin kiểm tra.&lt;br&gt;3. Gợi ý người dùng thử lại sau hoặc liên hệ hỗ trợ." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row3" vertex="1">
+          <mxGeometry x="370" width="370" height="120" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

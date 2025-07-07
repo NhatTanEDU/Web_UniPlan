@@ -1,0 +1,165 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36" version="27.2.0">
+  <diagram name="Professional Use Case Specification" id="gantttab_spec">
+    <mxGraphModel dx="664" dy="690" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="spec-container-gantttab" value="" style="rounded=0;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;fillColor=none;verticalAlign=top;align=left;spacingLeft=10;spacingTop=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="740" height="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="title-gantttab" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Đặc tả use case &#39;Quản lý Biểu đồ Gantt&#39;&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;spacingLeft=5;fontFamily=Helvetica;" parent="spec-container-gantttab" vertex="1">
+          <mxGeometry width="740" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="table-info" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-gantttab" vertex="1">
+          <mxGeometry y="40" width="740" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="info-row1" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r1c1" value="&lt;b&gt;Tên use case&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row1" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry">
+            <mxRectangle width="220" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-r1c2" value="Quản lý Biểu đồ Gantt ở Task" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row1" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry">
+            <mxRectangle width="520" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-row2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="30" width="740" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r2c1" value="&lt;b&gt;Mô tả sơ lược&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row2" vertex="1">
+          <mxGeometry width="220" height="60" as="geometry">
+            <mxRectangle width="220" height="60" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-r2c2" value="Chức năng này cho phép thành viên dự án xem và quản lý biểu đồ Gantt, thay đổi thời gian công việc bằng kéo-thả, chỉnh sửa chi tiết công việc và quản lý các mối quan hệ phụ thuộc." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row2" vertex="1">
+          <mxGeometry x="220" width="520" height="60" as="geometry">
+            <mxRectangle width="520" height="60" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-row3" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="90" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r3c1" value="&lt;b&gt;Actor chính&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row3" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry">
+            <mxRectangle width="220" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-r3c2" value="Thành viên Dự án" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row3" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry">
+            <mxRectangle width="520" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-row4" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="120" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r4c1" value="&lt;b&gt;Tiền điều kiện (Pre-condition)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row4" vertex="1">
+          <mxGeometry width="220" height="30" as="geometry">
+            <mxRectangle width="220" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-r4c2" value="Người dùng đã đăng nhập vào hệ thống và là thành viên của dự án có quyền truy cập biểu đồ Gantt." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;" parent="info-row4" vertex="1">
+          <mxGeometry x="220" width="520" height="30" as="geometry">
+            <mxRectangle width="520" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-row5" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-info" vertex="1">
+          <mxGeometry y="150" width="740" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="info-r5c1" value="&lt;b&gt;Hậu điều kiện (Post-condition)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row5" vertex="1">
+          <mxGeometry width="220" height="60" as="geometry">
+            <mxRectangle width="220" height="60" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="info-r5c2" value="&lt;b&gt;Thành công:&lt;/b&gt; Biểu đồ Gantt được hiển thị và cập nhật thành công, các thay đổi được lưu vào CSDL.&lt;br&gt;&lt;b&gt;Thất bại:&lt;/b&gt; Hiển thị thông báo lỗi tương ứng và dữ liệu không thay đổi." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=middle;spacingLeft=5;whiteSpace=wrap;" parent="info-row5" vertex="1">
+          <mxGeometry x="220" width="520" height="60" as="geometry">
+            <mxRectangle width="520" height="60" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="table-mainflow-gantttab" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-gantttab" vertex="1">
+          <mxGeometry y="270" width="740" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-title-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-mainflow-gantttab" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-title-cell" value="&lt;b&gt;Dòng sự kiện chính (main flow)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-title-row" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-header-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=#f5f5f5;" parent="table-mainflow-gantttab" vertex="1">
+          <mxGeometry y="30" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-h1" value="&lt;b&gt;Actor&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-header-row" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-h2" value="&lt;b&gt;System&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="mainflow-header-row" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-content-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-mainflow-gantttab" vertex="1">
+          <mxGeometry y="60" width="740" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-r1c1" value="1. Truy cập chức năng xem biểu đồ Gantt của dự án.&lt;br&gt;2. Chọn một trong các thao tác:&lt;br&gt;   - Xem biểu đồ Gantt&lt;br&gt;   - Thay đổi thời gian công việc (kéo-thả)&lt;br&gt;   - Chỉnh sửa chi tiết công việc (nhấp đúp)&lt;br&gt;   - Quản lý phụ thuộc (tạo/xóa liên kết)&lt;br&gt;   - Xem thông tin nhanh (tooltip)&lt;br&gt;3. Thực hiện thao tác được chọn.&lt;br&gt;4. Xác nhận thay đổi (nếu cần)." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="mainflow-content-row" vertex="1">
+          <mxGeometry width="370" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="mainflow-r1c2" value="1. &lt;i&gt;Include: Tải dữ liệu dự án&lt;/i&gt; (Tasks, Dependencies).&lt;br&gt;2. Hiển thị biểu đồ Gantt với timeline và công việc.&lt;br&gt;3. Xử lý thao tác được chọn:&lt;br&gt;   a) Thay đổi thời gian:&lt;br&gt;   - Cho phép kéo-thả thanh công việc&lt;br&gt;   - Cập nhật thời gian bắt đầu/kết thúc&lt;br&gt;   b) Chỉnh sửa chi tiết:&lt;br&gt;   - Hiển thị form chỉnh sửa khi nhấp đúp&lt;br&gt;   - Cho phép sửa tên, mô tả, thời gian&lt;br&gt;   c) Quản lý phụ thuộc:&lt;br&gt;   - Tạo/xóa liên kết giữa các công việc&lt;br&gt;   - &lt;i&gt;Extend: Xem thông tin nhanh&lt;/i&gt; khi hover&lt;br&gt;4. &lt;i&gt;Include: Lưu thay đổi&lt;/i&gt; vào CSDL.&lt;br&gt;5. Cập nhật biểu đồ Gantt.&lt;br&gt;6. Hiển thị thông báo kết quả." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="mainflow-content-row" vertex="1">
+          <mxGeometry x="370" width="370" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="table-exceptionflow-gantttab" value="" style="shape=table;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontStyle=0;align=center;resizeLast=1;fontFamily=Helvetica;fontSize=12;" parent="spec-container-gantttab" vertex="1">
+          <mxGeometry y="610" width="740" height="490" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-title-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-gantttab" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-title-cell" value="&lt;b&gt;Dòng sự kiện thay thế &amp;amp; ngoại lệ (alternative &amp;amp; exception flow)&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-title-row" vertex="1">
+          <mxGeometry width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-header-row" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=#f5f5f5;" parent="table-exceptionflow-gantttab" vertex="1">
+          <mxGeometry y="30" width="740" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-h1" value="&lt;b&gt;Điều kiện ngoại lệ&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-header-row" vertex="1">
+          <mxGeometry width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-h2" value="&lt;b&gt;Hành động của hệ thống&lt;/b&gt;" style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=center;verticalAlign=middle;" parent="exceptionflow-header-row" vertex="1">
+          <mxGeometry x="370" width="370" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row1" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-gantttab" vertex="1">
+          <mxGeometry y="60" width="740" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r1c1" value="&lt;b&gt;1a. Không có dữ liệu dự án&lt;/b&gt;&lt;br&gt;Khi dự án không có công việc nào hoặc dữ liệu bị lỗi." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row1" vertex="1">
+          <mxGeometry width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r1c2" value="1. Hiển thị thông báo &#39;Dự án chưa có công việc nào&#39;.&lt;br&gt;2. Hiển thị biểu đồ Gantt trống với khung thời gian.&lt;br&gt;3. Gợi ý tạo công việc mới hoặc quay về trang quản lý dự án." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row1" vertex="1">
+          <mxGeometry x="370" width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row2" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-gantttab" vertex="1">
+          <mxGeometry y="180" width="740" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r2c1" value="&lt;b&gt;3a. Thời gian không hợp lệ&lt;/b&gt;&lt;br&gt;Khi thay đổi thời gian công việc bằng kéo-thả mà thời gian không hợp lệ (ngày bắt đầu sau ngày kết thúc, xung đột với công việc khác, v.v.)." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row2" vertex="1">
+          <mxGeometry width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r2c2" value="1. Hệ thống hiển thị thông báo lỗi cụ thể về thời gian không hợp lệ.&lt;br&gt;2. Khôi phục vị trí ban đầu của thanh công việc.&lt;br&gt;3. Yêu cầu người dùng chỉnh sửa lại thời gian phù hợp.&lt;br&gt;4. Quay lại bước 3 của luồng chính." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row2" vertex="1">
+          <mxGeometry x="370" width="370" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row3" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-gantttab" vertex="1">
+          <mxGeometry y="310" width="740" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r3c1" value="&lt;b&gt;3b. Phụ thuộc không hợp lệ&lt;/b&gt;&lt;br&gt;Khi tạo liên kết phụ thuộc giữa các công việc mà tạo ra vòng lặp hoặc xung đột logic." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row3" vertex="1">
+          <mxGeometry width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r3c2" value="1. Hệ thống hiển thị thông báo &#39;Không thể tạo phụ thuộc - tạo vòng lặp&#39;.&lt;br&gt;2. Hủy bỏ thao tác tạo liên kết.&lt;br&gt;3. Giữ nguyên trạng thái hiện tại của biểu đồ." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row3" vertex="1">
+          <mxGeometry x="370" width="370" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-row4" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;" parent="table-exceptionflow-gantttab" vertex="1">
+          <mxGeometry y="430" width="740" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r4c1" value="&lt;b&gt;4a. Lỗi lưu thay đổi&lt;/b&gt;&lt;br&gt;Hệ thống gặp lỗi khi lưu thay đổi vào CSDL." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row4" vertex="1">
+          <mxGeometry width="370" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="exceptionflow-r4c2" value="1. Hiển thị thông báo &#39;Lỗi lưu dữ liệu, vui lòng thử lại&#39;.&lt;br&gt;2. Khôi phục trạng thái trước khi thay đổi." style="shape=partialRectangle;html=1;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;strokeColor=inherit;align=left;verticalAlign=top;whiteSpace=wrap;spacingLeft=5;" parent="exceptionflow-row4" vertex="1">
+          <mxGeometry x="370" width="370" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
