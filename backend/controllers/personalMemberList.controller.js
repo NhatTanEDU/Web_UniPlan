@@ -20,7 +20,10 @@ exports.getPersonalMembers = async (req, res) => {
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
         // 2. XÂY DỰNG LOGIC $match VÀ $sort ĐỘNG
-        let matchStage = { owner_user_id: ownerId };
+        let matchStage = { 
+            owner_user_id: ownerId,
+            is_active: true  // Chỉ lấy thành viên active
+        };
 
         // Xây dựng object sắp xếp động
         const sort = {};
@@ -80,10 +83,17 @@ exports.getPersonalMembers = async (req, res) => {
             }
         );
 
-        // Chạy cả hai pipeline song song để tăng tốc
-        const [members, totalResult] = await Promise.all([
-            PersonalMemberList.aggregate(pipeline),
-            PersonalMemberList.aggregate(countPipeline)
+        // Chạy cả hai pipeline song song với timeout để tăng tốc
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Database query timeout')), 25000)
+        );
+        
+        const [members, totalResult] = await Promise.race([
+            Promise.all([
+                PersonalMemberList.aggregate(pipeline),
+                PersonalMemberList.aggregate(countPipeline)
+            ]),
+            timeoutPromise
         ]);
 
         const total = totalResult.length > 0 ? totalResult[0].total : 0;
@@ -104,7 +114,7 @@ exports.getPersonalMembers = async (req, res) => {
     } catch (error) {
         console.error('Lỗi khi lấy danh sách thành viên:', error);
         if (!res.headersSent) {
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 message: 'Lỗi server khi lấy danh sách thành viên',
                 error: error.message
@@ -206,6 +216,11 @@ exports.addPersonalMember = async (req, res) => {
     } catch (error) {
         console.error('Lỗi khi thêm thành viên:', error);
         
+        // Kiểm tra response đã được gửi chưa
+        if (res.headersSent) {
+            return;
+        }
+        
         // Xử lý lỗi unique constraint
         if (error.code === 11000) {
             return res.status(409).json({
@@ -214,7 +229,7 @@ exports.addPersonalMember = async (req, res) => {
             });
         }
         
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Lỗi server khi thêm thành viên',
             error: error.message
@@ -266,11 +281,13 @@ exports.updatePersonalMember = async (req, res) => {
         });
     } catch (error) {
         console.error('Lỗi khi cập nhật thành viên:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi cập nhật thành viên',
-            error: error.message
-        });
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi server khi cập nhật thành viên',
+                error: error.message
+            });
+        }
     }
 };
 
@@ -314,11 +331,13 @@ exports.removePersonalMember = async (req, res) => {
         });
     } catch (error) {
         console.error('Lỗi khi xóa thành viên:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi xóa thành viên',
-            error: error.message
-        });
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi server khi xóa thành viên',
+                error: error.message
+            });
+        }
     }
 };
 
@@ -356,11 +375,13 @@ exports.permanentDeletePersonalMember = async (req, res) => {
         });
     } catch (error) {
         console.error('Lỗi khi xóa vĩnh viễn thành viên:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi xóa vĩnh viễn thành viên',
-            error: error.message
-        });
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi server khi xóa vĩnh viễn thành viên',
+                error: error.message
+            });
+        }
     }
 };
 
@@ -418,20 +439,28 @@ exports.searchUsersToAdd = async (req, res) => {
 
         console.log('🔍 DEBUG searchUsersToAdd - searchConditions:', JSON.stringify(searchConditions, null, 2));
 
-        // Tìm kiếm users
-        const users = await User.find(searchConditions)
-            .select('full_name name email avatar_url online_status role isActive is_active')
-            .skip(skip)
-            .limit(parseInt(limit))
-            .sort({ full_name: 1 });
+        // Tạo timeout promise
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Search query timeout')), 15000)
+        );
 
+        // Tìm kiếm users với timeout
+        const [users, total] = await Promise.race([
+            Promise.all([
+                User.find(searchConditions)
+                    .select('full_name name email avatar_url online_status role isActive is_active')
+                    .skip(skip)
+                    .limit(parseInt(limit))
+                    .sort({ full_name: 1 }),
+                User.countDocuments(searchConditions)
+            ]),
+            timeoutPromise
+        ]);
+        
         console.log('🔍 DEBUG searchUsersToAdd - found users:', users.length);
         if (users.length > 0) {
             console.log('🔍 DEBUG searchUsersToAdd - first user:', users[0]);
         }
-
-        // Đếm tổng số kết quả
-        const total = await User.countDocuments(searchConditions);
 
         console.log('🔍 DEBUG searchUsersToAdd - total count:', total);
 
@@ -448,11 +477,13 @@ exports.searchUsersToAdd = async (req, res) => {
         });
     } catch (error) {
         console.error('Lỗi khi tìm kiếm người dùng:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi tìm kiếm người dùng',
-            error: error.message
-        });
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi server khi tìm kiếm người dùng',
+                error: error.message
+            });
+        }
     }
 };
 
@@ -489,10 +520,12 @@ exports.getPersonalMemberDetail = async (req, res) => {
         });
     } catch (error) {
         console.error('Lỗi khi lấy chi tiết thành viên:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi server khi lấy chi tiết thành viên',
-            error: error.message
-        });
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi server khi lấy chi tiết thành viên',
+                error: error.message
+            });
+        }
     }
 };
