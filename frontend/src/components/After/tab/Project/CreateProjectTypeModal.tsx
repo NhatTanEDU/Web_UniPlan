@@ -36,8 +36,10 @@ const CreateProjectTypeModal: React.FC<CreateProjectTypeModalProps> = ({
     onClose();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
     setError(""); // Xóa lỗi cũ
 
     if (!name.trim()) {
@@ -90,7 +92,7 @@ const CreateProjectTypeModal: React.FC<CreateProjectTypeModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <div>
           <div className="space-y-2">
             <label htmlFor="type-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Tên phân loại
@@ -103,6 +105,12 @@ const CreateProjectTypeModal: React.FC<CreateProjectTypeModalProps> = ({
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               placeholder="Ví dụ: Marketing, Development,..."
               autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
             />
           </div>
 
@@ -118,7 +126,8 @@ const CreateProjectTypeModal: React.FC<CreateProjectTypeModalProps> = ({
               Hủy
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={isCreating}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors disabled:opacity-50 flex items-center"
             >
@@ -132,7 +141,8 @@ const CreateProjectTypeModal: React.FC<CreateProjectTypeModalProps> = ({
               )}
             </button>
           </div>
-        </form>
+        </div>
+
       </div>
     </div>
   );

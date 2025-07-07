@@ -6,6 +6,8 @@ const Project = require('../models/project.model.js');
  */
 exports.getAllProjectTypes = async (req, res) => {
     try {
+        // Lấy tất cả project types (không filter theo user để share giữa các user)
+        // Hoặc có thể filter theo userId nếu muốn private
         const projectTypes = await ProjectType.find().lean();
         res.json(projectTypes);
     } catch (error) {
