@@ -133,7 +133,7 @@ exports.createProject = async (req, res) => {
       req.server.io.to(userId).emit('project_changed', { action: 'create', project: populatedProject });
     }
     
-    res.status(201).json({ 
+    return res.status(201).json({ 
         message: 'Tạo dự án và bảng Kanban thành công',
         project: populatedProject,
         kanban: savedKanban 
@@ -142,7 +142,7 @@ exports.createProject = async (req, res) => {
   } catch (error) {
     console.error(`❌ Lỗi nghiêm trọng trong ${reqId}:`, error);
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Lỗi server khi tạo dự án', error: error.message });
+      return res.status(500).json({ message: 'Lỗi server khi tạo dự án', error: error.message });
     }
   }
 };
@@ -193,7 +193,7 @@ exports.getMyProjects = async (req, res) => {
     console.log(`${reqId} [FINAL] Chuẩn bị gửi response. Total time: ${Date.now() - startTime}ms`);
     
     if (!res.headersSent) {
-      res.status(200).json(projects);
+      return res.status(200).json(projects);
     }
 
   } catch (error) {
@@ -204,7 +204,7 @@ exports.getMyProjects = async (req, res) => {
     });
     
     if (!res.headersSent) {
-      res.status(500).json({ message: "Lỗi khi lấy danh sách dự án", error: error.message });
+      return res.status(500).json({ message: "Lỗi khi lấy danh sách dự án", error: error.message });
     } else {
       console.error(`🚨 ${reqId} Headers already sent - cannot send error response`);
     }
@@ -264,12 +264,12 @@ exports.getProjectById = async (req, res) => {
     await project.populate('kanban_id'); // Populate kanban_id để trả về thông tin Kanban
     await project.populate('created_by', 'full_name email avatar_url');
     
-    res.status(200).json(project);
+    return res.status(200).json(project);
 
   } catch (error) {
     console.error(`❌ Lỗi nghiêm trọng trong ${reqId}:`, error);
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Lỗi server khi lấy chi tiết dự án' });
+      return res.status(500).json({ message: 'Lỗi server khi lấy chi tiết dự án' });
     }
   }
 };
@@ -302,7 +302,7 @@ exports.softDeleteProject = async (req, res) => {
     res.json({ message: "Đã xóa dự án (ẩn tạm thời)", project: populatedProject });
   } catch (error) {
     console.error('Lỗi xóa mềm dự án:', error);
-    res.status(500).json({ message: "Lỗi khi xóa dự án", error: error.message });
+    return res.status(500).json({ message: "Lỗi khi xóa dự án", error: error.message });
   }
 };
 
@@ -450,13 +450,13 @@ exports.updateProject = async (req, res) => {
       req.server.io.to(userId).emit('project_changed', { action: 'update', project: populatedProject });
     }
 
-    res.status(200).json({ message: 'Cập nhật dự án thành công', project: populatedProject });
+    return res.status(200).json({ message: 'Cập nhật dự án thành công', project: populatedProject });
   } catch (error) {
     console.error('Lỗi cập nhật dự án:', error);
     if (error.name === 'CastError') {
       return res.status(400).json({ message: 'ID dự án không hợp lệ' });
     }
-    res.status(500).json({ message: 'Lỗi khi cập nhật dự án', error: error.message });
+    return res.status(500).json({ message: 'Lỗi khi cập nhật dự án', error: error.message });
   }
 };
 

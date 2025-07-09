@@ -21,7 +21,7 @@ exports.registerUser = async(req, res) => {
 
         // Lưu người dùng vào database
         await user.save();        // Trả về thông tin user vừa tạo
-        res.status(201).json({ 
+        return res.status(201).json({ 
             message: "User registered successfully", 
             user: { id: user._id, name: user.full_name, email: user.email }
         }); // 201 Created
@@ -34,7 +34,7 @@ exports.registerUser = async(req, res) => {
             }
             return res.status(400).json({ message: "Validation error", errors }); // 400 Bad Request for validation errors
         }
-        res.status(500).json({ message: "Server error", error: err.message }); // 500 Internal Server Error for other errors
+        return res.status(500).json({ message: "Server error", error: err.message }); // 500 Internal Server Error for other errors
     }
 };
 
@@ -55,13 +55,13 @@ exports.loginUser = async(req, res) => {
             process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
-        res.status(200).json({
+        return res.status(200).json({
             message: "Login successful",
             token,
             user: { id: user._id, name: user.full_name, full_name: user.full_name, email: user.email }
         });
     } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 

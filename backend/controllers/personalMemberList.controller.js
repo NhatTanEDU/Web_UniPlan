@@ -99,7 +99,7 @@ exports.getPersonalMembers = async (req, res) => {
         const total = totalResult.length > 0 ? totalResult[0].total : 0;
         const totalPages = Math.ceil(total / parseInt(limit));
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Lấy danh sách thành viên thành công',
             data: members,
@@ -208,7 +208,7 @@ exports.addPersonalMember = async (req, res) => {
         const populatedMember = await PersonalMemberList.findById(newMember._id)
             .populate('member_user_id', 'name full_name email avatar_url online_status role');
 
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: 'Thêm thành viên vào danh sách thành công',
             data: populatedMember
@@ -274,7 +274,7 @@ exports.updatePersonalMember = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Cập nhật thông tin thành viên thành công',
             data: member
@@ -324,7 +324,7 @@ exports.removePersonalMember = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Đã xóa thành viên khỏi danh sách',
             data: member
@@ -368,7 +368,7 @@ exports.permanentDeletePersonalMember = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Đã xóa vĩnh viễn thành viên khỏi danh sách',
             data: { id: member._id }
@@ -464,7 +464,7 @@ exports.searchUsersToAdd = async (req, res) => {
 
         console.log('🔍 DEBUG searchUsersToAdd - total count:', total);
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Tìm kiếm người dùng thành công',
             data: users,
@@ -513,7 +513,7 @@ exports.getPersonalMemberDetail = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: 'Lấy chi tiết thành viên thành công',
             data: member

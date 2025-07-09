@@ -62,9 +62,9 @@ exports.addMember = async (req, res) => {
       },
     };
 
-    res.status(201).json(response);
+    return res.status(201).json(response);
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi thêm thành viên', error: error.message });
+    return res.status(500).json({ message: 'Lỗi khi thêm thành viên', error: error.message });
   }
 };
 
@@ -117,9 +117,9 @@ exports.removeMember = async (req, res) => {
       },
     };
 
-    res.status(200).json(response);
+    return res.status(200).json(response);
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi xóa thành viên', error: error.message });
+    return res.status(500).json({ message: 'Lỗi khi xóa thành viên', error: error.message });
   }
 };
 
@@ -179,9 +179,9 @@ exports.updateMemberRole = async (req, res) => {
       },
     };
 
-    res.status(200).json(response);
+    return res.status(200).json(response);
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi khi cập nhật vai trò', error: error.message });
+    return res.status(500).json({ message: 'Lỗi khi cập nhật vai trò', error: error.message });
   }
 };
 
@@ -217,10 +217,10 @@ exports.getMembers = async (req, res) => {
       joined_at: member.joined_at,
     }));
 
-    res.status(200).json(response);
+    return res.status(200).json(response);
   } catch (error) {
     console.error('Error in getMembers:', error);
-    res.status(500).json({ message: 'Lỗi khi lấy danh sách thành viên', error: error.message });
+    return res.status(500).json({ message: 'Lỗi khi lấy danh sách thành viên', error: error.message });
   }
 };
 
@@ -254,10 +254,10 @@ exports.addProjectMember = async (req, res) => {
 
     await projectMember.save();
 
-    res.status(201).json(projectMember);
+    return res.status(201).json(projectMember);
   } catch (error) {
     console.error('Error adding project member:', error);
-    res.status(500).json({ message: 'Lỗi server', error: error.message });
+    return res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };
 
@@ -282,9 +282,10 @@ exports.getProjectMembers = async (req, res) => {
       .populate('user_id', 'name email avatar_url')
       .sort('createdAt');
 
-    res.json(members);  } catch (error) {
+    return res.json(members);
+  } catch (error) {
     console.error('Error getting project members:', error);
-    res.status(500).json({ message: 'Lỗi server', error: error.message });
+    return res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };
 
@@ -360,9 +361,9 @@ exports.getProjectMembersForAssignment = async (req, res) => {
     const duration = Date.now() - startTime;
     console.log(`✅ Retrieved ${members.length} project members for assignment in ${duration}ms`);
     
-    res.json(members);
+    return res.json(members);
   } catch (error) {
     console.error('Error getting project members for assignment:', error);
-    res.status(500).json({ message: 'Lỗi server', error: error.message });
+    return res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
 };
