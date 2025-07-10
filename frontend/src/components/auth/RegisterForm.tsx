@@ -72,30 +72,81 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onError,
     };
 
     return (
-        <form onSubmit={handleRegister} className="flex flex-col gap-4">
+        <form onSubmit={handleRegister} className="flex flex-col gap-3 sm:gap-4">
             {/* AuthError component sẽ được hiển thị ở component cha (Register.tsx) */}
 
-            <label htmlFor="username" className="text-sm text-gray-700">Tên người dùng</label>
-            <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Nhập tên người dùng" className="px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500" required />
+            <label htmlFor="username" className="text-xs sm:text-sm text-gray-700 font-medium auth-label">Tên người dùng</label>
+            <input 
+                id="username" 
+                type="text" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} 
+                placeholder="Nhập tên người dùng" 
+                className="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500 transition-all duration-200 auth-input" 
+                required 
+            />
 
-            <label htmlFor="email" className="text-sm text-gray-700">Email</label>
-            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Nhập Email" className="px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500" required />
+            <label htmlFor="email" className="text-xs sm:text-sm text-gray-700 font-medium auth-label">Email</label>
+            <input 
+                id="email" 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="Nhập Email" 
+                className="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500 transition-all duration-200 auth-input" 
+                required 
+            />
 
-            <label htmlFor="password" className="text-sm text-gray-700">Mật khẩu</label>
+            <label htmlFor="password" className="text-xs sm:text-sm text-gray-700 font-medium auth-label">Mật khẩu</label>
             <div className="relative">
-                <input id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Nhập mật khẩu" className="px-4 py-3 w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500" required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">{showPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                <input 
+                    id="password" 
+                    type={showPassword ? "text" : "password"} 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="Nhập mật khẩu" 
+                    className="px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 w-full text-sm sm:text-base rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500 transition-all duration-200 auth-input" 
+                    required 
+                />
+                <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                >
+                    {showPassword ? <EyeOff size={18} className="sm:w-5 sm:h-5" /> : <Eye size={18} className="sm:w-5 sm:h-5" />}
+                </button>
             </div>
 
-            <label htmlFor="confirmPassword" className="text-sm text-gray-700">Xác nhận mật khẩu</label>
+            <label htmlFor="confirmPassword" className="text-xs sm:text-sm text-gray-700 font-medium auth-label">Xác nhận mật khẩu</label>
             <div className="relative">
-                <input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Nhập lại mật khẩu" className="px-4 py-3 w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500" required />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">{showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                <input 
+                    id="confirmPassword" 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    value={confirmPassword} 
+                    onChange={(e) => setConfirmPassword(e.target.value)} 
+                    placeholder="Nhập lại mật khẩu" 
+                    className="px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 w-full text-sm sm:text-base rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500 transition-all duration-200 auth-input" 
+                    required 
+                />
+                <button 
+                    type="button" 
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+                    className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                >
+                    {showConfirmPassword ? <EyeOff size={18} className="sm:w-5 sm:h-5" /> : <Eye size={18} className="sm:w-5 sm:h-5" />}
+                </button>
             </div>
 
-            <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-xl font-semibold hover:bg-blue-600 transition-all duration-300">Đăng ký</button>
+            <button 
+                type="submit" 
+                className="w-full bg-blue-500 text-white py-2 sm:py-3 text-sm sm:text-base rounded-xl font-semibold hover:bg-blue-600 active:bg-blue-700 transition-all duration-300 mt-2 sm:mt-4 auth-button"
+            >
+                Đăng ký
+            </button>
 
-            <p className="text-center text-sm text-gray-700 mt-2">Đã có tài khoản? <Link to="/login" className="text-green-600 font-medium hover:underline">Đăng nhập</Link></p>
+            <p className="text-center text-xs sm:text-sm text-gray-700 mt-2 auth-link">
+                Đã có tài khoản? <Link to="/login" className="text-green-600 font-medium hover:underline">Đăng nhập</Link>
+            </p>
         </form>
     );
 };

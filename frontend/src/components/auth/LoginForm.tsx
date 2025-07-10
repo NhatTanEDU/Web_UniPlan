@@ -38,9 +38,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onError }) => {
   };
 
   return (
-    <form onSubmit={handleLogin} className="flex flex-col gap-4">
+    <form onSubmit={handleLogin} className="flex flex-col gap-3 sm:gap-4">
       {/* Tên đăng nhập / Email */}
-      <label htmlFor="username" className="text-sm text-gray-700">
+      <label htmlFor="username" className="text-xs sm:text-sm text-gray-700 font-medium">
         Tên đăng nhập / Email
       </label>
       <input
@@ -49,12 +49,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onError }) => {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Nhập tài khoản của bạn"
-        className="px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500"
+        className="px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500 transition-all duration-200"
         required
       />
 
       {/* Mật khẩu */}
-      <label htmlFor="password" className="text-sm text-gray-700">
+      <label htmlFor="password" className="text-xs sm:text-sm text-gray-700 font-medium">
         Mật khẩu
       </label>
       <div className="relative">
@@ -64,28 +64,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onError }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Nhập mật khẩu"
-          className="px-4 py-3 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500"
+          className="px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 w-full text-sm sm:text-base rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 outline-none bg-white placeholder-gray-500 transition-all duration-200"
           required
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+          className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
           aria-label="Hiện/ẩn mật khẩu"
         >
-          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          {showPassword ? <EyeOff size={18} className="sm:w-5 sm:h-5" /> : <Eye size={18} className="sm:w-5 sm:h-5" />}
         </button>
       </div>
 
       {/* Ghi nhớ + Quên mật khẩu */}
-      <div className="flex justify-between items-center text-sm text-gray-700">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" className="accent-primary" />
-          Ghi nhớ đăng nhập
+      <div className="flex justify-between items-center text-xs sm:text-sm text-gray-700 flex-wrap gap-2">
+        <label className="flex items-center gap-2 min-w-0">
+          <input type="checkbox" className="accent-primary flex-shrink-0" />
+          <span className="truncate">Ghi nhớ đăng nhập</span>
         </label>
         <Link
           to="/forgot-password"
-          className="text-[#6A5ACD] hover:underline"
+          className="text-[#6A5ACD] hover:underline whitespace-nowrap"
           style={{ color: COLORS.primary }}
         >
           Quên mật khẩu?
@@ -95,7 +95,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onError }) => {
       {/* Nút submit */}
       <button
         type="submit"
-        className="w-full bg-[#6A5ACD] text-white py-3 rounded-xl font-semibold transition-all duration-300"
+        className="w-full bg-[#6A5ACD] text-white py-2 sm:py-3 text-sm sm:text-base rounded-xl font-semibold transition-all duration-300 mt-2 sm:mt-4 active:scale-95"
         style={{
           backgroundColor: COLORS.primary,
           boxShadow: `0 4px 6px rgba(46, 134, 171, 0.2)`,
@@ -105,7 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onError }) => {
       </button>
 
       {/* Link đăng ký */}
-      <p className="text-center text-sm text-gray-700 mt-2">
+      <p className="text-center text-xs sm:text-sm text-gray-700 mt-2">
         Chưa có tài khoản?{" "}
         <Link
           to="/register"
