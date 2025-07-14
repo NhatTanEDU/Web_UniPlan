@@ -17,6 +17,8 @@
 ✅ **Login.usecase.drawio** - Đăng nhập
 ✅ **register.usecase.drawio** - Đăng ký
 ✅ **NangCapGoi.usecase.drawio** - Nâng cấp Gói Dịch vụ
+✅ **Gantttab.usecase.drawio** - Quản lý Biểu đồ Gantt
+✅ **uploadfile.usecase.drawio** - Quản lý Tài liệu Nhóm
 
 ## 🏗️ CẤU TRÚC TEMPLATE CHUẨN
 
@@ -109,7 +111,7 @@ Actor (x=30, y=300)
 
 ### B. INCLUDE RELATIONSHIP
 ```xml
-<mxCell id="[ID]" value="&amp;lt;include&amp;gt;" 
+<mxCell id="[ID]" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" 
        style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" 
        parent="1" source="[SOURCE_ID]" target="[TARGET_ID]" edge="1">
   <mxGeometry x="0.1" y="10" width="100" height="100" relative="1" as="geometry">
@@ -122,7 +124,7 @@ Actor (x=30, y=300)
 
 ### C. EXTEND RELATIONSHIP
 ```xml
-<mxCell id="[ID]" value="&amp;lt;extend&amp;gt;" 
+<mxCell id="[ID]" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" 
        style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" 
        parent="1" source="[SOURCE_ID]" target="[TARGET_ID]" edge="1">
   <mxGeometry x="-0.1" y="-10" width="100" height="100" relative="1" as="geometry">
@@ -221,28 +223,28 @@ Actor (x=30, y=300)
         </mxCell>
         
         <!-- INCLUDE RELATIONSHIPS -->
-        <mxCell id="19" value="&amp;lt;include&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="4" target="11" edge="1">
+        <mxCell id="19" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="4" target="11" edge="1">
           <mxGeometry x="0.1" y="10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="360" y="190" as="sourcePoint" />
             <mxPoint x="650" y="160" as="targetPoint" />
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="20" value="&amp;lt;include&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="6" target="11" edge="1">
+        <mxCell id="20" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="6" target="11" edge="1">
           <mxGeometry x="0.1" y="10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="360" y="350" as="sourcePoint" />
             <mxPoint x="650" y="190" as="targetPoint" />
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="24" value="&amp;lt;include&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="7" target="11" edge="1">
+        <mxCell id="24" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="7" target="11" edge="1">
           <mxGeometry x="0.1" y="10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="360" y="430" as="sourcePoint" />
             <mxPoint x="650" y="190" as="targetPoint" />
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="26" value="&amp;lt;include&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="12" target="6" edge="1">
+        <mxCell id="26" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="12" target="6" edge="1">
           <mxGeometry x="-0.1" y="-10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="670" y="450" as="sourcePoint" />
             <mxPoint x="360" y="350" as="targetPoint" />
@@ -251,21 +253,21 @@ Actor (x=30, y=300)
         </mxCell>
         
         <!-- EXTEND RELATIONSHIPS -->
-        <mxCell id="21" value="&amp;lt;extend&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="10" target="5" edge="1">
+        <mxCell id="21" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="10" target="5" edge="1">
           <mxGeometry x="-0.1" y="-10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="680" y="320" as="sourcePoint" />
             <mxPoint x="360" y="270" as="targetPoint" />
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="22" value="&amp;lt;extend&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="9" target="12" edge="1">
+        <mxCell id="22" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="9" target="12" edge="1">
           <mxGeometry y="10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="600" y="480" as="sourcePoint" />
             <mxPoint x="670" y="480" as="targetPoint" />
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="25" value="extend" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="12" target="4" edge="1">
+        <mxCell id="25" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;labelPosition=center;verticalLabelPosition=middle;align=center;verticalAlign=middle;" parent="1" source="12" target="4" edge="1">
           <mxGeometry x="-0.1" y="-10" width="100" height="100" relative="1" as="geometry">
             <mxPoint x="670" y="450" as="sourcePoint" />
             <mxPoint x="360" y="220" as="targetPoint" />
@@ -298,8 +300,8 @@ Actor (x=30, y=300)
 
 ### BƯỚC 4: KẾT NỐI
 1. **Actor → Use case**: ID từ 13+, style `endArrow=none`
-2. **Include**: `&amp;lt;include&amp;gt;`, style `dashed=1;endArrow=open`
-3. **Extend**: `&amp;lt;extend&amp;gt;`, style `dashed=1;endArrow=open`
+2. **Include**: `&amp;lt;&amp;lt;include&amp;gt;&amp;gt;`, style `dashed=1;endArrow=open`
+3. **Extend**: `&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;`, style `dashed=1;endArrow=open`
 
 ### BƯỚC 5: KIỂM TRA
 - [ ] Layout không vỡ khi kéo thả
@@ -454,7 +456,7 @@ Bước 6: Kết nối Actor với Use Cases
 
 Bước 7: Thêm mối quan hệ Include/Extend
 ```xml
-<mxCell id="19" value="<<include>>" 
+<mxCell id="19" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" 
        style="endArrow=open;endSize=12;dashed=1;html=1;" 
        source="4" target="11" parent="1">
   <mxGeometry width="100" height="100" relative="1" />
@@ -502,7 +504,42 @@ Chuẩn bị → Tạo file → Thêm Use case → Kết nối → Kiểm tra
 Danh sách "Tuyệt đối tránh" và "Luôn đảm bảo"
 Checklist kiểm tra đầy đủ
 🚀 LỢI ÍCH CỦA TEMPLATE:
-✅ Tái sử dụng nhanh: Copy template → Thay tên → Hoàn thành ✅ Đảm bảo chất lượng: Không bao giờ bị vỡ layout ✅ Chuẩn UML: Tuân thủ 100% Use Case Diagram standard ✅ Chuyên nghiệp: Màu sắc, bố cục đẹp mắt ✅ Dễ bảo trì: Cấu trúc rõ ràng, dễ chỉnh sửa
+✅ Tái sử dụng nhanh: Copy template → Thay tên → Hoàn thành 
+✅ Đảm bảo chất lượng: Không bao giờ bị vỡ layout 
+✅ Chuẩn UML: Tuân thủ 100% Use Case Diagram standard 
+✅ Chuyên nghiệp: Màu sắc, bố cục đẹp mắt 
+✅ Dễ bảo trì: Cấu trúc rõ ràng, dễ chỉnh sửa
+
+## 🔧 **TEMPLATE ĐÚNG CHUẨN - KHÔNG CÓ LỖI XML**
+
+### 📝 MẪU INCLUDE/EXTEND ĐÚNG ENCODING:
+
+**Include Relationship:**
+```xml
+<mxCell id="ID_NUMBER" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" 
+       style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" 
+       parent="1" source="SOURCE_ID" target="TARGET_ID" edge="1">
+  <mxGeometry width="100" height="100" relative="1" as="geometry" />
+</mxCell>
+```
+
+**Extend Relationship:**
+```xml
+<mxCell id="ID_NUMBER" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" 
+       style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;" 
+       parent="1" source="SOURCE_ID" target="TARGET_ID" edge="1">
+  <mxGeometry width="100" height="100" relative="1" as="geometry" />
+</mxCell>
+```
+
+### 🎯 **ĐIỂM QUAN TRỌNG:**
+- Sử dụng `&amp;lt;&amp;lt;include&amp;gt;&amp;gt;` thay vì `<<include>>`
+- Sử dụng `&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;` thay vì `<<extend>>`
+- Đây là XML encoding chuẩn để tránh lỗi parse
+
+---
+🎉 **Template hoàn chỉnh và đã sửa lỗi XML!** 
+Sử dụng làm cơ sở cho tất cả các sơ đồ Use Case tiếp theo.
 
 Template này giờ đây là "thần chú" để tạo ra bất kỳ sơ đồ Use Case nào với chất lượng hoàn hảo! 🎯
 

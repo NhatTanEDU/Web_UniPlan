@@ -1,0 +1,214 @@
+Chắc chắn rồi! Bây giờ chúng ta sẽ cùng nhau thực hiện lại một cách chi tiết và có hệ thống từ đầu đến cuối, giúp bạn áp dụng các quy định trong file hướng dẫn vào đồ án của mình một cách chính xác.
+
+Hãy xem đây là một danh sách các công việc cần làm theo thứ tự.
+
+Bước 1: Thiết lập Trang văn bản (Làm đầu tiên)
+Đây là nền tảng của toàn bộ đồ án.
+
+Mở tệp Word của bạn.
+
+Vào tab Layout.
+
+Trong nhóm 
+
+Page Setup, nhấn vào Size và chọn A4.
+
+Cũng trong nhóm Page Setup, nhấn vào Margins -> Custom Margins... (hoặc nút mũi tên nhỏ ở góc) để mở hộp thoại.
+
+Thiết lập các thông số lề chính xác như sau:
+
+
+Top (Trên): 2,5 cm 
+
+
+Bottom (Dưới): 2,5 cm 
+
+
+Left (Trái): 3 cm 
+
+
+Right (Phải): 2 cm 
+
+Nhấn OK.
+
+Bước 2: Soạn thảo và Áp dụng "Styles"
+Đây là bước quan trọng nhất để đảm bảo tính nhất quán và tạo mục lục tự động. Hãy sử dụng cửa sổ Styles trong tab Home.
+
+Tên Chương (ví dụ: CHƯƠNG 1 GIỚI THIỆU):
+
+Cách làm: Gõ tên chương, bôi đen và chọn Style Heading 1.
+
+
+Quy định: Cỡ chữ 14 , 
+
+
+
+IN ĐẬM, CHỮ IN HOA , canh lề trái , giãn cách dòng 
+
+
+
+
+
+single (1.0). Khoảng cách với đoạn trên là 24 pt, dưới là 24 pt.
+
+
+
+
+
+Tiểu mục cấp 1 (ví dụ: 1.1, 1.2, ...):
+
+Cách làm: Gõ tên tiểu mục, bôi đen và chọn Style Heading 2.
+
+
+Quy định: Cỡ chữ 13 , 
+
+
+
+in đậm , canh lề trái. Khoảng cách với đoạn trên là 6 pt, dưới là 12 pt.
+
+
+
+Tiểu mục cấp 2 (ví dụ: 1.1.1, 1.1.2, ...):
+
+Cách làm: Gõ tên tiểu mục, bôi đen và chọn Style Heading 3.
+
+
+Quy định: Cỡ chữ 13 , 
+
+
+
+in đậm và nghiêng , canh lề trái. Khoảng cách với đoạn trên là 6 pt, dưới là 12 pt.
+
+
+
+Nội dung văn bản chính:
+
+Cách làm: Với mọi đoạn văn nội dung, bôi đen và chọn Style Content.
+
+
+Quy định: Cỡ chữ 13 , canh lề hai bên (Justify) , giãn dòng 1.5 lines.
+
+
+
+
+
+Chú thích cho Hình và Bảng:
+
+Cách làm: Sau khi chèn chú thích (caption), bôi đen dòng chú thích và chọn Style Caption.
+
+
+Quy định: Cỡ chữ 12 , 
+
+
+in nghiêng , canh lề giữa.
+
+
+Bước 3: Chèn Hình và Bảng biểu
+Luôn dùng tính năng Insert Caption để Word quản lý tự động.
+
+Đối với Hình ảnh:
+
+Chèn hình vào văn bản.
+
+Nhấp chuột phải vào hình, chọn Insert Caption....
+
+Hộp thoại hiện ra, đảm bảo mục Label là "Hình".
+
+
+Quy định: Chú thích phải được ghi phía dưới hình. Định dạng là 
+
+Hình x.y (với x là số chương, y là thứ tự hình).
+
+Đối với Bảng biểu:
+
+Chèn bảng vào văn bản.
+
+Chọn bảng, nhấp chuột phải và chọn Insert Caption....
+
+Hộp thoại hiện ra, đảm bảo mục Label là "Bảng".
+
+
+Quy định: Chú thích phải được ghi phía trên bảng biểu. Định dạng là 
+
+Bảng x.y (với x là số chương, y là thứ tự bảng).
+
+Bước 4: Đánh số trang (La Mã & Số thường)
+Đây là phần cần sự cẩn thận.
+
+Tạo Phân khu (Section Break):
+
+Đặt con trỏ chuột ở cuối trang cuối cùng của phần mở đầu (ví dụ: cuối trang Danh mục từ viết tắt).
+
+Vào tab Layout -> Breaks -> Next Page. Thao tác này sẽ tách đồ án làm 2 phần (section) để đánh số riêng.
+
+Đánh số cho Phần mở đầu (i, ii, iii...):
+
+Di chuyển đến trang "Lời cam đoan" (trang đầu tiên cần đánh số).
+
+Vào tab Insert -> Page Number -> Bottom of Page -> Chọn kiểu số ở giữa.
+
+Vào lại Insert -> Page Number -> Format Page Numbers....
+
+Trong mục 
+
+Number format, chọn kiểu i, ii, iii, ....
+
+Chọn Start at: i. Nhấn OK.
+
+Đánh số cho Phần nội dung (1, 2, 3...):
+
+Di chuyển đến trang đầu tiên của Chương 1.
+
+Nhấp đúp vào cuối trang (footer) để vào chế độ chỉnh sửa.
+
+Tab Header & Footer sẽ hiện ra. Hãy tìm và tắt nút "Link to Previous". Bước này cực kỳ quan trọng để ngắt liên kết với phần trước.
+
+Bây giờ, vào Insert -> Page Number -> Format Page Numbers....
+
+Trong mục 
+
+Number format, chọn kiểu 1, 2, 3, ....
+
+Chọn 
+
+Start at: 1. Nhấn OK.
+
+
+Quy định: Số trang được ghi ở cuối trang, canh lề giữa.
+
+Bước 5: Trích dẫn theo chuẩn IEEE
+Vào tab References.
+
+Trong mục 
+
+Style, chọn IEEE.
+
+
+Khi muốn trích dẫn, đặt con trỏ vào vị trí cần thiết, chọn Insert Citation -> Add New Source....
+
+Điền thông tin của tài liệu tham khảo và nhấn OK. Word sẽ chèn số dạng [1].
+
+Sau khi viết xong, đến trang "TÀI LIỆU THAM KHẢO", vào 
+
+References -> Bibliography -> Insert Bibliography. Word sẽ tự động tạo danh sách hoàn chỉnh.
+
+Bước 6: Tạo Mục lục và các Danh mục tự động
+Đây là thành quả của việc sử dụng Styles đúng cách.
+
+Tạo Mục lục:
+
+Đến trang "MỤC LỤC".
+
+Vào tab References -> Table of Contents -> Chọn một mẫu tự động. Mục lục sẽ được tạo dựa trên các đề mục có Style Heading 1, Heading 2,...
+
+Tạo Danh mục Hình ảnh/Bảng biểu:
+
+Đến trang "DANH MỤC CÁC HÌNH ẢNH".
+
+Vào tab References -> Insert Table of Figures.
+
+Trong hộp thoại hiện ra, ở mục Caption label, chọn "Hình" rồi nhấn OK.
+
+Làm tương tự cho trang "DANH MỤC BẢNG BIỂU", nhưng chọn Caption label là "Bảng".
+
+Lưu ý quan trọng: Mỗi khi bạn có thay đổi (thêm/bớt chương, hình ảnh), hãy nhấp chuột phải vào mục lục (hoặc danh mục) và chọn Update Field -> Update entire table để cập nhật lại tất cả.

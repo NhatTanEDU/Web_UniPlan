@@ -4,87 +4,101 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        
+        <!-- Tiêu đề hệ thống -->
+        <mxCell id="title" value="HỆ THỐNG QUẢN LÝ BIỂU ĐỒ GANTT" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#2F5233;" vertex="1" parent="1">
+          <mxGeometry x="400" y="50" width="369" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Actor -->
         <mxCell id="actor-user" value="Thành viên Dự án" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
-          <mxGeometry x="120" y="350" width="30" height="60" as="geometry" />
+          <mxGeometry x="70" y="350" width="30" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="system-boundary" value="Hệ thống Biểu đồ Gantt" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;rounded=1;strokeColor=#6c8ebf;fillColor=#dae8fc;" parent="1" vertex="1">
-          <mxGeometry x="240" y="40" width="720" height="700" as="geometry">
-            <mxRectangle x="240" y="40" width="140" height="26" as="alternateBounds" />
-          </mxGeometry>
+        
+        <!-- Use Cases Chính (Cột 1) -->
+        <mxCell id="uc-view-gantt" value="Xem Biểu đồ Gantt" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="200" y="150" width="160" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="uc-view-gantt" value="Xem Biểu đồ Gantt" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="system-boundary" vertex="1">
-          <mxGeometry x="40" y="80" width="180" height="80" as="geometry" />
+        <mxCell id="uc-edit-task-timeline" value="Thay đổi thời gian công việc&lt;br&gt;(Kéo-thả)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="200" y="270" width="160" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="uc-edit-task-timeline" value="Thay đổi thời gian công việc&lt;br&gt;(Kéo-thả)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="system-boundary" vertex="1">
-          <mxGeometry x="40" y="240" width="180" height="80" as="geometry" />
+        <mxCell id="uc-edit-task-details" value="Chỉnh sửa chi tiết công việc&lt;br&gt;(Nhấp đúp)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="200" y="390" width="160" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="uc-edit-task-details" value="Chỉnh sửa chi tiết công việc&lt;br&gt;(Nhấp đúp)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="system-boundary" vertex="1">
-          <mxGeometry x="40" y="400" width="180" height="80" as="geometry" />
+        <mxCell id="uc-manage-dependencies" value="Quản lý Phụ thuộc&lt;br&gt;(Tạo/Xóa liên kết)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="200" y="510" width="160" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="uc-manage-dependencies" value="Quản lý Phụ thuộc&lt;br&gt;(Tạo/Xóa liên kết)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="system-boundary" vertex="1">
-          <mxGeometry x="40" y="560" width="180" height="80" as="geometry" />
+        
+        <!-- Use Cases Phụ trợ (Cột 2) -->
+        <mxCell id="uc-load-data" value="Tải dữ liệu dự án&lt;br&gt;(Tasks, Dependencies)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="490" y="150" width="160" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="uc-load-data" value="Tải dữ liệu dự án&lt;br&gt;(Tasks, Dependencies)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="system-boundary" vertex="1">
-          <mxGeometry x="480" y="85" width="180" height="70" as="geometry" />
+        <mxCell id="uc-save-changes" value="Lưu thay đổi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="490" y="370" width="160" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="uc-view-tooltip" value="Xem thông tin nhanh&lt;br&gt;(Tooltip)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="system-boundary" vertex="1">
-          <mxGeometry x="480" y="175" width="180" height="70" as="geometry" />
+        
+        <!-- Use Cases Mở rộng (Cột 3) -->
+        <mxCell id="uc-view-tooltip" value="Xem thông tin nhanh&lt;br&gt;(Tooltip)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="750" y="150" width="160" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="uc-save-changes" value="Lưu thay đổi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="system-boundary" vertex="1">
-          <mxGeometry x="480" y="405" width="180" height="70" as="geometry" />
-        </mxCell>
+        
+        <!-- Liên kết Actor với Use Cases -->
         <mxCell id="rel-actor-view" value="" style="endArrow=none;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-user" target="uc-view-gantt" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="160" y="380" as="sourcePoint" />
-            <mxPoint x="290" y="120" as="targetPoint" />
+            <mxPoint x="100" y="380" as="sourcePoint" />
+            <mxPoint x="200" y="190" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="rel-actor-drag" value="" style="endArrow=none;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-user" target="uc-edit-task-timeline" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="160" y="380" as="sourcePoint" />
-            <mxPoint x="290" y="280" as="targetPoint" />
+            <mxPoint x="100" y="380" as="sourcePoint" />
+            <mxPoint x="200" y="310" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="rel-actor-dblclick" value="" style="endArrow=none;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-user" target="uc-edit-task-details" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="160" y="380" as="sourcePoint" />
-            <mxPoint x="290" y="440" as="targetPoint" />
+            <mxPoint x="100" y="380" as="sourcePoint" />
+            <mxPoint x="200" y="430" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="rel-actor-link" value="" style="endArrow=none;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor-user" target="uc-manage-dependencies" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="160" y="380" as="sourcePoint" />
-            <mxPoint x="290" y="600" as="targetPoint" />
+            <mxPoint x="100" y="380" as="sourcePoint" />
+            <mxPoint x="200" y="550" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="rel-include-load" value="&lt;div&gt;&amp;lt;&amp;lt;include&amp;gt;&amp;gt;&lt;/div&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-view-gantt" target="uc-load-data" edge="1">
+        
+        <!-- Mối quan hệ Include -->
+        <mxCell id="rel-include-load" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="uc-view-gantt" target="uc-load-data" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="230" y="130" as="sourcePoint" />
-            <mxPoint x="470" y="120" as="targetPoint" />
+            <mxPoint x="360" y="190" as="sourcePoint" />
+            <mxPoint x="490" y="185" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="rel-extend-tooltip" value="&lt;div&gt;&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;&lt;/div&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-view-tooltip" target="uc-view-gantt" edge="1">
+        <mxCell id="rel-include-save-drag" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="uc-edit-task-timeline" target="uc-save-changes" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="470" y="210" as="sourcePoint" />
-            <mxPoint x="230" y="150" as="targetPoint" />
+            <mxPoint x="360" y="310" as="sourcePoint" />
+            <mxPoint x="490" y="405" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="rel-include-save-drag" value="&lt;div&gt;&amp;lt;&amp;lt;include&amp;gt;&amp;gt;&lt;/div&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-edit-task-timeline" target="uc-save-changes" edge="1">
+        <mxCell id="rel-include-save-details" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="uc-edit-task-details" target="uc-save-changes" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="230" y="290" as="sourcePoint" />
-            <mxPoint x="470" y="440" as="targetPoint" />
+            <mxPoint x="360" y="430" as="sourcePoint" />
+            <mxPoint x="490" y="405" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="rel-include-save-details" value="&lt;div&gt;&amp;lt;&amp;lt;include&amp;gt;&amp;gt;&lt;/div&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-edit-task-details" target="uc-save-changes" edge="1">
+        <mxCell id="rel-include-save-link" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="uc-manage-dependencies" target="uc-save-changes" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="230" y="450" as="sourcePoint" />
-            <mxPoint x="470" y="450" as="targetPoint" />
+            <mxPoint x="360" y="550" as="sourcePoint" />
+            <mxPoint x="490" y="405" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="rel-include-save-link" value="&lt;div&gt;&amp;lt;&amp;lt;include&amp;gt;&amp;gt;&lt;/div&gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="uc-manage-dependencies" target="uc-save-changes" edge="1">
+        
+        <!-- Mối quan hệ Extend -->
+        <mxCell id="rel-extend-tooltip" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="uc-view-tooltip" target="uc-view-gantt" edge="1">
           <mxGeometry width="100" height="100" relative="1" as="geometry">
-            <mxPoint x="230" y="610" as="sourcePoint" />
-            <mxPoint x="470" y="460" as="targetPoint" />
+            <mxPoint x="750" y="185" as="sourcePoint" />
+            <mxPoint x="360" y="190" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>
