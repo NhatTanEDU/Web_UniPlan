@@ -27,8 +27,16 @@ export function useProjects() {
     setError(null);
     try {
       const data = await getProjects();
-      console.log("✅ useProjects: API response received", { projectsCount: data.length });
-      setProjects(data);
+      console.log("✅ useProjects: API response received", { 
+        projectsCount: Array.isArray(data) ? data.length : 'Not an array', 
+        dataType: typeof data,
+        isArray: Array.isArray(data),
+        data: data
+      });
+      
+      // 🚀 DEFENSIVE: Đảm bảo data là array
+      const safeData = Array.isArray(data) ? data : [];
+      setProjects(safeData);
       console.log("✅ useProjects: State updated with new projects");
     } catch (err: any) {
       console.error("❌ useProjects: Error fetching projects", err);

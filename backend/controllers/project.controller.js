@@ -147,34 +147,67 @@ exports.createProject = async (req, res) => {
   }
 };
 
-// Lấy danh sách dự án của user (bao gồm cả dự án được mời vào và dự án đã tạo)
+// Lấy danh sách dự án của user (bao gồm cả dự án được mời vào và dự án đã tạo) - WITH PAGINATION
 exports.getMyProjects = async (req, res) => {
   const reqId = `[getMyProjects-${req.user.userId.slice(-4)}-${Date.now()}]`;
   const startTime = Date.now();
   
-  console.log(`${reqId} [1] Bắt đầu lấy danh sách dự án (bao gồm dự án được mời và dự án đã tạo)...`);
+  console.log(`${reqId} [1] Bắt đầu lấy danh sách dự án (OPTIMIZED với pagination)...`);
   
   try {
     const userId = new mongoose.Types.ObjectId(req.user.userId);
-    console.log(`${reqId} [2] Đang tìm các dự án mà user ID: ${userId} là thành viên hoặc người tạo...`);
+    
+    // 🚀 PAGINATION PARAMETERS
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20; // Giảm xuống 20 thay vì unlimited
+    const skip = (page - 1) * limit;
+    
+    console.log(`${reqId} [2] Pagination: page=${page}, limit=${limit}, skip=${skip}`);
 
-    // Import ProjectMember model
-    const ProjectMember = require('../models/projectMember.model');
+    // 🚀 SIMPLE CACHE for ProjectMember queries (1 minute cache)
+    const cacheKey = `project_members_${userId}`;
+    const now = Date.now();
+    if (!global.projectMemberCache) global.projectMemberCache = {};
     
-    // Bước 1: Tìm tất cả các bản ghi ProjectMember của người dùng hiện tại
-    console.log(`${reqId} [3] Đang truy vấn ProjectMember...`);
-    const membershipStart = Date.now();
-    
-    const userMemberships = await ProjectMember.find({ user_id: userId });
-    
-    console.log(`${reqId} [3] ProjectMember query completed in ${Date.now() - membershipStart}ms. Found ${userMemberships.length} memberships.`);
-    
-    // Bước 2: Lấy danh sách project_id từ membership
-    const memberProjectIds = userMemberships.map(member => member.project_id);
-    console.log(`${reqId} [4] Người dùng là thành viên của ${memberProjectIds.length} dự án.`);
+    let memberProjectIds;
+    if (global.projectMemberCache[cacheKey] && (now - global.projectMemberCache[cacheKey].timestamp < 60000)) {
+      console.log(`${reqId} [3] Using cached ProjectMember data...`);
+      memberProjectIds = global.projectMemberCache[cacheKey].data;
+    } else {
+      console.log(`${reqId} [3] Đang truy vấn ProjectMember (lightweight)...`);
+      const memberStart = Date.now();
 
-    // Bước 3: Tìm tất cả các dự án mà user có quyền truy cập (thành viên HOẶC người tạo)
-    console.log(`${reqId} [5] Đang truy vấn chi tiết các dự án...`);
+      // Import ProjectMember model
+      const ProjectMember = require('../models/projectMember.model');
+      
+      const userMemberships = await ProjectMember.find({ user_id: userId })
+        .select('project_id') // CHỈ lấy project_id
+        .lean(); // Sử dụng lean() để tăng performance
+      
+      console.log(`${reqId} [3] ProjectMember query completed in ${Date.now() - memberStart}ms. Found ${userMemberships.length} memberships.`);
+      
+      // Bước 2: Lấy danh sách project_id từ membership
+      memberProjectIds = userMemberships.map(member => member.project_id);
+      console.log(`${reqId} [4] Người dùng là thành viên của ${memberProjectIds.length} dự án.`);
+
+      // Cache the result
+      global.projectMemberCache[cacheKey] = {
+        data: memberProjectIds,
+        timestamp: now
+      };
+    }
+    const totalCount = await Project.countDocuments({
+      $or: [
+        { '_id': { $in: memberProjectIds } }, // Dự án mà user là thành viên
+        { 'created_by': userId } // Dự án mà user là người tạo
+      ],
+      'is_deleted': false // Chỉ lấy các dự án chưa bị xóa
+    });
+
+    console.log(`${reqId} [5] Total projects available: ${totalCount}. Getting page ${page} (${limit} items)`);
+
+    // 🚀 OPTIMIZED QUERY với pagination và minimal populate
+    console.log(`${reqId} [6] Đang truy vấn chi tiết các dự án (paginated)...`);
     const projectsStart = Date.now();
     
     const projects = await Project.find({
@@ -184,16 +217,36 @@ exports.getMyProjects = async (req, res) => {
       ],
       'is_deleted': false // Chỉ lấy các dự án chưa bị xóa
     })
-    .populate('created_by', 'full_name email avatar_url') // Lấy thông tin người tạo  
-    .populate('project_type_id', 'name') // Lấy thông tin loại dự án
-    .sort({ created_at: -1 }); // Sắp xếp theo ngày tạo mới nhất
+    .select('project_name description status priority start_date end_date created_by project_type_id created_at updated_at') // CHỈ lấy fields cần thiết
+    .populate('created_by', 'full_name email') // Minimal populate
+    .populate('project_type_id', 'name') // Minimal populate
+    .sort({ created_at: -1 }) // Sắp xếp theo ngày tạo mới nhất
+    .skip(skip)
+    .limit(limit)
+    .lean(); // Sử dụng lean() để tăng performance
 
-    console.log(`${reqId} [5] Projects query completed in ${Date.now() - projectsStart}ms. Found ${projects.length} projects.`);
+    console.log(`${reqId} [6] Projects query completed in ${Date.now() - projectsStart}ms. Found ${projects.length} projects for page ${page}.`);
 
+    // 🚀 BACKWARD COMPATIBILITY: Trả về array trực tiếp nhưng với pagination headers
+    // Frontend hiện tại expect projects là array, nên ta trả về array
+    
     console.log(`${reqId} [FINAL] Chuẩn bị gửi response. Total time: ${Date.now() - startTime}ms`);
     
+    // 🚀 PROTECTION: Kiểm tra response đã được gửi chưa
     if (!res.headersSent) {
-      return res.status(200).json(projects);
+      // Thêm pagination info vào headers để frontend có thể sử dụng
+      res.set({
+        'X-Current-Page': page.toString(),
+        'X-Total-Pages': Math.ceil(totalCount / limit).toString(),
+        'X-Total-Projects': totalCount.toString(),
+        'X-Projects-Per-Page': limit.toString(),
+        'X-Has-Next-Page': (page < Math.ceil(totalCount / limit)).toString(),
+        'X-Has-Previous-Page': (page > 1).toString()
+      });
+      
+      return res.status(200).json(projects); // Trả về array trực tiếp như trước
+    } else {
+      console.warn(`🚨 ${reqId} Headers already sent - skipping response`);
     }
 
   } catch (error) {
@@ -203,8 +256,13 @@ exports.getMyProjects = async (req, res) => {
       totalTime: Date.now() - startTime + 'ms'
     });
     
+    // 🚀 PROTECTION: Kiểm tra response đã được gửi chưa trước khi gửi error
     if (!res.headersSent) {
-      return res.status(500).json({ message: "Lỗi khi lấy danh sách dự án", error: error.message });
+      return res.status(500).json({ 
+        message: "Lỗi khi lấy danh sách dự án", 
+        error: error.message,
+        requestId: reqId
+      });
     } else {
       console.error(`🚨 ${reqId} Headers already sent - cannot send error response`);
     }

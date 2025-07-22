@@ -22,6 +22,19 @@ const ProjectList: React.FC<Props> = ({ projects, onEdit, onDelete, onRestore })
   const [selectedType, setSelectedType] = useState<string>("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  // 🚀 DEFENSIVE PROGRAMMING: Đảm bảo projects luôn là array
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 ProjectList received projects:', { 
+      type: typeof projects, 
+      isArray: Array.isArray(projects), 
+      length: safeProjects.length,
+      projects: projects 
+    });
+  }, [projects, safeProjects.length]);
+
   // Hàm tạo icon cho status với màu sắc
   const getStatusIcon = (status: string) => {
     const iconBaseClass = "h-4 w-4";
@@ -58,15 +71,21 @@ const ProjectList: React.FC<Props> = ({ projects, onEdit, onDelete, onRestore })
   }, []);
 
   // Lấy danh sách các phân loại dự án duy nhất
-  const projectTypes = Array.from(new Set(projects.map(p => p.project_type_id?.name || "Không phân loại")));
+  const projectTypes = Array.from(new Set(safeProjects.map(p => p.project_type_id?.name || "Không phân loại")));
 
   // Lọc dự án theo phân loại được chọn
   const filteredProjects = selectedType === "all"
-    ? projects
-    : projects.filter(p => p.project_type_id?.name === selectedType);
+    ? safeProjects
+    : safeProjects.filter(p => p.project_type_id?.name === selectedType);
 
-  if (!projects || projects.length === 0) {
-    return <div className="text-gray-500 text-center py-4">Không có dự án nào</div>;
+  if (!safeProjects || safeProjects.length === 0) {
+    return (
+      <div className="text-gray-500 text-center py-8">
+        <div className="mb-2">📂</div>
+        <div>Không có dự án nào</div>
+        <div className="text-sm mt-1">Hãy tạo dự án đầu tiên của bạn!</div>
+      </div>
+    );
   }
 
   return (

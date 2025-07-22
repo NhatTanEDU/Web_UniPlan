@@ -169,6 +169,33 @@ const statsRateLimit = rateLimit({
   }
 });
 
+// 🚀 SPECIAL RATE LIMITING FOR PROJECTS API - Prevent concurrent requests
+const projectsRateLimit = rateLimit({
+  windowMs: 500, // 500ms - giảm từ 2 giây để ít nghiêm khắc hơn
+  max: 1, // CHỈ cho phép 1 request mỗi 500ms
+  message: {
+    error: 'Quá nhiều yêu cầu đến API dự án. Vui lòng đợi 500ms trước khi thử lại.',
+    retryAfter: 0.5
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Rate limit per user, not per IP
+    return req.user?.userId || req.ip;
+  },
+  skip: (req) => {
+    // Skip rate limiting cho admin trong development
+    return process.env.NODE_ENV === 'development' && req.user?.role === 'Admin';
+  },
+  handler: (req, res) => {
+    console.warn(`🚫 Projects API rate limited for user: ${req.user?.userId || req.ip}`);
+    res.status(429).json({
+      error: 'Quá nhiều yêu cầu đến API dự án. Vui lòng đợi 500ms trước khi thử lại.',
+      retryAfter: 0.5
+    });
+  }
+});
+
 // Middleware tùy chỉnh để áp dụng rate limiting linh hoạt
 const createCustomRateLimit = (options = {}) => {
   const defaultOptions = {
@@ -223,6 +250,7 @@ const logRateLimitViolation = (req, res, next) => {
 
 module.exports = {
   generalRateLimit,
+  projectsRateLimit, // 🚀 EXPORT projects rate limit
   createTeamRateLimit,
   addMemberRateLimit,
   bulkOperationRateLimit,

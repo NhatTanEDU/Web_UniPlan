@@ -3,12 +3,14 @@ const mongoose = require('mongoose');
 
 // Cấu hình MongoDB connection với các tùy chọn được tối ưu và hỗ trợ
 const mongooseOptions = {
-  maxPoolSize: 10,
+  maxPoolSize: 20, // 🚀 Tăng pool size để handle concurrent requests
   minPoolSize: 5,
   serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
+  socketTimeoutMS: 60000, // 🚀 Tăng timeout để phù hợp với API timeout
   connectTimeoutMS: 10000,
   family: 4,
+  maxIdleTimeMS: 30000, // 🚀 Close connections after 30s idle
+  compressors: 'zlib', // 🚀 Enable compression to reduce data transfer
   // XÓA BỎ CÁC TÙY CHỌN CŨ GÂY LỖI
   // bufferMaxEntries: 0,
   // bufferCommands: false,

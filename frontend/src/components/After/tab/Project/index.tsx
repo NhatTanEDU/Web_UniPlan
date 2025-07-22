@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Header from "../../Header";
 import Sidebar from "../../Sidebar";
 import Footer from "../../../Footer";
@@ -13,6 +13,8 @@ import { useProjects } from "./hooks/useProjects";
 import ProjectForm from "./ProjectForm";
 import ProjectList from "./ProjectList";
 import ProjectEditModal from "./ProjectEditModal";
+import ProjectErrorBoundary from "./ProjectErrorBoundary";
+// import ProjectAPIDebugger from "./ProjectAPIDebugger"; // Temporarily hidden for better UI
 import { Plus } from "lucide-react";
 
 export default function ProjectPage() {
@@ -29,6 +31,18 @@ export default function ProjectPage() {
     deleteProject,
     restoreProject,
   } = useProjects();
+
+  // 🔍 DEBUG: Log projects state changes
+  useEffect(() => {
+    console.log('🏠 ProjectPage state update:', { 
+      projectsCount: Array.isArray(projects) ? projects.length : 'Not array',
+      projectsType: typeof projects,
+      isArray: Array.isArray(projects),
+      loading, 
+      error,
+      projects: projects 
+    });
+  }, [projects, loading, error]);
 
   // Local state for UI modals and forms
   const [newProject, setNewProject] = useState({
@@ -168,19 +182,40 @@ export default function ProjectPage() {
               Tạo Dự án Mới
             </button>
           </div>
+          
+          {/* 🧪 DEBUG PANEL - Temporarily hidden for better UI 
+          {process.env.NODE_ENV === 'development' && (
+            <ProjectAPIDebugger />
+          )}
+          */}
+          
           {loading ? (
-            <p className="text-gray-500 dark:text-gray-400">Đang tải...</p>
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-500 dark:text-gray-400">Đang tải danh sách dự án...</span>
+            </div>
           ) : error ? (
-            <p className="text-red-500">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-700 font-medium">❌ Lỗi tải dữ liệu</p>
+              <p className="text-red-600 text-sm mt-1">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+              >
+                Thử lại
+              </button>
+            </div>
           ) : projects.length === 0 ? (
             <p className="text-gray-500 text-center py-4">Không có dự án nào</p>
           ) : (
-            <ProjectList
-              projects={projects}
-              onEdit={setEditProject}
-              onDelete={handleSoftDelete}
-              onRestore={handleRestore}
-            />
+            <ProjectErrorBoundary>
+              <ProjectList
+                projects={projects}
+                onEdit={setEditProject}
+                onDelete={handleSoftDelete}
+                onRestore={handleRestore}
+              />
+            </ProjectErrorBoundary>
           )}
           {showCreateModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">

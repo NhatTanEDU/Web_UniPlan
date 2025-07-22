@@ -2,18 +2,20 @@ const express = require('express');
 const router = express.Router();
 const projectController = require('../controllers/project.controller');
 const auth = require('../middleware/auth');
+const { projectsRateLimit } = require('../middleware/rateLimiting'); // 🚀 Import projects rate limit
+const { projectsDeduplication } = require('../middleware/requestDeduplication'); // 🚀 Import deduplication
 
 // API: Lấy danh sách project có thể gán vào team (CỤ THỂ HƠN - ĐẶT LÊN TRƯỚC)
-router.get('/projects/available', auth, projectController.getAvailableProjects);
+router.get('/projects/available', auth, projectsRateLimit, projectController.getAvailableProjects); // 🚀 Add rate limit
 
 // API: Tìm kiếm project (CỤ THỂ HƠN - ĐẶT LÊN TRƯỚC)
 router.get('/projects/search', auth, projectController.searchProjects);
 
-// API: Lấy danh sách dự án của user hiện tại
-router.get('/projects', auth, projectController.getMyProjects);
+// 🚀 API: Lấy danh sách dự án của user hiện tại (WITH RATE LIMITING + DEDUPLICATION)
+router.get('/projects', auth, projectsDeduplication, projectsRateLimit, projectController.getMyProjects);
 
-// API: Lấy danh sách dự án của user hiện tại (alias cho backward compatibility)
-router.get('/projects/my', auth, projectController.getMyProjects);
+// 🚀 API: Lấy danh sách dự án của user hiện tại (alias cho backward compatibility)
+router.get('/projects/my', auth, projectsDeduplication, projectsRateLimit, projectController.getMyProjects);
 
 // API: Tạo dự án mới cho user hiện tại
 router.post('/projects', auth, projectController.createProject);
