@@ -3,117 +3,113 @@ const PersonalMemberList = require('../models/personalMemberList.model');
 const User = require('../models/user.model');
 const mongoose = require('mongoose');
 
-// Lấy danh sách thành viên cá nhân của user hiện tại
+// Lấy danh sách thành viên cá nhân của user hiện tại (đã tối ưu tránh double response & giảm rủi ro timeout)
 exports.getPersonalMembers = async (req, res) => {
+    // Nếu request đã timeout (connect-timeout đặt req.timedout) thì bỏ qua
+    if (req.timedout) {
+        console.warn('⚠️ getPersonalMembers bị bỏ qua vì request đã timeout trước khi xử lý.');
+        return;
+    }
+
     try {
         const ownerId = new mongoose.Types.ObjectId(req.user.id);
-
-        // 1. ĐỌC TẤT CẢ THAM SỐ TỪ QUERY
         const {
             page = 1,
             limit = 10,
             search = '',
-            sortBy = 'added_at', // Mặc định sắp xếp theo ngày thêm
-            sortOrder = 'desc'  // Mặc định mới nhất lên đầu
+            sortBy = 'added_at',
+            sortOrder = 'desc'
         } = req.query;
 
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const numericLimit = Math.min(parseInt(limit) || 10, 100); // Giới hạn tối đa 100
+        const numericPage = Math.max(parseInt(page) || 1, 1);
+        const skip = (numericPage - 1) * numericLimit;
 
-        // 2. XÂY DỰNG LOGIC $match VÀ $sort ĐỘNG
-        let matchStage = { 
-            owner_user_id: ownerId,
-            is_active: true  // Chỉ lấy thành viên active
-        };
-
-        // Xây dựng object sắp xếp động
-        const sort = {};
+        // Map trường sort
         const sortFieldMapping = {
-            'name': 'member_user_data.full_name', // Sắp xếp theo tên của user được populate
-            'added_at': 'added_at'
+            name: 'member_user_data.full_name',
+            added_at: 'added_at'
         };
         const mappedSortField = sortFieldMapping[sortBy] || 'added_at';
-        sort[mappedSortField] = sortOrder === 'asc' ? 1 : -1;
+        const sortStage = { [mappedSortField]: sortOrder === 'asc' ? 1 : -1 };
 
-        // Bắt đầu xây dựng pipeline
-        let pipeline = [
-            { $match: matchStage },
+        // Pipeline cơ bản
+        const baseMatch = { owner_user_id: ownerId, is_active: true };
+
+        const pipeline = [
+            { $match: baseMatch },
             {
                 $lookup: {
                     from: 'users',
                     localField: 'member_user_id',
                     foreignField: '_id',
-                    as: 'member_user_data'
+                    as: 'member_user_data',
+                    pipeline: [
+                        { $project: { full_name: 1, email: 1, avatar_url: 1, online_status: 1, role: 1 } }
+                    ]
                 }
             },
-            {
-                $unwind: "$member_user_data" // Chuyển mảng thành object để dễ truy vấn
-            }
+            { $unwind: '$member_user_data' }
         ];
 
-        // Thêm điều kiện tìm kiếm nếu có
         if (search) {
+            const regex = new RegExp(search, 'i');
             pipeline.push({
                 $match: {
                     $or: [
-                        { 'member_user_data.full_name': { $regex: search, $options: 'i' } },
-                        { 'member_user_data.email': { $regex: search, $options: 'i' } },
-                        { 'custom_role': { $regex: search, $options: 'i' } }
+                        { 'member_user_data.full_name': regex },
+                        { 'member_user_data.email': regex },
+                        { custom_role: regex }
                     ]
                 }
             });
         }
 
-        // Pipeline để đếm tổng số kết quả (trước khi phân trang)
-        const countPipeline = [...pipeline, { $count: "total" }];
-
-        // 3. THÊM LOGIC SẮP XẾP VÀ PHÂN TRANG VÀO PIPELINE CHÍNH
+        // Dùng $facet để tránh chạy hai aggregation riêng biệt (giảm thời gian & memory)
         pipeline.push(
-            { $sort: sort }, // <-- Áp dụng sắp xếp động
-            { $skip: skip },
-            { $limit: parseInt(limit) },
+            { $sort: sortStage },
             {
-                $project: { // Chỉ lấy những trường cần thiết
-                    _id: 1,
-                    custom_role: 1,
-                    notes: 1,
-                    is_active: 1,
-                    added_at: 1,
-                    member_user_id: "$member_user_data" // Lấy toàn bộ object user đã populate
+                $facet: {
+                    paginated: [
+                        { $skip: skip },
+                        { $limit: numericLimit },
+                        {
+                            $project: {
+                                _id: 1,
+                                custom_role: 1,
+                                notes: 1,
+                                is_active: 1,
+                                added_at: 1,
+                                member_user_id: '$member_user_data'
+                            }
+                        }
+                    ],
+                    totalCount: [ { $count: 'total' } ]
                 }
             }
         );
 
-        // Chạy cả hai pipeline song song với timeout để tăng tốc
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Database query timeout')), 25000)
-        );
-        
-        const [members, totalResult] = await Promise.race([
-            Promise.all([
-                PersonalMemberList.aggregate(pipeline),
-                PersonalMemberList.aggregate(countPipeline)
-            ]),
-            timeoutPromise
-        ]);
+        const aggResult = await PersonalMemberList.aggregate(pipeline).allowDiskUse(true); // allowDiskUse nếu dataset lớn
+        if (req.timedout || res.headersSent) return; // Kiểm tra lại sau thao tác DB
 
-        const total = totalResult.length > 0 ? totalResult[0].total : 0;
-        const totalPages = Math.ceil(total / parseInt(limit));
+        const members = aggResult[0]?.paginated || [];
+        const total = aggResult[0]?.totalCount?.[0]?.total || 0;
+        const totalPages = Math.ceil(total / numericLimit) || 1;
 
         return res.status(200).json({
             success: true,
             message: 'Lấy danh sách thành viên thành công',
             data: members,
             pagination: {
-                current_page: parseInt(page),
+                current_page: numericPage,
                 total_pages: totalPages,
                 total_items: total,
-                items_per_page: parseInt(limit)
+                items_per_page: numericLimit
             }
         });
-
     } catch (error) {
         console.error('Lỗi khi lấy danh sách thành viên:', error);
-        if (!res.headersSent) {
+        if (!res.headersSent && !req.timedout) {
             return res.status(500).json({
                 success: false,
                 message: 'Lỗi server khi lấy danh sách thành viên',

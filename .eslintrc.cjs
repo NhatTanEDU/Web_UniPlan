@@ -6,24 +6,34 @@ module.exports = {
     node: true,
     jest: true
   },
-  parser: "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaVersion: 2021,
-    sourceType: 'module',
-    ecmaFeatures: { jsx: true }
-  },
-  settings: {
-    react: { version: 'detect' }
-  },
-  plugins: ['react', '@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:@typescript-eslint/recommended'
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      parser: '@typescript-eslint/parser',
+      plugins: ['@typescript-eslint'],
+      extends: [
+        'eslint:recommended',
+        'plugin:react/recommended',
+        'plugin:@typescript-eslint/recommended'
+      ],
+      rules: {
+        '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
+      }
+    },
+    {
+      files: ['backend/**/*.js'],
+      env: { node: true },
+      parserOptions: { ecmaVersion: 2021 },
+      rules: {
+        // Cho phép dùng require trong backend CommonJS
+        '@typescript-eslint/no-var-requires': 'off'
+      }
+    }
   ],
+  settings: { react: { version: 'detect' } },
+  plugins: ['react'],
   rules: {
     'react/prop-types': 'off',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['error', 'warn', 'info'] }]
   },
   ignorePatterns: ['dist', 'build', 'node_modules']

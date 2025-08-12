@@ -275,6 +275,11 @@ exports.getProjectById = async (req, res) => {
   const reqId = `[getProjectById-${id.slice(-4)}-${Date.now()}]`;
   
   console.log(`${reqId} [1] Bắt đầu lấy chi tiết dự án ID: ${id}`);
+  // Nếu request đã timeout (connect-timeout) và middleware đã gửi 503 thì không xử lý tiếp
+  if (req.timedout || res.headersSent) {
+    console.warn(`${reqId} Bỏ qua xử lý getProjectById vì request đã timeout hoặc headers đã được gửi.`);
+    return;
+  }
   try {
     const userId = new mongoose.Types.ObjectId(req.user.userId);
     const projectId = new mongoose.Types.ObjectId(id);
@@ -285,6 +290,7 @@ exports.getProjectById = async (req, res) => {
     // Bước 1: Tìm dự án
     console.log(`${reqId} [2] Đang tìm dự án trong DB...`);
     const project = await Project.findOne({ _id: projectId, is_deleted: false });
+    if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout sau truy vấn Project.findOne - hủy gửi response.`); return; }
 
     if (!project) {
       console.warn(`${reqId} [FAIL] Không tìm thấy dự án với ID: ${id}`);
@@ -306,6 +312,7 @@ exports.getProjectById = async (req, res) => {
         project_id: projectId,
         user_id: userId
       });
+      if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout sau truy vấn ProjectMember - hủy gửi response.`); return; }
       isMember = !!membership; // true nếu tìm thấy, false nếu không
     }
 
@@ -319,9 +326,13 @@ exports.getProjectById = async (req, res) => {
     // Nếu có quyền, populate thêm thông tin cần thiết và trả về
     console.log(`${reqId} [FINAL] Chuẩn bị gửi response về client.`);
     await project.populate('project_type_id', 'name');
+    if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout sau populate project_type_id.`); return; }
     await project.populate('kanban_id'); // Populate kanban_id để trả về thông tin Kanban
+    if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout sau populate kanban_id.`); return; }
     await project.populate('created_by', 'full_name email avatar_url');
+    if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout sau populate created_by.`); return; }
     
+    if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout trước khi gửi response cuối.`); return; }
     return res.status(200).json(project);
 
   } catch (error) {
