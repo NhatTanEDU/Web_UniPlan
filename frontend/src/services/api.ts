@@ -8,6 +8,8 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  // Set a sane client-side timeout so we don't hang for 30s on server timeouts
+  timeout: 12000,
 });
 
 // Request interceptor để thêm token
@@ -57,9 +59,89 @@ api.interceptors.response.use(
   }
 );
 
-export const getProjects = async () => {
-  const response = await api.get("/projects");
-  return response.data;
+// ===== Helpers for rate-limit friendly fetching =====
+const sleep = (ms: number) => new Promise<void>(res => setTimeout(res, ms));
+const normalizeProjects = (data: any): any[] => {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.projects)) return data.projects;
+  return [];
+};
+
+let projectsCache: { data: any[]; timestamp: number } | null = null;
+let projectsInFlight: Promise<any[]> | null = null;
+let lastProjectsFetchAt = 0;
+const PROJECTS_MIN_INTERVAL_MS = 600; // backend asks ~500ms; be a bit higher
+
+export const getProjects = async (
+  opts: { force?: boolean; cacheMs?: number } = {}
+): Promise<any[]> => {
+  const { force = false, cacheMs = 1500 } = opts;
+  const now = Date.now();
+
+  // Serve from short-lived cache
+  if (!force && projectsCache && now - projectsCache.timestamp < cacheMs) {
+    console.log('🟡 [getProjects] Serving from cache');
+    return projectsCache.data;
+  }
+
+  // Share an in-flight request
+  if (projectsInFlight) {
+    console.log('🟡 [getProjects] Reusing in-flight request');
+    return projectsInFlight;
+  }
+
+  projectsInFlight = (async () => {
+    try {
+      // Throttle to avoid 429 (respect minimum interval between real calls)
+      const since = Date.now() - lastProjectsFetchAt;
+      if (since < PROJECTS_MIN_INTERVAL_MS) {
+        const waitMs = PROJECTS_MIN_INTERVAL_MS - since;
+        console.log(`⏳ [getProjects] Throttling ${waitMs}ms to avoid 429`);
+        await sleep(waitMs);
+      }
+
+      lastProjectsFetchAt = Date.now();
+      const doFetch = async () => {
+        const resp = await api.get("/projects");
+        const data = normalizeProjects(resp.data);
+        projectsCache = { data, timestamp: Date.now() };
+        return data;
+      };
+
+      try {
+        return await doFetch();
+      } catch (err: any) {
+        // Handle 429 with retryAfter
+        if (err?.response?.status === 429) {
+          const raw = err.response?.data;
+          const retryAfterSec = Number(raw?.retryAfter) || 0.5;
+          const waitMs = Math.max(Math.ceil(retryAfterSec * 1000), PROJECTS_MIN_INTERVAL_MS);
+          console.warn(`🚫 [getProjects] 429 received, retrying after ${waitMs}ms`);
+          await sleep(waitMs);
+          lastProjectsFetchAt = Date.now();
+          return await doFetch(); // one retry
+        }
+        // Handle server timeout (503) or client timeout/network errors gracefully
+        const isTimeoutOrUnavailable = err?.response?.status === 503 || err?.code === 'ECONNABORTED' || err?.message?.includes('timeout');
+        if (isTimeoutOrUnavailable && projectsCache) {
+          console.warn('🟠 [getProjects] Serving STALE cache due to server timeout/unavailable');
+          return projectsCache.data;
+        }
+        throw err;
+      }
+    } finally {
+      projectsInFlight = null;
+    }
+  })();
+
+  return projectsInFlight;
+};
+
+// Allow other modules to invalidate cache after mutations
+export const invalidateProjectsCache = () => {
+  console.log('🧹 [getProjects] Invalidating projects cache');
+  projectsCache = null;
+  lastProjectsFetchAt = 0;
 };
 
 // Users CRUD APIs
@@ -95,16 +177,20 @@ export const createProject = async (project: {
       Authorization: `Bearer ${token}`
     }
   });
+  // Invalidate cache so next getProjects fetches fresh data
+  invalidateProjectsCache();
   return response.data;
 };
 
 export const softDeleteProject = async (id: string) => {
   const response = await api.delete(`/projects/${id}`);
+  invalidateProjectsCache();
   return response.data;
 };
 
 export const restoreProject = async (id: string) => {
   const response = await api.put(`/projects/${id}/restore`);
+  invalidateProjectsCache();
   return response.data;
 };
 
@@ -118,6 +204,7 @@ export const updateProject = async (id: string, project: {
   project_type_id?: { _id: string; name: string };
 }) => {
   const response = await api.put(`/projects/${id}`, project);
+  invalidateProjectsCache();
   return response.data;
 };
 
