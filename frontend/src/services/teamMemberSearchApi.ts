@@ -30,7 +30,7 @@ export interface TeamSearchFilters {
 export const teamMemberSearchApi = {
   // Search users to add to team (uses correct /teams/members/search endpoint)
   searchUsersToAdd: async (filters: TeamSearchFilters): Promise<TeamUserSearchResponse> => {
-    const response = await baseApi.get('/api/teams/members/search', {
+    const response = await baseApi.get('/teams/members/search', {
       params: {
         team_id: filters.team_id,
         search: filters.search || '',

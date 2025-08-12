@@ -73,6 +73,14 @@ export default function PersonalMembersList() {
           total: data.pagination?.total_items || 0,
           currentPage: data.pagination?.current_page || 1
         });
+
+        // 🐛 DEBUG: Log first member structure to understand data format
+        if (data.data && data.data.length > 0) {
+          console.log('🐛 [Personal Members] First member structure:', JSON.stringify(data.data[0], null, 2));
+          if (data.data[0].member_user_id) {
+            console.log('🐛 [Personal Members] member_user_id structure:', JSON.stringify(data.data[0].member_user_id, null, 2));
+          }
+        }
       } else {
         console.error('Failed to fetch members:', response.statusText);
         setMembers([]);

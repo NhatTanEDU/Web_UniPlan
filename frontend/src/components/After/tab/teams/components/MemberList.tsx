@@ -27,21 +27,26 @@ import LoadingSpinner from "./LoadingSpinner";
 
 // Support both current API structure and legacy structure  
 type FlexibleTeamMember = TeamMember | {
-  _id: string;
-  user_id: {
-    _id: string;
-    full_name: string;
-    email: string;
+  id?: string;
+  _id?: string;
+  user?: {
+    id?: string;
+    _id?: string;
+    full_name?: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
+  user_id?: {
+    _id?: string;
+    full_name?: string;
+    name?: string;
+    email?: string;
+    avatar_url?: string;
   };
   role: "Admin" | "Editor" | "Member";
-} | {
-  _id: string;
-  user: {
-    _id: string;
-    fullName: string;
-    email: string;
-  };
-  role: "Admin" | "Editor" | "Member";
+  is_active?: boolean;
+  joined_at?: string;
 };
 
 interface Props {
@@ -144,7 +149,24 @@ export default function MemberList({
     // Debug logging to see actual data structure
     console.log('🐛 MemberList - Processing member:', JSON.stringify(member, null, 2));
     
-    // Check if member has user_id object (new MongoDB format)
+    // Check if member has user object (current backend format)
+    if ('user' in member && member.user) {
+      const user = member.user as any;
+      const memberId = (member as any).id || (member as any)._id || '';
+      
+      console.log('🐛 MemberList - User object found:', JSON.stringify(user, null, 2));
+      console.log('🐛 MemberList - Member ID:', memberId);
+      console.log('🐛 MemberList - Full name from user:', user.full_name);
+      
+      return {
+        id: memberId,
+        name: user.full_name || user.name || 'Không có tên',
+        email: user.email || 'Không có email', 
+        role: member.role
+      };
+    }
+    
+    // Check if member has user_id object (legacy MongoDB format)
     if ('user_id' in member && member.user_id) {
       const user = member.user_id as any;
       const memberId = (member as any)._id || '';
@@ -160,30 +182,12 @@ export default function MemberList({
       };
     }
     
-    // Check if member has user object (legacy format)
-    if ('user' in member && member.user) {
-      const user = member.user as any; // Safe casting since we know user exists
-      const memberId = (member as any)._id || (member as any).id || '';
-      
-      console.log('🐛 MemberList - User object found:', JSON.stringify(user, null, 2));
-      console.log('🐛 MemberList - Member ID:', memberId);
-      console.log('🐛 MemberList - Full name from user:', user.full_name);
-      console.log('🐛 MemberList - Legacy fullName from user:', user.fullName);
-      
-      return {
-        id: memberId,
-        name: user.full_name || user.fullName || 'Không có tên',
-        email: user.email || 'Không có email', 
-        role: member.role
-      };
-    }
-    
     // Fallback for direct structure (shouldn't happen with current API)
     const anyMember = member as any;
     console.log('🐛 MemberList - Using fallback structure for member:', anyMember);
     return {
       id: anyMember.id || anyMember._id || '',
-      name: anyMember.full_name || 'Không có tên',
+      name: anyMember.full_name || anyMember.name || 'Không có tên',
       email: anyMember.email || 'Không có email',
       role: member.role
     };

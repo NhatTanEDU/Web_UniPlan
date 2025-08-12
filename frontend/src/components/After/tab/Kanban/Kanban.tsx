@@ -11,6 +11,7 @@ import { projectApi } from "../../../../services/projectApi";
 import { kanbanApi, KanbanTask, ProjectMember, Document as KanbanDocument } from "../../../../services/kanbanApi";
 import { teamMemberApi } from "../../../../services/teamMemberApi";
 import { userPermissionsApi } from "../../../../services/userPermissionsApi";
+import { getFileUrl } from "../../../../services/documentApi";
 import DocumentUpload from "../../../common/DocumentUpload";
 import { socket, joinKanbanRoom, leaveKanbanRoom } from "../../../../services/socket";
 
@@ -1009,7 +1010,7 @@ const Kanban = () => {
                         <div key={doc._id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded">
                           <div className="flex items-center gap-2">
                             <FileText size={16} />
-                            <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            <a href={getFileUrl(doc._id)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                               {doc.fileName}
                             </a>
                           </div>

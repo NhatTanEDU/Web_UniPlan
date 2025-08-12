@@ -537,107 +537,149 @@ exports.getTeamProjects = async (req, res) => {
   const reqId = `[getTeamProjects-${Date.now()}]`;
   const startTime = Date.now();
   
-  console.log(`${reqId} [1] Bắt đầu xử lý getTeamProjects...`);
+  // Đặt timeout cho function này (thấp hơn middleware timeout)
+  const MIDDLEWARE_TIMEOUT_MS = parseInt(process.env.REQUEST_TIMEOUT_MS, 10) || 30000;
+  const FUNCTION_TIMEOUT = Math.max(MIDDLEWARE_TIMEOUT_MS - 5000, 20000); // 5 giây buffer, tối thiểu 20s
+
+  console.log(`${reqId} [1] Bắt đầu xử lý getTeamProjects... (timeout: ${FUNCTION_TIMEOUT}ms)`);
   
   try {
+    // Kiểm tra ngay từ đầu xem response đã được gửi chưa
+    if (res.headersSent) {
+      console.log(`${reqId} Headers already sent at start, aborting`);
+      return;
+    }
+
     const { teamId } = req.params;
     const currentUserId = req.user.userId;
     
     console.log(`${reqId} [2] Lấy dự án cho team: ${teamId}, user: ${currentUserId}`);
 
-    // Import TeamMember model
+    // Import models
     const TeamMember = require('../models/teamMember.model');
     const Team = require('../models/team.model');
 
-    // Kiểm tra team tồn tại
-    console.log(`${reqId} [3] Đang kiểm tra team tồn tại...`);
-    const teamCheckStart = Date.now();
+    // Tối ưu: Chạy song song việc kiểm tra team và member với timeout riêng
+    console.log(`${reqId} [3] Đang kiểm tra team và quyền thành viên song song...`);
+    const parallelCheckStart = Date.now();
+
+    const checkPromise = Promise.all([
+      Team.findOne({ _id: teamId, is_deleted: false }).lean().maxTimeMS(5000),
+      TeamMember.findOne({
+        team_id: teamId,
+        user_id: currentUserId,
+        is_active: true
+      }).lean().maxTimeMS(5000)
+    ]);
+
+    const [team, currentMember] = await Promise.race([
+      checkPromise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Database check timeout')), 10000)
+      )
+    ]);
     
-    const team = await Team.findOne({ _id: teamId, is_deleted: false });
+    console.log(`${reqId} [3] Kiểm tra song song hoàn thành trong ${Date.now() - parallelCheckStart}ms`);
     
-    console.log(`${reqId} [3] Kiểm tra team hoàn thành trong ${Date.now() - teamCheckStart}ms. Team exists: ${!!team}`);
-    
-    if (!team) {
-      if (!res.headersSent) {
-        return res.status(404).json({ message: 'Không tìm thấy nhóm' });
-      }
+    // Kiểm tra response status trước mỗi return
+    if (res.headersSent) {
+      console.log(`${reqId} Headers sent during checks, aborting`);
       return;
     }
-
-    // Kiểm tra quyền truy cập (phải là thành viên của team)
-    console.log(`${reqId} [4] Đang kiểm tra quyền thành viên...`);
-    const memberCheckStart = Date.now();
     
-    const currentMember = await TeamMember.findOne({
-      team_id: teamId,
-      user_id: currentUserId,
-      is_active: true
-    });
-    
-    console.log(`${reqId} [4] Kiểm tra quyền hoàn thành trong ${Date.now() - memberCheckStart}ms. Is member: ${!!currentMember}`);
+    // Kiểm tra kết quả
+    if (!team) {
+      return res.status(404).json({ message: 'Không tìm thấy nhóm' });
+    }
 
     if (!currentMember) {
-      if (!res.headersSent) {
-        return res.status(403).json({ message: 'Bạn không có quyền xem dự án của nhóm này' });
-      }
-      return;
+      return res.status(403).json({ message: 'Bạn không có quyền xem dự án của nhóm này' });
     }
 
-    // Lấy danh sách dự án của team
-    console.log(`${reqId} [5] Đang lấy danh sách dự án của team...`);
+    // Tối ưu: Lấy dự án với query đơn giản hơn và sử dụng lean()
+    console.log(`${reqId} [4] Đang lấy danh sách dự án (tối ưu)...`);
     const projectsQueryStart = Date.now();
     
-    const projects = await Project.find({ 
+    const projectsPromise = Project.find({ 
       team_id: teamId, 
       is_deleted: false 
-    }).populate('project_type_id', 'name description')
+    })
+      .select('project_name description status priority start_date end_date team_id project_type_id created_by created_at updated_at')
+      .populate('project_type_id', 'name description')
       .populate('created_by', 'full_name email')
-      .sort({ created_at: -1 });
+      .sort({ created_at: -1 })
+      .limit(100) // Giới hạn số lượng projects để tránh timeout
+      .lean() // Sử dụng lean() để tăng tốc
+      .maxTimeMS(10000); // Set timeout cho query này
+
+    const projects = await Promise.race([
+      projectsPromise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Projects query timeout')), 15000)
+      )
+    ]);
     
-    console.log(`${reqId} [5] Truy vấn dự án hoàn thành trong ${Date.now() - projectsQueryStart}ms. Found ${projects.length} projects`);
+    console.log(`${reqId} [4] Truy vấn dự án hoàn thành trong ${Date.now() - projectsQueryStart}ms. Found ${projects.length} projects`);
 
     console.log(`${reqId} [FINAL] Chuẩn bị gửi response về client. Total time: ${Date.now() - startTime}ms`);
 
-    if (!res.headersSent) {
-      res.json({
-        message: 'Lấy danh sách dự án thành công',
-        team: {
-          id: team._id,
-          name: team.team_name,
-          description: team.description
-        },
-        projects: projects.map(project => ({
-          _id: project._id,
-          project_name: project.project_name,
-          description: project.description,
-          status: project.status,
-          priority: project.priority,
-          start_date: project.start_date,
-          end_date: project.end_date,
-          team_id: project.team_id,
-          project_type_id: project.project_type_id ? {
-            _id: project.project_type_id._id,
-            name: project.project_type_id.name
-          } : null,
-          created_by: project.created_by ? project.created_by._id : null,
-          created_at: project.created_at,
-          updated_at: project.updated_at
-        })),
-        total: projects.length
-      });
+    // Kiểm tra cuối cùng trước khi gửi response
+    if (res.headersSent) {
+      console.log(`${reqId} Headers already sent, skipping final response`);
+      return;
     }
 
+    return res.json({
+      message: 'Lấy danh sách dự án thành công',
+      team: {
+        id: team._id,
+        name: team.team_name,
+        description: team.description
+      },
+      projects: projects.map(project => ({
+        _id: project._id,
+        project_name: project.project_name,
+        description: project.description,
+        status: project.status,
+        priority: project.priority,
+        start_date: project.start_date,
+        end_date: project.end_date,
+        team_id: project.team_id,
+        project_type_id: project.project_type_id ? {
+          _id: project.project_type_id._id,
+          name: project.project_type_id.name
+        } : null,
+        created_by: project.created_by ? project.created_by._id : null,
+        created_at: project.created_at,
+        updated_at: project.updated_at
+      })),
+      total: projects.length
+    });
+
   } catch (error) {
+    const totalTime = Date.now() - startTime;
     console.error(`❌ Lỗi nghiêm trọng trong ${reqId}:`, {
       error: error.message,
-      stack: error.stack,
-      totalTime: Date.now() - startTime + 'ms'
+      totalTime: totalTime + 'ms',
+      isTimeout: error.message.includes('timeout')
     });
     
+    // Chỉ gửi response nếu headers chưa được gửi
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Lỗi server', error: error.message });
+      if (error.message.includes('timeout')) {
+        return res.status(503).json({
+          message: 'Yêu cầu quá lâu, vui lòng thử lại',
+          error: 'Request timeout',
+          duration: totalTime
+        });
+      } else {
+        return res.status(500).json({
+          message: 'Lỗi server',
+          error: error.message
+        });
+      }
     } else {
-      console.error(`🚨 ${reqId} Headers already sent - cannot send error response`);
+      console.error(`🚨 ${reqId} Headers already sent - cannot send error response. Total time: ${totalTime}ms`);
     }
   }
 };

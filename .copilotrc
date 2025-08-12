@@ -1,0 +1,22 @@
+# Copilot Configuration cho UniPlan Project
+
+# Tự động load các file hướng dẫn
+include:
+  - .github/copilot/GENERAL.md
+  - .github/copilot/OPERATIONS.md  
+  - .github/copilot/FRONTEND.md
+  - .github/copilot/BACKEND.md
+
+# Quy tắc tự động áp dụng
+rules:
+  - always_use_vietnamese_in_responses
+  - follow_coding_style_from_general_md
+  - use_operations_commands_from_operations_md
+  - respect_scope_limitations
+
+# Context priority
+context_priority:
+  1. .github/copilot/OPERATIONS.md (khi có lệnh terminal)
+  2. .github/copilot/BACKEND.md (khi làm việc với backend)
+  3. .github/copilot/FRONTEND.md (khi làm việc với frontend)  
+  4. .github/copilot/GENERAL.md (luôn áp dụng)

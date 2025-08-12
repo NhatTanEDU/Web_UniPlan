@@ -1,0 +1,37 @@
+# Copilot Instructions - UniPlan Project
+# File này sẽ được Copilot tự động đọc với mọi interaction
+
+## NGÔN NGỮ
+- Luôn trả lời bằng Tiếng Việt
+- Comment code bằng Tiếng Việt
+- Commit message bằng Tiếng Việt
+
+## CODING STYLE
+- Thụt lề: 4 spaces
+- Quotes: Single quotes (')
+- Semicolons: Luôn sử dụng
+- Naming: camelCase cho functions/variables, PascalCase cho components
+
+## FRONTEND RULES
+- Components trong frontend/src/components/
+- Pages trong frontend/src/pages/
+- Sử dụng CSS Modules (.module.css)
+- Structure: components/ pages/ layouts/ api/ redux/ hooks/
+
+## BACKEND RULES  
+- Luồng: routes → controllers → services → models
+- Business logic trong services/
+- Database interaction chỉ trong models/
+- Error handling với try...catch và next()
+
+## DEVELOPMENT COMMANDS
+- Khởi động full project: npm run dev (từ root)
+- Backend only: cd backend && npm run dev
+- Frontend only: cd frontend && npm run dev
+- Build: npm run build
+- Production: npm run start:production
+
+## SCOPE RULES
+- Chỉ sửa file liên quan đến request
+- Không thay đổi logic không liên quan
+- Hỏi trước khi thay đổi nhiều file

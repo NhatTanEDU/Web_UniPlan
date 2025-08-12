@@ -1,7 +1,43 @@
 {
+    // Cài đặt tự động lưu file của bạn
     "files.autoSave": "afterDelay",
     "files.autoSaveWhenNoErrors": true,
     "files.autoSaveWorkspaceFilesOnly": true,
-    "workbench.background": "#000000",
-    "background.enabled": false
-  }
+
+    // Cài đặt tự động format code
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modifications", // Chỉ format các phần đã chỉnh sửa
+    
+    // Cài đặt cho GitHub Copilot
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    },
+    "github.copilot.advanced": {},
+    "github.copilot.chat.localeOverride": "auto",
+    
+    // Tự động load context từ các file hướng dẫn
+    "github.copilot.chat.welcomeMessage": "always",
+    "github.copilot.chat.followUp": "on",
+    
+    // Reference files cho Copilot context
+    "github.copilot.referencesInChat": true,
+    
+    // Auto-include instruction files
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.useProjectContext": true,
+
+    // Cài đặt thêm cho development
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+
+    // Cài đặt cho JavaScript/TypeScript
+    "javascript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+
+    // Terminal mặc định
+    "terminal.integrated.defaultProfile.windows": "PowerShell"
+}

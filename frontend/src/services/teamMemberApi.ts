@@ -8,17 +8,16 @@ import baseApi from "./baseApi"; // axios instance đã cấu hình interceptors
 /**
  * TeamMember
  * - Một record thành viên trong team  
- * - Updated to match actual API response structure from MongoDB
+ * - Updated to match actual API response structure from backend
  */
 export interface TeamMember {
-  _id: string; // MongoDB ObjectId as string
-  user_id: {
-    _id: string;
+  id: string; // Member ID from backend
+  user: {
+    id: string;
     full_name: string;
     email: string;
-    avatar_url?: string | null;
+    avatar?: string | null;
   };
-  team_id: string;
   role: "Admin" | "Editor" | "Member";
   is_active: boolean;
   joined_at?: string;

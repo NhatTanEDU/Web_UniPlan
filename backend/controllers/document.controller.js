@@ -1,15 +1,6 @@
 // controllers/document.controller.js
-const { createClient } = require('@supabase/supabase-js');
 const { v4: uuidv4 } = require('uuid');
 const Document = require('../models/document.model');
-
-// --- CẤU HÌNH SUPABASE ---
-const SUPABASE_URL = process.env.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'YOUR_SUPABASE_SERVICE_KEY';
-const SUPABASE_BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME || 'uniplan-upload-file';
-
-// Khởi tạo Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Hàm xử lý upload file
 exports.uploadDocument = async (req, res) => {
@@ -33,59 +24,40 @@ exports.uploadDocument = async (req, res) => {
 
         console.log('🔍 DEBUG uploadDocument - Context:', { taskId, projectId, teamId, userId });
 
-        // 3. Tạo tên file duy nhất để tránh trùng lặp trên Supabase
-        const fileExtension = req.file.originalname.split('.').pop();
-        const newFileName = `${uuidv4()}.${fileExtension}`;
-        const storagePath = `documents/${newFileName}`;
-
-        console.log('🔍 DEBUG uploadDocument - Storage path:', storagePath);
-
-        // 4. Upload file lên bucket của Supabase
-        const { data, error: uploadError } = await supabase.storage
-            .from(SUPABASE_BUCKET_NAME)
-            .upload(storagePath, req.file.buffer, {
-                contentType: req.file.mimetype,
-            });
-
-        if (uploadError) {
-            console.error('❌ Lỗi upload lên Supabase:', uploadError);
-            return res.status(500).json({ 
-                success: false,
-                message: 'Lỗi khi tải file lên dịch vụ lưu trữ.',
-                error: uploadError.message 
-            });
-        }
-
-        console.log('✅ Upload thành công lên Supabase:', data);
-
-        // 5. Lấy URL công khai của file vừa upload
-        const { data: { publicUrl } } = supabase.storage
-            .from(SUPABASE_BUCKET_NAME)
-            .getPublicUrl(storagePath);
-
-        console.log('🔍 DEBUG uploadDocument - Public URL:', publicUrl);
-
-        // 6. Lưu thông tin file vào MongoDB
+      // 3. Lưu file trực tiếp vào MongoDB
         const newDocument = new Document({
-            fileName: req.file.originalname,
-            fileUrl: publicUrl,
+          fileName: req.file.originalname,
             fileType: req.file.mimetype,
             fileSize: req.file.size,
-            storagePath: storagePath,
+          fileData: req.file.buffer, // Lưu binary data trực tiếp vào MongoDB
             taskId: taskId || null,
             projectId: projectId || null,
             teamId: teamId || null,
             uploadedBy: userId,
         });
 
+      console.log('🔍 DEBUG uploadDocument - Saving to MongoDB...');
         const savedDocument = await newDocument.save();
         console.log('✅ Document saved to MongoDB:', savedDocument._id);
 
-        // 7. Trả về thông tin file đã lưu cho client
+      // 4. Trả về thông tin file đã lưu cho client (không bao gồm fileData để giảm kích thước response)
+      const responseData = {
+        _id: savedDocument._id,
+        fileName: savedDocument.fileName,
+        fileType: savedDocument.fileType,
+        fileSize: savedDocument.fileSize,
+        taskId: savedDocument.taskId,
+        projectId: savedDocument.projectId,
+        teamId: savedDocument.teamId,
+        uploadedBy: savedDocument.uploadedBy,
+        createdAt: savedDocument.createdAt,
+        updatedAt: savedDocument.updatedAt
+      };
+
         return res.status(201).json({
             success: true,
             message: 'Tải file lên thành công!',
-            data: savedDocument,
+          data: responseData,
         });
 
     } catch (error) {
@@ -121,8 +93,9 @@ exports.getDocuments = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
-        // Lấy documents với pagination
+      // Lấy documents với pagination (exclude fileData để giảm kích thước response)
         const documents = await Document.find(filter)
+          .select('-fileData') // Loại bỏ fileData khỏi kết quả
             .populate('uploadedBy', 'full_name email')
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -179,20 +152,9 @@ exports.deleteDocument = async (req, res) => {
             });
         }
 
-        // Xóa file trên Supabase
-        const { error: deleteError } = await supabase.storage
-            .from(SUPABASE_BUCKET_NAME)
-            .remove([document.storagePath]);
-
-        if (deleteError) {
-            console.error('❌ Lỗi xóa file trên Supabase:', deleteError);
-            // Vẫn tiếp tục xóa record trong DB ngay cả khi xóa file thất bại
-        } else {
-            console.log('✅ Đã xóa file trên Supabase:', document.storagePath);
-        }
-
-        // Xóa record trong MongoDB
+      // Xóa record trong MongoDB (file data sẽ được xóa cùng)
         await Document.findByIdAndDelete(id);
+      console.log('✅ Đã xóa document và file data từ MongoDB');
 
         return res.status(200).json({
             success: true,
@@ -207,4 +169,55 @@ exports.deleteDocument = async (req, res) => {
             error: error.message
         });
     }
+};
+
+// Hàm lấy file từ MongoDB
+exports.getFile = async (req, res) => {
+  try {
+    const { fileId } = req.params;
+
+    console.log('🔍 DEBUG getFile - FileId:', fileId);
+
+    // 1. Tìm document trong database theo fileId
+    const document = await Document.findById(fileId);
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy tài liệu'
+      });
+    }
+
+    if (!document.fileData) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy dữ liệu file'
+      });
+    }
+
+    console.log('🔍 DEBUG getFile - Document found:', {
+      id: document._id,
+      fileName: document.fileName,
+      fileType: document.fileType,
+      fileSize: document.fileSize
+    });
+
+    // 2. Set headers và trả về file từ MongoDB
+    res.set({
+      'Content-Type': document.fileType,
+      'Content-Disposition': `attachment; filename="${document.fileName}"`,
+      'Content-Length': document.fileData.length
+    });
+
+    // 3. Trả về binary data
+    res.send(document.fileData);
+
+  } catch (error) {
+    console.error('❌ Lỗi khi lấy file:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi máy chủ khi lấy file',
+      error: error.message
+    });
+  }
 };

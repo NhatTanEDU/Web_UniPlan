@@ -77,6 +77,9 @@ const enhancedTimeoutHandler = (req, res, next) => {
   const startTime = Date.now();
   const requestId = `${req.method}-${req.originalUrl}-${startTime}`;
   
+  // Thêm flag để theo dõi trạng thái timeout response
+  req.timeoutResponseSent = false;
+
   // Ghi log bắt đầu request
   console.log(`🚀 [${new Date().toISOString()}] START Request: ${requestId}`);
   console.log(`   📍 Endpoint: ${req.method} ${req.originalUrl}`);
@@ -101,8 +104,9 @@ const enhancedTimeoutHandler = (req, res, next) => {
     }, null, 2));
     console.error(`❌❌❌ END TIMEOUT REPORT ❌❌❌\n`);
     
-    // Gửi lỗi 503 về cho client
-    if (!res.headersSent) {
+    // Chỉ gửi lỗi 503 nếu response chưa được gửi và flag chưa được set
+    if (!res.headersSent && !req.timeoutResponseSent) {
+      req.timeoutResponseSent = true; // Đánh dấu đã gửi timeout response
       res.status(503).json({ 
         success: false,
         message: `Service Unavailable: Request timed out after ${TIMEOUT_SECONDS}`,
@@ -136,12 +140,17 @@ const haltOnTimedout = (req, res, next) => {
     // Backup handler nếu event listener không hoạt động
     const requestId = `${req.method}-${req.originalUrl}-${Date.now()}`;
     console.error(`🛑 BACKUP TIMEOUT HANDLER: ${requestId}`);
-    if (!res.headersSent) {
+
+    // Chỉ gửi response nếu chưa có timeout response nào được gửi
+    if (!res.headersSent && !req.timeoutResponseSent) {
+      req.timeoutResponseSent = true; // Đánh dấu đã gửi timeout response
       res.status(503).json({ 
         success: false,
         message: 'Service unavailable. Request timed out.',
         error: 'TIMEOUT'
       });
+    } else {
+      console.error(`🚨 BACKUP TIMEOUT HANDLER: Headers already sent for ${requestId}`);
     }
   }
 };

@@ -83,7 +83,7 @@
     "keywords": [],
     "scripts": {
         "build": "react-scripts build",
-        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+        "dev": "react-scripts start",
         "dev:backend": "nodemon backend/server.js",
         "dev:frontend": "react-scripts start",
         "eject": "react-scripts eject",

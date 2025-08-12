@@ -1,7 +1,7 @@
 export interface User {
   _id: string;
-  name: string;
-  full_name?: string; // Thêm trường full_name
+  name?: string;
+  full_name?: string; // Primary name field from backend
   email: string;
   avatar?: string;
 }
@@ -19,8 +19,8 @@ export interface PersonalMember {
 
 export interface SearchUser {
   _id: string;
-  name: string;
-  full_name?: string; // Thêm trường full_name cho consistency
+  name?: string;
+  full_name?: string; // Primary name field from backend
   email: string;
   avatar?: string;
 }

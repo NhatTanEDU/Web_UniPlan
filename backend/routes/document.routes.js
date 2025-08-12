@@ -17,11 +17,31 @@ const upload = multer({
         fileSize: 10 * 1024 * 1024 // 10MB
     },
     fileFilter: (req, file, cb) => {
+      console.log('🔍 DEBUG multer fileFilter - Original filename:', file.originalname);
+      console.log('🔍 DEBUG multer fileFilter - Original filename (hex):', Buffer.from(file.originalname, 'utf8').toString('hex'));
+
+      // Fix encoding cho filename - Thử nhiều cách khác nhau
+      try {
+        // Cách 1: Kiểm tra xem có phải là encoding issue không
+        const hasEncodingIssue = file.originalname.includes('Ã¡') || file.originalname.includes('Ã ') || file.originalname.includes('Ã©') || file.originalname.includes('Ã­') || file.originalname.includes('Ã³') || file.originalname.includes('Ãº') || file.originalname.includes('Ä\\x90') || file.originalname.includes('á»');
+
+        if (hasEncodingIssue) {
+          console.log('🔍 DEBUG multer fileFilter - Detected encoding issue, fixing...');
+          file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+          console.log('🔍 DEBUG multer fileFilter - Fixed filename:', file.originalname);
+        } else {
+          console.log('🔍 DEBUG multer fileFilter - Filename appears correct');
+        }
+      } catch (error) {
+        console.log('⚠️ Could not fix filename encoding:', file.originalname, error.message);
+      }
+
         // Kiểm tra loại file được phép
         const allowedTypes = [
             'image/jpeg',
             'image/png', 
             'image/gif',
+          'image/webp',
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -58,6 +78,12 @@ router.delete(
     '/:id',
     authMiddleware,
     documentController.deleteDocument
+);
+
+// GET /api/documents/file/:fileId - Lấy file từ MongoDB
+router.get(
+  '/file/:fileId',
+  documentController.getFile
 );
 
 // Middleware xử lý lỗi cho multer

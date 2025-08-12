@@ -171,11 +171,11 @@ const statsRateLimit = rateLimit({
 
 // 🚀 SPECIAL RATE LIMITING FOR PROJECTS API - Prevent concurrent requests
 const projectsRateLimit = rateLimit({
-  windowMs: 500, // 500ms - giảm từ 2 giây để ít nghiêm khắc hơn
-  max: 1, // CHỈ cho phép 1 request mỗi 500ms
+  windowMs: 200, // 200ms - giảm xuống để ít nghiêm khắc hơn
+  max: 5, // Tăng lên 5 request mỗi 200ms để test được
   message: {
-    error: 'Quá nhiều yêu cầu đến API dự án. Vui lòng đợi 500ms trước khi thử lại.',
-    retryAfter: 0.5
+    error: 'Quá nhiều yêu cầu đến API dự án. Vui lòng đợi 200ms trước khi thử lại.',
+    retryAfter: 0.2
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -190,8 +190,8 @@ const projectsRateLimit = rateLimit({
   handler: (req, res) => {
     console.warn(`🚫 Projects API rate limited for user: ${req.user?.userId || req.ip}`);
     res.status(429).json({
-      error: 'Quá nhiều yêu cầu đến API dự án. Vui lòng đợi 500ms trước khi thử lại.',
-      retryAfter: 0.5
+      error: 'Quá nhiều yêu cầu đến API dự án. Vui lòng đợi 200ms trước khi thử lại.',
+      retryAfter: 0.2
     });
   }
 });

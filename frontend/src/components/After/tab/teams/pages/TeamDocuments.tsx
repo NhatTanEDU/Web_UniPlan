@@ -6,7 +6,7 @@ import {
   Calendar, User, FileIcon, RefreshCw 
 } from 'lucide-react';
 import * as documentApi from '../../../../../services/documentApi';
-import { Document } from '../../../../../services/documentApi';
+import { Document, getFileUrl } from '../../../../../services/documentApi';
 import DocumentUpload from '../../../../common/DocumentUpload';
 
 // ĐỊNH NGHĨA PROPS MỚI
@@ -43,10 +43,8 @@ const TeamDocuments: React.FC<TeamDocumentsProps> = ({ documents: initialDocumen
     }
   };
   const handleDownload = (document: Document) => {
-    if (document.fileUrl) {
-      const link = document.fileUrl;
-      window.open(link, '_blank');
-    }
+    const fileUrl = getFileUrl(document._id);
+    window.open(fileUrl, '_blank');
   };
   // Filter and sort documents
   const filteredAndSortedDocuments = React.useMemo(() => {

@@ -4,6 +4,7 @@ import { gantt } from "dhtmlx-gantt";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { getProjects } from "../../../../services/api";
 import './gantt-custom.css';
 import { Input, Select, Button, Tooltip, Switch, Radio, Space, Spin } from 'antd'; 
 import { 
@@ -292,16 +293,10 @@ export default function ProjectPortfolioGanttPage() {
       setIsLoading(true);
       try {
         console.log("🎯 [Gantt Effect] Fetching projects với token...");
-        const API_URL = "http://localhost:5000/api/projects";
-        const resp = await fetch(API_URL, {
-          credentials: "include",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        
-        if (!resp.ok) throw new Error(`Lỗi API: ${resp.status}`);
-        
-        const data = await resp.json();
-        let arr = Array.isArray(data) ? data : data.projects;
+        const data = await getProjects();
+
+        // getProjects() trả về Project[] trực tiếp
+        let arr = Array.isArray(data) ? data : [];
         if (!Array.isArray(arr)) arr = [];
         
         // ======================== BƯỚC XỬ LÝ DỮ LIỆU ========================

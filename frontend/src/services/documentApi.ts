@@ -5,10 +5,8 @@ import baseApi from './baseApi';
 export interface Document {
     _id: string;
     fileName: string;
-    fileUrl: string;
     fileType: string;
     fileSize: number;
-    storagePath: string;
     taskId?: string;
     projectId?: string;
     teamId?: string;
@@ -198,4 +196,13 @@ export const isPdfFile = (fileType: string): boolean => {
 
 export const isDocumentFile = (fileType: string): boolean => {
     return fileType.includes('document') || fileType.includes('word') || fileType.includes('text');
+};
+
+/**
+ * Tạo URL để truy cập file từ MongoDB
+ * @param fileId - ID của file trong MongoDB
+ * @returns string - URL để truy cập file
+ */
+export const getFileUrl = (fileId: string): string => {
+    return `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/documents/file/${fileId}`;
 };

@@ -2,13 +2,14 @@
 const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema({
-    fileName: { type: String, required: true }, // Tên file gốc
-    fileUrl: { type: String, required: true },  // URL công khai trên Supabase
+  fileName: { type: String, required: true }, // Tên file gốc
     fileType: { type: String },                 // 'image/png', 'application/pdf',...
     fileSize: { type: Number },                 // Kích thước file (bytes)
-    storagePath: { type: String, required: true }, // Đường dẫn trên Supabase Storage để sau này có thể xóa
 
-    // Liên kết theo ngữ cảnh (sẽ được dùng ở các giai đoạn sau)
+  // Lưu file data trực tiếp vào MongoDB
+  fileData: { type: Buffer, required: true }, // Binary data của file
+
+  // Liên kết theo ngữ cảnh
     teamId: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', index: true },
     projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', index: true },
     taskId: { type: mongoose.Schema.Types.ObjectId, ref: 'KanbanTask', index: true },

@@ -7,7 +7,7 @@
  * - Tự động cập nhật UI sau mỗi thao tác CRUD
  * - Pattern tương tự useTeams nhưng dành cho project management
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Project } from "../../../../../types/project";
 import { getProjects, createProject, softDeleteProject, restoreProject, updateProject } from "../../../../../services/api";
 
@@ -15,6 +15,7 @@ export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasFetchedRef = useRef(false);
 
   /**
    * fetchProjects()
@@ -270,9 +271,12 @@ export function useProjects() {
     }
   };
 
-  // Auto-fetch projects khi hook được mount
+  // Auto-fetch projects khi hook được mount (chỉ 1 lần)
   useEffect(() => {
-    fetchProjects();
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchProjects();
+    }
   }, [fetchProjects]);
 
   return {

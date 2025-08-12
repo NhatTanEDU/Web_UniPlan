@@ -1,0 +1,40 @@
+{
+    "name": "UniPlan Project",
+    "version": "1.0.0",
+    "description": "Project management system với frontend React và backend Node.js",
+    
+    "copilot": {
+        "context": {
+            "autoInclude": [
+                ".copilot-instructions",
+                ".github/copilot/GENERAL.md",
+                ".github/copilot/OPERATIONS.md", 
+                ".github/copilot/FRONTEND.md",
+                ".github/copilot/BACKEND.md"
+            ],
+            "language": "vi",
+            "codingStyle": "camelCase-4spaces-singleQuotes"
+        }
+    },
+    
+    "folders": [
+        {
+            "name": "Frontend",
+            "path": "./frontend",
+            "description": "React app với Redux, CSS Modules"
+        },
+        {
+            "name": "Backend", 
+            "path": "./backend",
+            "description": "Node.js API với Express, MongoDB"
+        }
+    ],
+    
+    "tasks": {
+        "dev": "npm run dev",
+        "dev:backend": "cd backend && npm run dev",
+        "dev:frontend": "cd frontend && npm run dev",
+        "build": "npm run build",
+        "production": "npm run start:production"
+    }
+}

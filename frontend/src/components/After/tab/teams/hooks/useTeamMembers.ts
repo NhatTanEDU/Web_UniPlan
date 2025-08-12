@@ -119,7 +119,7 @@ export function useTeamMembers(teamId: string) {
         // Update the specific member in the list
         setMembers(prevMembers => 
           prevMembers.map(member => 
-            member._id === updatedMember._id ? updatedMember : member
+            member.id === updatedMember.id ? updatedMember : member
           )
         );
 
@@ -128,10 +128,10 @@ export function useTeamMembers(teamId: string) {
         // =================================================================
         
         // Kiểm tra xem người dùng hiện tại có phải là người vừa bị thay đổi vai trò không
-        // Xử lý cả trường hợp user_id là object và string
-        const updatedUserId = typeof updatedMember.user_id === 'object' 
-          ? updatedMember.user_id._id 
-          : updatedMember.user_id;
+        // Xử lý cả trường hợp user là object và string
+        const updatedUserId = typeof updatedMember.user === 'object' 
+          ? updatedMember.user.id 
+          : updatedMember.user;
           
         if (updatedUserId === userId) {
           console.log('👑 [SOCKET] Your role has been changed! Reloading page to apply new permissions.');
@@ -139,7 +139,7 @@ export function useTeamMembers(teamId: string) {
             updatedMemberUserId: updatedUserId,
             currentUserId: userId,
             newRole: updatedMember.role,
-            memberName: updatedMember.user_id?.full_name || 'Unknown'
+            memberName: updatedMember.user?.full_name || 'Unknown'
           });
           
           // Thông báo cho người dùng (tùy chọn nhưng nên có)

@@ -17,6 +17,7 @@ import {
     deleteDocumentById,
     formatFileSize,
     isImageFile,
+  getFileUrl,
     Document 
 } from '../../services/documentApi';
 
@@ -316,7 +317,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                                 </div>
                                 <div className="flex items-center space-x-1">
                                     <button
-                                        onClick={() => window.open(doc.fileUrl, '_blank')}
+                                onClick={() => window.open(getFileUrl(doc._id), '_blank')}
                                         className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
                                         title="Tải xuống"
                                     >
