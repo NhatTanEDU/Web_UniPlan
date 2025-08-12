@@ -209,17 +209,27 @@ export default function ProjectPortfolioGanttPage() {
     // === SỰ KIỆN TƯƠI NG TÁC QUAN TRỌNG NHẤT ===
     // Khi người dùng nhấp đúp chuột vào một dự án, chuyển hướng tới "Gantt Nhỏ" của dự án đó
     gantt.attachEvent("onTaskDblClick", (id) => {
-      console.log(`🚀 Navigating from Portfolio Gantt to Project Gantt with ID: ${id}`);
-      // Lấy userId từ localStorage hoặc AuthContext để tạo URL đầy đủ
-      const user = JSON.parse(localStorage.getItem("user") || '{}');
+      // Lấy task chi tiết để xác định projectId thực sự (tránh dùng nhầm task._id)
+      const taskData: any = gantt.getTask(id);
+      // Các khả năng chứa project id:
+      // 1. taskData.project_id (phổ biến nếu mỗi task biết project nó thuộc về)
+      // 2. taskData.projectId
+      // 3. taskData._id nếu dataset là danh sách projects chứ không phải tasks
+      // 4. Fallback: id (giữ hành vi cũ)
+      const projectIdCandidate = taskData?.project_id || taskData?.projectId || taskData?._id || id;
+      if (!projectIdCandidate) {
+        console.error('❌ Không xác định được projectId từ task khi double click:', taskData);
+        return false;
+      }
+      console.log(`🚀 Navigating from Portfolio Gantt to Project Gantt with projectId=${projectIdCandidate} (raw id=${id})`);
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
       const userId = user.id;
       if (userId) {
-        // Điều hướng đến Dashboard với các query params để render GanttTab
-        navigate(`/dashboard/${userId}?view=gantt&projectId=${id}`);
+        navigate(`/dashboard/${userId}?view=gantt&projectId=${projectIdCandidate}`);
       } else {
-        console.error("Không tìm thấy User ID để điều hướng.");
+        console.error('Không tìm thấy User ID để điều hướng.');
       }
-      return false; // Ngăn chặn popup chỉnh sửa mặc định của Gantt
+      return false;
     });
     // ...existing code...
 

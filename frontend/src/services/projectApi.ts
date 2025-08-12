@@ -54,8 +54,26 @@ export const projectApi = {
       
       return projectData;
     } catch (error) {
-      console.error('🚨 API Error getting project:', error);
-      throw error;
+      // Nâng cao thông tin lỗi để dễ chẩn đoán 404 sai projectId
+      // @ts-ignore
+      if (error?.response) {
+        // @ts-ignore
+        const status = error.response.status;
+        // @ts-ignore
+        const data = error.response.data;
+        if (status === 404) {
+          console.error(`🚨 Project ${projectId} not found (404). Data:`, data);
+        } else if (status === 410) {
+          console.error(`🚨 Project ${projectId} soft-deleted (410). Data:`, data);
+        } else if (status === 403) {
+          console.error(`🚨 Access denied to Project ${projectId} (403). Data:`, data);
+        } else {
+          console.error(`🚨 API Error (${status}) getting project ${projectId}:`, data);
+        }
+      } else {
+        console.error('🚨 API Network/Unknown Error getting project:', error);
+      }
+      throw error; // rethrow để UI xử lý
     }
   },
 

@@ -289,12 +289,23 @@ exports.getProjectById = async (req, res) => {
 
     // Bước 1: Tìm dự án
     console.log(`${reqId} [2] Đang tìm dự án trong DB...`);
-    const project = await Project.findOne({ _id: projectId, is_deleted: false });
+    // Cho phép debug includeDeleted để kiểm tra trạng thái dự án nếu cần
+    const includeDeleted = req.query.includeDeleted === 'true';
+    let project = await Project.findOne({ _id: projectId, ...(includeDeleted ? {} : { is_deleted: false }) });
     if (req.timedout || res.headersSent) { console.warn(`${reqId} Timeout sau truy vấn Project.findOne - hủy gửi response.`); return; }
 
     if (!project) {
-      console.warn(`${reqId} [FAIL] Không tìm thấy dự án với ID: ${id}`);
-      return res.status(404).json({ message: 'Dự án không tồn tại hoặc đã bị xóa.' });
+      // Kiểm tra xem có bản ghi nhưng đã soft delete không
+      const rawProject = await Project.findById(projectId).lean();
+      if (rawProject && rawProject.is_deleted) {
+        console.warn(`${reqId} [FAIL] Project tồn tại nhưng đã soft delete (is_deleted=true).`);
+        return res.status(410).json({
+          message: 'Dự án đã bị xóa tạm thời (soft delete). Hãy khôi phục trước khi truy cập.',
+          code: 'PROJECT_SOFT_DELETED'
+        });
+      }
+      console.warn(`${reqId} [FAIL] Không tìm thấy dự án với ID: ${id} (không tồn tại trong DB).`);
+      return res.status(404).json({ message: 'Dự án không tồn tại.' });
     }
     console.log(`${reqId} [3] Đã tìm thấy dự án: ${project.project_name}`);
 
