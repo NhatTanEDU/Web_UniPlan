@@ -16,7 +16,11 @@
     "prepare": "husky",
     "lint": "eslint \"backend/**/*.js\" \"frontend/src/**/*.{js,jsx,ts,tsx}\" --max-warnings=0",
     "lint:fix": "npm run lint -- --fix",
-    "test": "echo \"(root) no tests yet - add tests in backend & frontend later\""
+    "test": "echo \"(root) no tests yet - add tests in backend & frontend later\"",
+    "build:frontend": "cd frontend && npm ci && npm run build",
+    "build:frontend:local": "cd frontend && npm run build",
+    "vercel:build": "npm run build:frontend",
+    "preview:build": "npm run build:frontend:local && npx serve frontend/build"
   },
   "lint-staged": {
     "backend/**/*.js": [
