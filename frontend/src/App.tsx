@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, useNavigate } from 'react-router-dom';
+import { Analytics } from "@vercel/analytics/react";
 import AppRoutes from './router';
 import { AuthProvider } from "./components/context/AuthContext";
 import { NetworkProvider } from "./components/context/NetworkContext";
@@ -26,6 +27,7 @@ function App() {
     return (
         <Router>
             <AppContent />
+        <Analytics />
         </Router>
     );
 }
