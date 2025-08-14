@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/context/AuthContext'; // Import useAuth
-import subscriptionService from '../../services/subscriptionService';
+import subscriptionService from 'services/subscriptionService';
 import toast from 'react-hot-toast';
 
 const SubscriptionPlans: React.FC = () => {

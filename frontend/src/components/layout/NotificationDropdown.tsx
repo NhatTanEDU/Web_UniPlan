@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { X, Bell, CreditCard, AlertTriangle, CheckCircle, Gift } from 'lucide-react';
-import { NotificationItem } from '../../services/subscriptionService';
+import { NotificationItem } from 'services/subscriptionService';
 import { useSubscription } from '../context/SubscriptionContext';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';

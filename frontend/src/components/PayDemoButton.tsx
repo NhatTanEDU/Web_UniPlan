@@ -1,5 +1,5 @@
 import React from 'react';
-import subscriptionService from '../services/subscriptionService';
+import subscriptionService from 'services/subscriptionService';
 
 const PayDemoButton: React.FC = () => {
   const handleDemoPay = async () => {

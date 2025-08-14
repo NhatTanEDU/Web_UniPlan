@@ -10,10 +10,7 @@
     
     // Cài đặt cho GitHub Copilot
     "github.copilot.enable": {
-        "*": true,
-        "plaintext": false,
-        "markdown": true,
-        "scminput": false
+      "*": false
     },
     "github.copilot.advanced": {},
     "github.copilot.chat.localeOverride": "auto",

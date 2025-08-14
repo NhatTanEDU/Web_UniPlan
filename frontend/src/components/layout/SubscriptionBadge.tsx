@@ -1,7 +1,7 @@
 import React from 'react';
 import { Crown, Clock, AlertTriangle, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SubscriptionStatus } from '../../services/subscriptionService';
+import { SubscriptionStatus } from 'services/subscriptionService';
 
 interface SubscriptionBadgeProps {
   subscriptionStatus: SubscriptionStatus | null;

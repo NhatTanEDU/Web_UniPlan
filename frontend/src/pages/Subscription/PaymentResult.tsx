@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import subscriptionService from '../../services/subscriptionService';
+import subscriptionService from 'services/subscriptionService';
 import toast from 'react-hot-toast';
 
 const PaymentResult: React.FC = () => {

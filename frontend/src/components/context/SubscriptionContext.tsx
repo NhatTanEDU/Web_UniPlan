@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import subscriptionService, { SubscriptionStatus, NotificationItem } from '../../services/subscriptionService';
+import subscriptionService, { SubscriptionStatus, NotificationItem } from 'services/subscriptionService';
 import { useAuth } from './AuthContext';
   interface SubscriptionContextType {
   subscriptionStatus: SubscriptionStatus | null;
