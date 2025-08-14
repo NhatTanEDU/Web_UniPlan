@@ -2,7 +2,7 @@
 backend/
 scripts/
 momo/
-services/
+# services/  <-- This was the problem
 util/
 
 # Development files
