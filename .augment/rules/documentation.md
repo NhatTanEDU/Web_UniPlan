@@ -1,7 +1,7 @@
 ---
-type: "manual"
+type: "agent_requested"
+description: "Example description"
 ---
-
 # Documentation (README files)
 
 - Maintain three README files: root, `/backend`, and `/frontend`, each with specific content for their target audience.

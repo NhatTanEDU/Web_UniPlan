@@ -1,7 +1,7 @@
 ---
-type: "manual"
+type: "agent_requested"
+description: "Example description"
 ---
-
 # Backend Development Standards
 
 - All sensitive configurations MUST be loaded from a `.env` file. The names (keys) of these variables are immutable. The exact database name from the `.env` file must be used.

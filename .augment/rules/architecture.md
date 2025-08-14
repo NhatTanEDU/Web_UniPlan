@@ -1,7 +1,7 @@
 ---
-type: "manual"
+type: "agent_requested"
+description: "Example description"
 ---
-
 # Project Architecture & Naming Conventions
 
 - Use lowercase, kebab-case for all file and directory names (e.g., `user-profile`, `api-helpers.js`).

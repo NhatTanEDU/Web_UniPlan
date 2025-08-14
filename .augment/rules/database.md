@@ -1,7 +1,7 @@
 ---
-type: "manual"
+type: "agent_requested"
+description: "Example description"
 ---
-
 # Database Best Practices
 
 - For SQL, all schema changes must be managed via migration files.

@@ -1,7 +1,7 @@
 ---
 type: "always_apply"
+description: "Example description"
 ---
-
 # General Principles & Language
 
 - **CRITICAL:** All chat responses, explanations, and suggestions MUST be in Vietnamese.
