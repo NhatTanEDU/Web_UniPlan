@@ -36,11 +36,16 @@ git commit -m "fix: add vercel configuration for frontend deployment"
 git push origin master
 ```
 
-### Bước 3: Cấu hình Vercel Project
+### Bước 3: Cấu hình Vercel Project **QUAN TRỌNG!**
 1. Vào Vercel Dashboard
 2. Import project từ GitHub
-3. **Quan trọng**: Để Vercel tự detect (không cần chọn root directory)
-4. Deploy!
+3. **🔥 QUAN TRỌNG:** 
+   - Trong Project Settings → General
+   - **Root Directory:** Đổi từ `.` thành `frontend`
+   - Framework Preset: Create React App (auto-detect)
+   - Build Command: `npm run build` (auto-detect)
+   - Output Directory: `build` (auto-detect)
+4. Save và Deploy!
 
 ### Bước 4: Cập nhật Environment Variables trên Vercel
 Trong Vercel Project Settings → Environment Variables, thêm:
