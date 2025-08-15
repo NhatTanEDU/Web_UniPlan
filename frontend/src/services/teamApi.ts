@@ -1,7 +1,15 @@
 // services/teamApi.ts
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Runtime detection for Railway deployment
+const getApiUrl = () => {
+  if (typeof window !== 'undefined' && (window.location.hostname.includes('railway.app') || window.location.hostname.includes('up.railway.app'))) {
+    return 'https://web-production-61868.up.railway.app/api';
+  }
+  return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiUrl();
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

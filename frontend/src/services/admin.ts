@@ -2,7 +2,15 @@
 import axios from 'axios';
 import { User } from '../components/Admin/types';
 
-const API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/admin`;
+// Runtime detection for Railway deployment
+const getApiUrl = () => {
+  if (typeof window !== 'undefined' && (window.location.hostname.includes('railway.app') || window.location.hostname.includes('up.railway.app'))) {
+    return "https://web-production-61868.up.railway.app/api/admin";
+  }
+  return `${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/admin`;
+};
+
+const API_URL = getApiUrl();
 
 const adminApi = {
   getUsers: async (): Promise<User[]> => {

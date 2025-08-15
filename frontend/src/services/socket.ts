@@ -1,6 +1,16 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+// Runtime detection for Railway deployment
+const getSocketUrl = () => {
+  // Check if we're in production (Railway)
+  if (typeof window !== 'undefined' && (window.location.hostname.includes('railway.app') || window.location.hostname.includes('up.railway.app'))) {
+    return 'https://web-production-61868.up.railway.app';
+  }
+  // Use environment variable for local development
+  return process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+};
+
+const SOCKET_URL = getSocketUrl();
 
 export const socket = io(SOCKET_URL, {
   autoConnect: true,
