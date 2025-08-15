@@ -169,6 +169,9 @@ const corsOptions = {
   credentials: true
 };
 
+// Trust proxy for Railway deployment
+app.set('trust proxy', true);
+
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -291,6 +294,16 @@ app.get('/api/database/health', (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+// Root route for health check
+app.get('/', (req, res) => {
+  res.json({
+    message: 'UniPlan Backend API is running!',
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Routes - Only include routes for enabled features
