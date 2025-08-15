@@ -272,19 +272,19 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
   
   // Animation variants cho dropdowns
   const dropdownVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: -5,
       scale: 0.95,
-      transition: { duration: 0.15, ease: "easeInOut" } 
+      transition: { duration: 0.15, ease: [0.4, 0.0, 0.2, 1] }
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
-      transition: { 
-        duration: 0.2, 
-        ease: "easeOut",
+      transition: {
+        duration: 0.2,
+        ease: [0.0, 0.0, 0.2, 1],
         when: "beforeChildren",
         staggerChildren: 0.05
       }
@@ -293,7 +293,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, onLogout }) => {
       opacity: 0,
       y: -5,
       scale: 0.95,
-      transition: { duration: 0.15, ease: "easeInOut" }
+      transition: { duration: 0.15, ease: [0.4, 0.0, 0.2, 1] }
     }
   };
 
