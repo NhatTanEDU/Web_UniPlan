@@ -84,8 +84,8 @@
     },
     "keywords": [],
     "scripts": {
-        "build": "REACT_APP_API_URL=https://web-production-61868.up.railway.app/api react-scripts build",
-        "build:railway": "REACT_APP_API_URL=https://web-production-61868.up.railway.app/api GENERATE_SOURCEMAP=false react-scripts build",
+        "build": "react-scripts build",
+        "build:railway": "react-scripts build",
         "dev": "react-scripts start",
         "dev:backend": "nodemon backend/server.js",
         "dev:frontend": "react-scripts start",
