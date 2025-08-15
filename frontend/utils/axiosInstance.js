@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000/api', // Đảm bảo khớp với backend
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api', // Sử dụng env variable
 });
 
 // ✅ Thêm interceptor để tự động gắn token nếu có
