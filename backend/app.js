@@ -160,7 +160,10 @@ app.use(haltOnTimedout);
 
 // Cấu hình CORS chi tiết
 const corsOptions = {
-  origin: 'http://localhost:3000', // Frontend URL
+  origin: [
+    'http://localhost:3000', // Local development
+    'https://web-production-435e4.up.railway.app' // Railway frontend
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

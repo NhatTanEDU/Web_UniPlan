@@ -1,16 +1,18 @@
 // config/db.js
 const mongoose = require('mongoose');
 
-// Cấu hình MongoDB connection với các tùy chọn được tối ưu và hỗ trợ
+// Cấu hình MongoDB connection với các tùy chọn được tối ưu cho Railway deployment
 const mongooseOptions = {
   maxPoolSize: 20, // 🚀 Tăng pool size để handle concurrent requests
   minPoolSize: 5,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 30000, // 🚀 Tăng timeout cho Railway (30s)
   socketTimeoutMS: 60000, // 🚀 Tăng timeout để phù hợp với API timeout
-  connectTimeoutMS: 10000,
+  connectTimeoutMS: 30000, // 🚀 Tăng connect timeout cho Railway (30s)
   family: 4,
   maxIdleTimeMS: 30000, // 🚀 Close connections after 30s idle
   compressors: 'zlib', // 🚀 Enable compression to reduce data transfer
+  retryWrites: true, // 🚀 Enable retry writes for better reliability
+  w: 'majority', // 🚀 Write concern for data safety
   // XÓA BỎ CÁC TÙY CHỌN CŨ GÂY LỖI
   // bufferMaxEntries: 0,
   // bufferCommands: false,
