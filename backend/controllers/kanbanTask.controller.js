@@ -4,7 +4,7 @@ const ProjectMember = require('../models/projectMember.model');
 const Project = require('../models/project.model');
 const Counter = require('../models/counter.model');
 const Notification = require('../models/notification.model');
-const { predictTaskRisk } = require('../../services/ai.service');
+// const { predictTaskRisk } = require('../../services/ai.service'); // TODO: Implement AI service
 
 // Helper function to check user permissions for kanban tasks
 const canModifyTask = async (userId, kanbanId, requiredPermission = 'edit') => {
