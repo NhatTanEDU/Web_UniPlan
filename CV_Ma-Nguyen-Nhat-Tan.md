@@ -61,7 +61,6 @@ Fresher/Junior Backend Developer với định hướng phát triển hệ thố
 ### Công cụ & Quy trình
 - **Git / GitHub** – Quản lý phiên bản, làm việc với nhánh (branch/merge/PR)
 - **Jira** – Tiếp nhận và theo dõi task trong quy trình phát triển phần mềm
-- **Postman** – Kiểm thử API
 - Quen thuộc với quy trình **Agile/Scrum** (sprint, task board)
 - Cơ bản: **Docker**, **Linux CLI**, **GitHub Actions** / **Jenkins** (CI/CD)
 
